@@ -1,0 +1,1 @@
+Modeer-V1 is a simple shop manager.
