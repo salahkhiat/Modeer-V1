@@ -53,13 +53,22 @@ class SharedValidators(DatabaseManager):
         field_err.setText(msg)
 
     # Check if the field is empty
-    def is_empty(self, field_name:str)-> bool:
+    def is_empty(self, field_name:str, err_msg:bool=True )-> bool:
+        """
+        If the field is empty return False, and True otherwise.
+
+        Args:
+            field_name (str): the QLineEdit name.
+            err_msg (bool): True by default to return error messages, and False without messages.
+        """
         field = getattr(self.ui,field_name).text()
         if len(field) == 0:
-            self.set_err_msg(field_name,"هذا الحقل مطلوب")
+            if err_msg:
+                self.set_err_msg(field_name,"هذا الحقل مطلوب")
             return False
         else:
-            self.set_err_msg(field_name,"الحقل جاهز")
+            if err_msg:
+                self.set_err_msg(field_name,"الحقل جاهز")
             return True 
          
     # Check if the field is a telephone

@@ -15,9 +15,16 @@ class ItemForm(Form):
         self.set_icon("add_btn","add.svg")
 
         self.add_item_btn_clicked()
+        # Validation
+        self.is_valid_name = False
+        self.is_valid_purchase_price = False
+        self.is_valid_sale_price = False 
+        self.is_valid_quantity = False 
+        self.is_valid_ref = False
 
     
     def add_item_to_invoice(self):
+
         item_details = {
             'name': self.ui.name.text(),
             'purchase_price': self.ui.purchase_price.text(),

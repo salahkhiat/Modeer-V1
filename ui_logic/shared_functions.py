@@ -2,10 +2,12 @@ from PyQt6 import QtGui
 import json, os, sys
 from typing import Dict, Any 
 
-from PyQt6.QtWidgets import QComboBox
+from PyQt6.QtWidgets import QComboBox, QTableWidget
 
 from hijri_converter import Gregorian
 from datetime import datetime
+
+import random 
 
 class SharedFunctions:
     def set_icon(self, btn_name, icon_name):
@@ -113,3 +115,30 @@ class SharedFunctions:
         {"one":1, "two":2}
      """
      return {value:key for key, value in dictionary.items()}
+    
+    def generate_reference(self) -> int:
+        """Return a random number between 1 to 10000"""
+        return random.randint(1,10000)
+    
+    def is_in_table_widget(table: QTableWidget, target, column_name: str) -> bool:
+        """Check if a target value exists in a specific column (by header name) of a QTableWidget."""
+        
+        # Find the column index by matching the header text
+        column_index = -1
+        for col in range(table.columnCount()):
+            header_item = table.horizontalHeaderItem(col)
+            if header_item and header_item.text() == column_name:
+                column_index = col
+                break
+
+        if column_index == -1:
+            raise ValueError(f"Column '{column_name}' not found in table headers")
+
+        # Loop through all rows in the found column and check for the target
+        for row in range(table.rowCount()):
+            item = table.item(row, column_index)
+            if item and item.text() == str(target):
+                return True
+
+        return False
+

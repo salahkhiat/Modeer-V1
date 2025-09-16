@@ -23,6 +23,8 @@ class InvoiceForm(Form):
                 self.ui.items_table.setColumnWidth(col, 140)
             else:
                 self.ui.items_table.setColumnWidth(col, 200)
+        # Remove the IDs of the added rows.
+        self.ui.items_table.verticalHeader().setVisible(False)
 
 
 
