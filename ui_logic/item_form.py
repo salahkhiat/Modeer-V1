@@ -30,8 +30,13 @@ class ItemForm(Form):
             'purchase_price': self.ui.purchase_price.text(),
             'sale_price': self.ui.sale_price.text(),
             'quantity': self.ui.quantity.text(),
-            'ref': self.ui.ref.text(),
+            'ref': self.ui.ref.text().strip(),
         }
+
+        # False means Empty
+        if not self.is_empty("ref",False) :
+            pass
+            
         self.item_added.emit(item_details)
         self.close()
 

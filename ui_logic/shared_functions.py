@@ -120,24 +120,33 @@ class SharedFunctions:
         """Return a random number between 1 to 10000"""
         return random.randint(1,10000)
     
-    def is_in_table_widget(table: QTableWidget, target, column_name: str) -> bool:
-        """Check if a target value exists in a specific column (by header name) of a QTableWidget."""
+ 
+    def is_in_table_widget(table: QTableWidget, target, column_index: int) -> bool:
+        """Check if a target value exists in a specific column of a QTableWidget.
+
+        Args:
+            table (QTableWidget): The table widget to search in.
+            target (Any): The value to search for. It will be converted to a string for comparison.
+            column_index (int): The zero-based index of the column to search in.
+
+        Returns:
+            bool: True if the target value is found in the specified column, False otherwise.
+
+        Raises:
+            ValueError: If the column_index is out of range.
+        """
+        # Validate the column_index
+        col_count = table.columnCount()
+        if column_index < 0 or column_index >= col_count:
+            raise ValueError(f"Column index {column_index} is out of range (0 .. {col_count - 1})")
+
+        # Convert target to string for comparison
+        target_str = str(target)
         
-        # Find the column index by matching the header text
-        column_index = -1
-        for col in range(table.columnCount()):
-            header_item = table.horizontalHeaderItem(col)
-            if header_item and header_item.text() == column_name:
-                column_index = col
-                break
-
-        if column_index == -1:
-            raise ValueError(f"Column '{column_name}' not found in table headers")
-
-        # Loop through all rows in the found column and check for the target
+        # Loop through rows in the given column
         for row in range(table.rowCount()):
             item = table.item(row, column_index)
-            if item and item.text() == str(target):
+            if item is not None and item.text() == target_str:
                 return True
 
         return False
