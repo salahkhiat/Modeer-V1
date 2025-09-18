@@ -48,7 +48,7 @@ class SharedValidators(DatabaseManager):
                 return True 
             
     # Set a error message
-    def set_err_msg(self,field_name,msg=""):
+    def set_err_msg(self, field_name:str ,msg:str=""):
         field_err = getattr(self.ui,field_name + "_err")
         field_err.setText(msg)
 

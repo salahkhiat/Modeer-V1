@@ -1,6 +1,6 @@
 from PyQt6 import QtGui
 import json, os, sys
-from typing import Dict, Any 
+from typing import Dict, Any, List
 
 from PyQt6.QtWidgets import QComboBox, QTableWidget
 
@@ -121,7 +121,7 @@ class SharedFunctions:
         return random.randint(1,10000)
     
  
-    def is_in_table_widget(table: QTableWidget, target, column_index: int) -> bool:
+    def is_in_table_widget(self,table: QTableWidget, target, column_index: int) -> bool:
         """Check if a target value exists in a specific column of a QTableWidget.
 
         Args:
@@ -150,4 +150,27 @@ class SharedFunctions:
                 return True
 
         return False
+    
+    def q_table_column_as_list(self,table: QTableWidget, column_index: int) -> List[str]:
+        """
+        Extracts all values from a specific column in a QTableWidget by column index.
+
+        Args:
+            table (QTableWidget): The table to extract data from.
+            column_index (int): The zero-based index of the column.
+
+        Returns:
+            List[str]: A list of strings representing the data in the specified column.
+
+        Raises:
+            ValueError: If the column index is out of range.
+        """
+        if column_index < 0 or column_index >= table.columnCount():
+            raise ValueError(f"Column index {column_index} is out of range")
+
+        result = []
+        for row in range(table.rowCount()):
+            item = table.item(row, column_index)
+            result.append(item.text() if item else "")
+        return result
 

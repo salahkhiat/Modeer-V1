@@ -2,12 +2,14 @@ from .base_form import Form
 from .item_form import ItemForm
 from uis.item import Ui_Form as ItemUi 
 
-from PyQt6.QtWidgets import QTableWidgetItem, QHeaderView
+from PyQt6.QtWidgets import QTableWidgetItem, QHeaderView, QTableWidget
 from PyQt6.QtGui import QFont 
+
 
 from typing import Dict , Any 
 
 class InvoiceForm(Form):
+
     def __init__(self,base_form):
         super().__init__(base_form)
         # set icons
@@ -30,10 +32,14 @@ class InvoiceForm(Form):
 
         # connect buttons
         self.add_item_btn_clicked()
-      
+    
+    
     def show_item_form(self):
+
         form = ItemForm(ItemUi)
         form.item_added.connect(self.add_item_to_table)
+        referenses_list = self.q_table_column_as_list(self.ui.items_table,4)
+        form.set_table_refs(referenses_list)
         form.exec()
     
     def add_item_btn_clicked(self):
