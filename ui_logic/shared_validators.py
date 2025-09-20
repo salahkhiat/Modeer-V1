@@ -130,6 +130,7 @@ class SharedValidators(DatabaseManager):
         """
         return self.is_empty(field_name) and self.is_price(field_name)
     
+    
     def is_deposit(self, field_name:str) -> bool:
         """
         Check if the given field name is a valid deposit.
@@ -222,6 +223,54 @@ class SharedValidators(DatabaseManager):
         validating = getattr(self,validating_fun)
         response = validating(field_name)
         setattr(self,"is_valid_"+field_name,response)
+
+        """
+            item_form : purchase price validation.
+        """
+
+    def is_purchase_price(self, field_name:str) -> bool:
+        """
+        Validaing Purchase_price field.
+
+        Args:
+            field_name (str): A QLineEdit field name. 
+        
+        Returns:
+            bool: True if it is valid, and False otherwise.
+        """
+        
+        # if purchase price is not empty.
+        if self.is_empty(field_name,err_msg=False):
+            field = int(getattr(self.ui,field_name).text())
+            # if purchase price is equivalent to 0.
+            if field == '0':
+                msg = "إنتبه! سعر الشراء الآن '0دج'"
+                self.set_err_msg(field_name,msg)
+                return True 
+            # if purchase price is greater than 100.000 DZD.
+            elif field > 100000:
+                msg = "أقصى سعر مسموح به هو 100.000 دج"
+                self.set_err_msg(field_name,msg)
+                return False
+            # if purchase price is greater than 0 and less than 100.001 DZD.
+            elif field > 0 and field < 100001:
+                msg = "السعر جاهز"
+                self.set_err_msg(field_name,msg)
+                return True
+            # if there is an expected error.
+            else:
+                msg = "تأكد من سلامة الحقل"
+                self.set_err_msg(field_name,msg)
+                return False
+            
+        # if a purchase price is empty.
+        else:
+            # item_details["purchase_price"] = '0'
+            msg = "إنتبه! سعر الشراء الآن '0دج'"
+            self.set_err_msg(field_name,msg)
+            return True 
+
+
     
 
 
