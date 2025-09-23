@@ -2,6 +2,9 @@ from PyQt6.QtGui import  QRegularExpressionValidator
 from PyQt6.QtCore import QRegularExpression 
 from PyQt6.QtWidgets import QLineEdit
 from typing import List
+from rich.console import Console
+console = Console()
+
 
 
 from .database_manager import DatabaseManager
@@ -120,26 +123,12 @@ class SharedValidators(DatabaseManager):
                 return True
     
     def is_amount(self, field_name:str) -> bool:
-        """
-        Check if the given field name is a valid amount
 
-        Args: 
-            field_name (str): The amount field name.
-        Returns:
-            bool: True if the field is non-empty and a valid price, False otherwise.
-        """
         return self.is_empty(field_name) and self.is_price(field_name)
     
     
     def is_deposit(self, field_name:str) -> bool:
-        """
-        Check if the given field name is a valid deposit.
 
-        Args: 
-            field_name (str): The amount field name.
-        Returns:
-            bool: True if the field is empty(optional) or a valid price, False otherwise.
-        """
         if self.is_empty(field_name) == False:
             self.set_err_msg(field_name, "هذا الحقل إختياري")
             return True 
@@ -224,26 +213,17 @@ class SharedValidators(DatabaseManager):
         response = validating(field_name)
         setattr(self,"is_valid_"+field_name,response)
 
-        """
-            item_form : purchase price validation.
-        """
 
     def is_purchase_price(self, field_name:str) -> bool:
-        """
-        Validaing Purchase_price field.
 
-        Args:
-            field_name (str): A QLineEdit field name. 
-        
-        Returns:
-            bool: True if it is valid, and False otherwise.
-        """
+        self.is_sale_price("sale_price")
         
         # if purchase price is not empty.
         if self.is_empty(field_name,err_msg=False):
             field = int(getattr(self.ui,field_name).text())
+
             # if purchase price is equivalent to 0.
-            if field == '0':
+            if field == 0:
                 msg = "إنتبه! سعر الشراء الآن '0دج'"
                 self.set_err_msg(field_name,msg)
                 return True 
@@ -257,6 +237,7 @@ class SharedValidators(DatabaseManager):
                 msg = "السعر جاهز"
                 self.set_err_msg(field_name,msg)
                 return True
+
             # if there is an expected error.
             else:
                 msg = "تأكد من سلامة الحقل"
@@ -265,10 +246,84 @@ class SharedValidators(DatabaseManager):
             
         # if a purchase price is empty.
         else:
-            # item_details["purchase_price"] = '0'
             msg = "إنتبه! سعر الشراء الآن '0دج'"
             self.set_err_msg(field_name,msg)
             return True 
+        
+    def is_sale_price(self, field_name:str) -> bool:
+        purchase_price = "purchase_price"
+        
+        # if sale price is not empty.
+        if self.is_empty(field_name,err_msg=False):
+            purchase_p = getattr(self.ui,purchase_price).text()
+            p_price = None
+            if len(purchase_p) == 0:
+                p_price = 0
+            else:
+                p_price = int(purchase_p)
+
+            field = int(getattr(self.ui,field_name).text())
+    
+            # if purchase price is equivalent to 0.
+            if field == 0:
+                msg = " الصفر غير مقبول كسعر بيع"
+                self.set_err_msg(field_name,msg)
+                return False 
+            # if sale price is greater than 500.000 DZD.
+            elif field > 500000:
+                msg = "أقصى سعر مسموح به هو 500.000 دج"
+                self.set_err_msg(field_name,msg)
+                return False
+            # if sale price is greater than 0 and less than 500.001 DZD.
+            elif (field > 0 and field < 500001) and field > p_price:
+                msg = "السعر جاهز"
+                self.set_err_msg(field_name,msg)
+                return True
+            # if sale price is less than purchase_price
+            elif (field > 0 and field < 500001) and field < p_price:
+                msg = "إنتبه:سعر البيع أقل من الشراء"
+                self.set_err_msg(field_name,msg)
+                return True
+            # if sale parice is equivalent to purchase price.
+            elif field == p_price and field != 0:
+                msg = "إنتبه:السعر يساوي سعر الشراء"
+                self.set_err_msg(field_name,msg)
+                return True
+            # if there is an expected error.
+            else:
+                msg = " "
+                self.set_err_msg(field_name,msg)
+                return False
+            
+        # if a sale price is empty.
+        else:
+            msg = "سعر البيع مطلوب"
+            self.set_err_msg(field_name,msg)
+            return False 
+        
+    def is_quantity(self, field_name:str) -> bool:
+
+        field = getattr(self.ui,field_name).text()
+        # if not empty
+        if self.is_empty(field_name,err_msg=False):
+            if int(field) == 0:
+                msg = "0 كمية غير مقبولة"
+                self.set_err_msg(field_name,msg)
+                return False
+            elif int(field) > 1000:
+                msg = "أقصى كمية هي 1000 قطعة"
+                self.set_err_msg(field_name,msg)
+                return True 
+            elif int(field) > 0 and int(field) < 1001:
+                msg = "الحقل جاهز"
+                self.set_err_msg(field_name,msg)
+                return True
+        # if empty
+        else:
+            msg = "حقل الكمية مطلوب"
+            self.set_err_msg(field_name,msg)
+            return False
+            
 
 
     
