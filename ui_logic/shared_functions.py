@@ -1,13 +1,12 @@
 from PyQt6 import QtGui
-import json, os, sys
-from typing import Dict, Any, List
-
 from PyQt6.QtWidgets import QComboBox, QTableWidget
 
 from hijri_converter import Gregorian
 from datetime import datetime
 
-import random 
+from typing import Dict, Any, List
+import json, os, sys, random
+
 
 class SharedFunctions:
     def set_icon(self, btn_name, icon_name):

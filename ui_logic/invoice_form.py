@@ -28,10 +28,19 @@ class InvoiceForm(Form):
         # Remove the IDs of the added rows.
         self.ui.items_table.verticalHeader().setVisible(False)
 
+        # Set  buttons
+        self.ui.save_btn.setEnabled(False)
+        self.ui.save_btn.setStyleSheet("background-color:grey;border:1px solid grey;")
 
-
-        # connect buttons
+        # Connect buttons
         self.add_item_btn_clicked()
+        self.save_btn_clicked()
+
+        # Set suppliers combo
+        table = "suppliers"
+        column = "name"
+        combo = self.ui.users
+        self.fetch_then_put(table,column,combo)
     
     
     def show_item_form(self):
@@ -54,18 +63,41 @@ class InvoiceForm(Form):
         return item
 
     def add_item_to_table(self,item_data:Dict[Any,Any]):
+        
         table = self.ui.items_table
         row = table.rowCount()
-
-
-        # add 
+        
         table.insertRow(row)
+        
         
         table.setItem(row, 0, self.make_item(item_data['name']))
         table.setItem(row, 1, self.make_item(item_data['purchase_price']))
         table.setItem(row, 2, self.make_item(item_data['sale_price']))
         table.setItem(row, 3, self.make_item(item_data['quantity']))
         table.setItem(row, 4, self.make_item(item_data['ref']))
+        
+        # enable save btn
+        if table.rowCount() > 0:
+            self.ui.save_btn.setEnabled(True)
+            self.ui.save_btn.setStyleSheet("background-color:none;")
+            self.ui.save_btn.setStyleSheet("QPushButton:hover{background-color:#3f5482;border: 1px solid #3f5482}")
+
+    def save_invoice_in_db(self):
+        
+        table = self.ui.items_table
+        for row in range(table.rowCount()):
+            for column in range(table.columnCount()):
+                cell_item = table.item(row, column)
+                if cell_item is not None:
+                    print(f"Row {row}, Column {column}: {cell_item.text()}")
+                else:
+                    print(f"Row {row}, Column {column}: [Empty]")
+
+
+    def save_btn_clicked(self):
+        self.ui.save_btn.clicked.connect(self.save_invoice_in_db) 
+
+
 
 
 

@@ -3,7 +3,6 @@ from .base_form import Form
 from PyQt6.QtCore import pyqtSignal
 from typing import List
 
-
 class ItemForm(Form):
     item_added = pyqtSignal(dict)
     def __init__(self,base_form):
@@ -126,7 +125,8 @@ class ItemForm(Form):
                 valid_fields += 1
 
         if valid_fields != 5:
-            print("Your data is not ready to be saved")
+            print("Your data is not ready yet to be added into invoice table.")
+            
         else:
             self.item_added.emit(item_details)
             self.close()
