@@ -263,18 +263,21 @@ class DatabaseManager(SharedFunctions):
 
             # Suppliers Invoices
             """
-            CREATE TABLE IF NOT EXISTS suppliers_invoices (
+            CREATE TABLE IF NOT EXISTS purchase_invoices (
                 id INTEGER PRIMARY KEY,
-                supplier_id INTEGER,
-                sold_price REAL,
-                created TEXT,
+                supplier_id INTEGER NOT NULL,
+                invoice_number TEXT,           -- Optional: unique invoice code
+                date TEXT NOT NULL,            -- ISO datetime string
+                total REAL,                    -- Total amount for the invoice
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
             );
+
             """,
 
             # Product
             """
-            CREATE TABLE IF NOT EXISTS product (
+            CREATE TABLE IF NOT EXISTS products (
                 id INTEGER PRIMARY KEY,
                 barcode TEXT,
                 name TEXT NOT NULL,
@@ -282,24 +285,28 @@ class DatabaseManager(SharedFunctions):
                 sale_price REAL,
                 quantity INTEGER,
                 invoice_id INTEGER,
-                FOREIGN KEY (invoice_id) REFERENCES suppliers_invoices(id)
+                is_deleted BOOLEAN DEFAULT 0,  -- Soft delete flag
+                FOREIGN KEY (invoice_id) REFERENCES purchase_invoices(id)
             );
+
             """,
 
             # Transactions
             """
-            CREATE TABLE IF NOT EXISTS transactions (
+            CREATE TABLE IF NOT EXISTS purchases_history (
                 id INTEGER PRIMARY KEY,
-                supplier_id INTEGER,
-                invoice_id INTEGER,
-                product_id INTEGER,
-                product_name TEXT,
-                unit_price REAL,
-                quantity INTEGER,
-                FOREIGN KEY (supplier_id) REFERENCES suppliers(id),
-                FOREIGN KEY (invoice_id) REFERENCES suppliers_invoices(id),
-                FOREIGN KEY (product_id) REFERENCES product(id)
+                invoice_id INTEGER NOT NULL,
+                product_id INTEGER,                 -- FK to products, nullable if you allow free-text items
+                product_name TEXT NOT NULL,        -- Snapshot of name
+                barcode TEXT,                      -- Optional snapshot of barcode
+                quantity INTEGER NOT NULL,
+                purchase_price REAL NOT NULL,      -- Snapshot of price at purchase time
+                sale_price REAL,                   -- Optional: expected sale price
+                total REAL GENERATED ALWAYS AS (quantity * purchase_price) STORED,  -- Auto-calculated
+                FOREIGN KEY (invoice_id) REFERENCES purchase_invoices(id),
+                FOREIGN KEY (product_id) REFERENCES products(id)
             );
+
             """,
 
             # Customers Invoices
