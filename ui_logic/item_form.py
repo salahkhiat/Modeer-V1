@@ -60,7 +60,7 @@ class ItemForm(Form):
                 generated_ref = str(self.generate_reference())
 
                 # step 2: check if a reference is in the database, if yes, regenerate it and recheck.
-                if self.is_in_table("product","barcode",generated_ref):
+                if self.is_in_table("products","barcode",generated_ref):
                     continue
                 
                 # if a reference is not in the database.

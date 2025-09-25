@@ -83,15 +83,33 @@ class InvoiceForm(Form):
             self.ui.save_btn.setStyleSheet("QPushButton:hover{background-color:#3f5482;border: 1px solid #3f5482}")
 
     def save_invoice_in_db(self):
-        
         table = self.ui.items_table
+
+        products_list = {}
+        # reading products data from QTableWidget and put them into products_list dictionary
         for row in range(table.rowCount()):
-            for column in range(table.columnCount()):
-                cell_item = table.item(row, column)
+            row_data = {}
+            for col in range(table.columnCount()):
+                cell_item = table.item(row, col)
                 if cell_item is not None:
-                    print(f"Row {row}, Column {column}: {cell_item.text()}")
+                    row_data[col] = cell_item.text()
                 else:
-                    print(f"Row {row}, Column {column}: [Empty]")
+                    row_data[col] = None
+            products_list[row] = row_data
+
+        table_name = "products"
+        columns = ["name","purchase_price","sale_price","quantity","barcode"]
+        # looping through products table and save them into database
+        for key, value in products_list.items():
+            data = (value[0], value[1], value[2], value[3], value[4])
+            if self.store(table_name,columns,data):
+                print("your products are saved")
+                
+            else:
+                print("sorry, your products never saved")
+
+            
+
 
 
     def save_btn_clicked(self):
