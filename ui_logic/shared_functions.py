@@ -100,6 +100,7 @@ class SharedFunctions:
             combo.addItem("-")
             
         combo.addItems(items)
+        
     def reverse_dict(self, dictionary:Dict[Any,Any]) -> Dict[Any,Any]:
      """
      Converting {Key:Value} to {Value:Key}

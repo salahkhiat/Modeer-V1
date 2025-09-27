@@ -1,5 +1,5 @@
 import sqlite3 as db
-from typing import List, Dict 
+from typing import List, Dict , Any
 import os 
 
 from .shared_functions import SharedFunctions
@@ -20,9 +20,9 @@ class DatabaseManager(SharedFunctions):
         settings = self.get_settings()
         return os.path.join(settings["database_path"], settings["database_name"])
     
-    def store(self, table_name:str, columns: list[str], data: tuple  ) -> bool:
+    def store(self, table_name:str, columns: list[str], data: tuple, last_row_id:bool=False )-> Any:
         """
-        Insert data into a database table.
+        Insert data into a database table, return last_row_id if True.
 
         :param table_name: The name of the database table.
         :type table_name: str
@@ -30,16 +30,8 @@ class DatabaseManager(SharedFunctions):
         :type columns: list[str]
         :param data: A tuple of values.
         :type data: tuple
-        :return: True if the data inserted successfully, False otherwise.
-        :rtype: bool
-
-        Example:
-
-        >>> table_name = "students"
-        >>> columns = ["name","age"]
-        >>> data = ("Ahmed","15")
-        >>> obj.store(table_name, columns, data)
-        True 
+        :return: True or False If data inserted successfully or not, last_row_id if It was added as an Arg.
+        :rtype: Any
 
         """
         connection = None 
@@ -54,7 +46,10 @@ class DatabaseManager(SharedFunctions):
 
             cursor.execute(query,data)
             connection.commit()
-            return True
+            if last_row_id:
+                return cursor.lastrowid
+            else:
+                return True
             
         except db.Error as err:
             print(f"Database error: {err}")
@@ -62,6 +57,7 @@ class DatabaseManager(SharedFunctions):
         finally:
             if connection:
                 connection.close()
+    
     
     def is_in_table(self, table:str,column:str , target:str) -> bool:
         """
@@ -267,9 +263,7 @@ class DatabaseManager(SharedFunctions):
                 id INTEGER PRIMARY KEY,
                 supplier_id INTEGER NOT NULL,
                 invoice_number TEXT,           -- Optional: unique invoice code
-                date TEXT NOT NULL,            -- ISO datetime string
-                total REAL,                    -- Total amount for the invoice
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                created_at TEXT ,
                 FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
             );
 
@@ -291,7 +285,7 @@ class DatabaseManager(SharedFunctions):
 
             """,
 
-            # Transactions
+            # purchases_history
             """
             CREATE TABLE IF NOT EXISTS purchases_history (
                 id INTEGER PRIMARY KEY,

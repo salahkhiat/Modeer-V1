@@ -32,6 +32,7 @@ class AccountForm(Form):
         name = self.ui.name
         tel = self.ui.tel
         combo_index = self.get_current_combo_index('account_type')
+        
 
         account_types = ["customers", "suppliers", "employees"]
         

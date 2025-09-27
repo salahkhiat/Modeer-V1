@@ -36,13 +36,27 @@ class InvoiceForm(Form):
         self.add_item_btn_clicked()
         self.save_btn_clicked()
 
-        # Set suppliers combo
+        # Set suppiler_id
         table = "suppliers"
         column = "name"
         combo = self.ui.users
         self.fetch_then_put(table,column,combo)
-    
-    
+
+        self.supplier_id = None
+        self.refresh_supplier_id()
+        self.ui.users.activated.connect(self.refresh_supplier_id)
+
+        
+    def refresh_supplier_id(self):
+        table = "suppliers"
+        column = "name"
+            # reverse dict from {1:"Ahmed", 2:"Noor"} to {"Ahmed":1, "Noor":2}
+        suppliers = self.reverse_dict(self.get_table_as_dict(table,column))
+        current_supplier = self.ui.users.currentText()
+            # make the value as key 
+        self.supplier_id = suppliers.get(current_supplier) 
+        
+
     def show_item_form(self):
 
         form = ItemForm(ItemUi)
@@ -81,10 +95,19 @@ class InvoiceForm(Form):
             self.ui.save_btn.setEnabled(True)
             self.ui.save_btn.setStyleSheet("background-color:none;")
             self.ui.save_btn.setStyleSheet("QPushButton:hover{background-color:#3f5482;border: 1px solid #3f5482}")
+   
 
     def save_invoice_in_db(self):
+        # create an invoice
+        invoice_id = None
+        created = self.current_date()
+        if self.supplier_id is None:
+            print("Sorry, I need to select a supplier first")
+        else:
+            invoice_id = self.store("purchase_invoices",["supplier_id","created_at"],(self.supplier_id,created),True)
+        
+            
         table = self.ui.items_table
-
         products_list = {}
         # reading products data from QTableWidget and put them into products_list dictionary
         for row in range(table.rowCount()):
@@ -98,10 +121,10 @@ class InvoiceForm(Form):
             products_list[row] = row_data
 
         table_name = "products"
-        columns = ["name","purchase_price","sale_price","quantity","barcode"]
+        columns = ["name","purchase_price","sale_price","quantity","barcode","invoice_id"]
         # looping through products table and save them into database
         for key, value in products_list.items():
-            data = (value[0], value[1], value[2], value[3], value[4])
+            data = (value[0], value[1], value[2], value[3], value[4],str(invoice_id))
             if self.store(table_name,columns,data):
                 print("your products are saved")
                 
@@ -109,11 +132,11 @@ class InvoiceForm(Form):
                 print("sorry, your products never saved")
 
             
-
-
-
     def save_btn_clicked(self):
         self.ui.save_btn.clicked.connect(self.save_invoice_in_db) 
+
+
+        
 
 
 
