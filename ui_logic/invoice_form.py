@@ -100,12 +100,20 @@ class InvoiceForm(Form):
     def save_invoice_in_db(self):
         # create an invoice
         invoice_id = None
+        invoice_barcode = None 
         created = self.current_date()
         if self.supplier_id is None:
-            print("Sorry, I need to select a supplier first")
+            print("Sorry, You need to add suppliers first.")
         else:
-            invoice_id = self.store("purchase_invoices",["supplier_id","created_at"],(self.supplier_id,created),True)
-        
+            # Generate and Set an invoice barcode if it does not exist.
+            while True:
+                generated_barcode = str(self.generate_reference())
+                if self.is_in_table("purchase_invoices","invoice_number",generated_barcode):
+                    continue
+                else:
+                    invoice_barcode = generated_barcode
+                    invoice_id = self.store("purchase_invoices",["supplier_id","invoice_number","created_at"],(self.supplier_id,invoice_barcode,created),True)
+                    break
             
         table = self.ui.items_table
         products_list = {}
@@ -122,10 +130,38 @@ class InvoiceForm(Form):
 
         table_name = "products"
         columns = ["name","purchase_price","sale_price","quantity","barcode","invoice_id"]
+
         # looping through products table and save them into database
-        for key, value in products_list.items():
-            data = (value[0], value[1], value[2], value[3], value[4],str(invoice_id))
-            if self.store(table_name,columns,data):
+        for key, product_info in products_list.items():
+            # unpacking product info
+            name, purchase_price, sale_price, quantity, barcode = product_info.values()
+            
+            data = (name, purchase_price, sale_price, quantity, barcode,str(invoice_id))
+
+            product_id = self.store(table_name,columns,data,True)
+            # if product added successfully, record it in purchases_history
+            if product_id is not False:
+                #     # p_h means purchases_history
+                # p_h_table = "purchases_history"
+                # p_h_columns = ["invoice_id",
+                #                "product_id",
+                #                "product_name",
+                #                "barcode",
+                #                "quantity",
+                #                "purchase_price",
+                #                "sale_price",
+                #                "total"]
+                
+                # p_h_data = (invoice_id,
+                #             product_id,
+                #             value[0],# product name
+                #             value[4],# - barcode
+                #             value[3],# - quantity
+                #             value[1],# - purchase price
+                #             value[2],# - sale price
+                #             (int(value[3]) * int(value[1])), # total = Quantity * Purchase_price
+                            
+                #             )
                 print("your products are saved")
                 
             else:
