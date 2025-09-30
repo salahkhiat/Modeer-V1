@@ -1,0 +1,4 @@
+# in item_form do:
+
+# in invoice_form do:
+1- if the barcode is existing in the Database, update product info, and create new one otherwise.

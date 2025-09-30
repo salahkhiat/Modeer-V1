@@ -83,7 +83,6 @@ class InvoiceForm(Form):
         
         table.insertRow(row)
         
-        
         table.setItem(row, 0, self.make_item(item_data['name']))
         table.setItem(row, 1, self.make_item(item_data['purchase_price']))
         table.setItem(row, 2, self.make_item(item_data['sale_price']))
@@ -132,40 +131,53 @@ class InvoiceForm(Form):
         columns = ["name","purchase_price","sale_price","quantity","barcode","invoice_id"]
 
         # looping through products table and save them into database
-        for key, product_info in products_list.items():
+        for _ , product_info in products_list.items():
             # unpacking product info
             name, purchase_price, sale_price, quantity, barcode = product_info.values()
-            
             data = (name, purchase_price, sale_price, quantity, barcode,str(invoice_id))
 
-            product_id = self.store(table_name,columns,data,True)
-            # if product added successfully, record it in purchases_history
-            if product_id is not False:
-                #     # p_h means purchases_history
-                # p_h_table = "purchases_history"
-                # p_h_columns = ["invoice_id",
-                #                "product_id",
-                #                "product_name",
-                #                "barcode",
-                #                "quantity",
-                #                "purchase_price",
-                #                "sale_price",
-                #                "total"]
-                
-                # p_h_data = (invoice_id,
-                #             product_id,
-                #             value[0],# product name
-                #             value[4],# - barcode
-                #             value[3],# - quantity
-                #             value[1],# - purchase price
-                #             value[2],# - sale price
-                #             (int(value[3]) * int(value[1])), # total = Quantity * Purchase_price
-                            
-                #             )
-                print("your products are saved")
-                
+            # p_h means purchases_history
+            p_h_table = "purchases_history"
+            p_h_columns = ["invoice_id","product_id","product_name","barcode","quantity","purchase_price","sale_price"]
+            p_h_data = (invoice_id,product_id,name,barcode,quantity,purchase_price,sale_price)
+
+            # If a product is existing in a database depending on its refrence(barcode).
+            if self.is_in_table("products","barcode",barcode):
+
+                updated_columns = ["name", "purchase_price", "sale_price", "quantity","invoice_id"]
+                updated_data = (name, purchase_price, sale_price, quantity,str(invoice_id))
+
+                if self.update_info("products",updated_columns,updated_data,"barcode = ?",(barcode,)):
+                    print(f"product called '{name}' has '{barcode}' barcode was updated.")
+                    """
+                    
+                                    use search_by() to get the product id to add it later in the 
+                                    pruchases_history table.
+                    
+                    
+                    """
+                    if self.store(p_h_table,p_h_columns,p_h_data) is True:
+
+                else:
+                    print(f"Product called '{name}' has '{barcode}' barcode was not updated.")
+
+            # If a product is not existing in a database, create new one.
             else:
-                print("sorry, your products never saved")
+                product_id = self.store(table_name,columns,data,True)
+                # if product added successfully, record it in purchases_history
+                
+                if product_id is not False:
+
+                    if self.store(p_h_table,p_h_columns,p_h_data) is True:
+                        print(f"Product called [{name}] has inserted to [purchases_history]")
+                    else:
+                        print(f"Product called [{name}] does not inserted to [purchases_history]")
+
+
+                    print(f"product called [{name}] has inserted to [products] ")
+                    
+                else:
+                    print("sorry, your products never saved")
 
             
     def save_btn_clicked(self):

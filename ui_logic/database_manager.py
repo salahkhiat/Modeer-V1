@@ -57,6 +57,52 @@ class DatabaseManager(SharedFunctions):
         finally:
             if connection:
                 connection.close()
+
+    def update_info(self, table_name: str, columns: list[str], data: tuple, where_clause: str, where_args: tuple = ()) -> bool:
+        """
+        Update data in a database table.
+
+        :param table_name: The name of the database table.
+        :type table_name: str
+        :param columns: A list of column names to update.
+        :type columns: list[str]
+        :param data: A tuple of new values corresponding to the columns.
+        :type data: tuple
+        :param where_clause: SQL WHERE clause (e.g., "id = ?").
+        :type where_clause: str
+        :param where_args: Tuple of values for the WHERE clause placeholders.
+        :type where_args: tuple
+        :return: True if the update was successful, False otherwise.
+        :rtype: bool
+
+        Examples:
+            >>># Update the 'name' and 'age' of the user where id=5
+            >>>update('users', ['name', 'age'], ('Alice', 30), 'id = ?', (5,))
+        """
+        connection = None
+        try:
+            connection = db.connect(self.get_database_ref())
+            cursor = connection.cursor()
+
+            # Prepare the SQL query
+            set_clause = ', '.join([f"{col} = ?" for col in columns])
+            query = f"UPDATE {table_name} SET {set_clause} WHERE {where_clause}"
+
+            # Combine data for SET and WHERE
+            full_data = data + where_args
+
+            cursor.execute(query, full_data)
+            connection.commit()
+
+            return cursor.rowcount > 0  # True if any row was updated
+
+        except db.Error as err:
+            print(f"Database error: {err}")
+            return False
+        finally:
+            if connection:
+                connection.close()
+
     
     
     def is_in_table(self, table:str,column:str , target:str) -> bool:
@@ -89,6 +135,43 @@ class DatabaseManager(SharedFunctions):
         finally:
             if conn:
                 conn.close()
+
+    def search_by(table: str, column: str, keyword: str, target: str) -> Any:
+        """
+        Search for a single value in the database table based on a condition.
+
+        :param table: Name of the database table.
+        :type table: str
+        :param column: Column to match against the keyword (used in WHERE).
+        :type column: str
+        :param keyword: The value to search for in the specified column.
+        :type keyword: str
+        :param target: The column whose value should be returned.
+        :type target: str
+        :return: The value of the target column if found, else None.
+        :rtype: Any
+        """
+        connection = None
+        try:
+            connection = db.connect(self.get_database_ref())
+            cursor = connection.cursor()
+
+            query = f"SELECT {target} FROM {table} WHERE {column} = ? LIMIT 1"
+            cursor.execute(query, (keyword,))
+            result = cursor.fetchone()
+
+            if result:
+                return result[0]
+            else:
+                return None
+
+        except db.Error as err:
+            print(f"Database error: {err}")
+            return None
+        finally:
+            if connection:
+                connection.close()
+
 
                      
 
