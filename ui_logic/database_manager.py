@@ -136,7 +136,7 @@ class DatabaseManager(SharedFunctions):
             if conn:
                 conn.close()
 
-    def search_by(table: str, column: str, keyword: str, target: str) -> Any:
+    def search_by(self,table: str, column: str, keyword: str, target: str) -> Any:
         """
         Search for a single value in the database table based on a condition.
 

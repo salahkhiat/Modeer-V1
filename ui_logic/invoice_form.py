@@ -5,8 +5,29 @@ from uis.item import Ui_Form as ItemUi
 from PyQt6.QtWidgets import QTableWidgetItem, QHeaderView, QTableWidget
 from PyQt6.QtGui import QFont 
 
-
 from typing import Dict , Any 
+
+# just for coloring logs messages
+from rich.console import Console
+from rich.logging import RichHandler
+import logging
+
+# Setup logging with RichHandler
+console = Console()
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    datefmt="[%X]",
+    handlers=[RichHandler(console=console, markup=True)]
+)
+
+log = logging.getLogger("rich")
+# # Green message (e.g. success)
+# log.info("[green]✔ Operation successful[/green]")
+
+# # Red message (e.g. error)
+# log.error("[red]✖ Operation failed[/red]")
+# ----- just to
 
 class InvoiceForm(Form):
 
@@ -139,33 +160,45 @@ class InvoiceForm(Form):
             # p_h means purchases_history
             p_h_table = "purchases_history"
             p_h_columns = ["invoice_id","product_id","product_name","barcode","quantity","purchase_price","sale_price"]
-            p_h_data = (invoice_id,product_id,name,barcode,quantity,purchase_price,sale_price)
+            
 
-            # If a product is existing in a database depending on its refrence(barcode).
+            # If a product is already existing in a database.
             if self.is_in_table("products","barcode",barcode):
 
                 updated_columns = ["name", "purchase_price", "sale_price", "quantity","invoice_id"]
                 updated_data = (name, purchase_price, sale_price, quantity,str(invoice_id))
 
+                # If product info updated successfully
                 if self.update_info("products",updated_columns,updated_data,"barcode = ?",(barcode,)):
-                    print(f"product called '{name}' has '{barcode}' barcode was updated.")
-                    """
-                    
-                                    use search_by() to get the product id to add it later in the 
-                                    pruchases_history table.
-                    
-                    
-                    """
-                    if self.store(p_h_table,p_h_columns,p_h_data) is True:
+                    updated_product_id = self.search_by("products","barcode",barcode,"id")
+
+                    # If a product barcode is not existing in a database.
+                    if updated_product_id is None:
+                        log.error(f"[red]product:{name} with {barcode} barcode is not existing in a database.[/red]")
+                        return 
+                    else:
+                        p_h_data = (invoice_id,updated_product_id,name,barcode,quantity,purchase_price,sale_price)
+                        # If product info was not inserted into a purchases_history table
+                        if self.store(p_h_table,p_h_columns,p_h_data) is not True:
+                            log.error(f"[red]Product:{name} with {barcode} barcode was not inserted in purchases_table. [/red]")
+                            return
 
                 else:
-                    print(f"Product called '{name}' has '{barcode}' barcode was not updated.")
+                    log.error(f"[red]Product:{name} with {barcode} was not updated. [/red]")
+                    return
 
-            # If a product is not existing in a database, create new one.
+            # If a product is not existing in a database.
             else:
                 product_id = self.store(table_name,columns,data,True)
-                # if product added successfully, record it in purchases_history
+                p_h_data = (invoice_id,product_id,name,barcode,quantity,purchase_price,sale_price)
+                """
                 
+                
+                    Refine this part, then we can move to :
+                    1- show an alert if something when wrong when saving an invoice.
+                
+                
+                """
                 if product_id is not False:
 
                     if self.store(p_h_table,p_h_columns,p_h_data) is True:
