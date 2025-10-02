@@ -193,24 +193,22 @@ class InvoiceForm(Form):
                 p_h_data = (invoice_id,product_id,name,barcode,quantity,purchase_price,sale_price)
                 """
                 
-                
-                    Refine this part, then we can move to :
-                    1- show an alert if something when wrong when saving an invoice.
-                
-                
-                """
-                if product_id is not False:
-
-                    if self.store(p_h_table,p_h_columns,p_h_data) is True:
-                        print(f"Product called [{name}] has inserted to [purchases_history]")
-                    else:
-                        print(f"Product called [{name}] does not inserted to [purchases_history]")
-
-
-                    print(f"product called [{name}] has inserted to [products] ")
+                    Plain to this:
+                    when you deposit an amount  of money to a supplier in invoice 
+                    1 - an invoice total is : 30000$
+                    2 - I paid :              20000$
+                    3 - a difference:         10000$ 
                     
+                """
+                if product_id is False:
+                    log.error(f"[red]Product:{name} with {barcode} was not inserted into products table.[/red]")
+                    return
                 else:
-                    print("sorry, your products never saved")
+                    if self.store(p_h_table,p_h_columns,p_h_data) is False:
+                        log.error(f"[red]Product:{name} with barcode {barcode} was not inserted into purchases_history [/red]")
+                        return 
+                  
+
 
             
     def save_btn_clicked(self):

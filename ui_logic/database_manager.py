@@ -416,12 +416,15 @@ class DatabaseManager(SharedFunctions):
             CREATE TABLE IF NOT EXISTS suppliers_transactions (
                 id INTEGER PRIMARY KEY,
                 supplier_id INTEGER,
+                invoice_id INTEGER,             -- ✅ NEW: optional link to a purchase invoice
                 note TEXT,
                 amount REAL,
-                type TEXT,
+                type TEXT,                      -- e.g., 'debt', 'deposit'
                 created TEXT,
-                FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
+                FOREIGN KEY (supplier_id) REFERENCES suppliers(id),
+                FOREIGN KEY (invoice_id) REFERENCES purchase_invoices(id)  -- ✅ new FK
             );
+
             """,
 
             # Employees Withdrawals
