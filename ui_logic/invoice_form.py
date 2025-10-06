@@ -118,22 +118,19 @@ class InvoiceForm(Form):
    
 
     def save_invoice_in_db(self):
+
+
+        """
+            Close the invoice widget when it finishs correctly, show and error otherwise
+        
+        """
+
         # create an invoice
         invoice_id = None
         invoice_barcode = None 
+        invoice_deposit = "0" if self.ui.amount.text() == "" else self.ui.amount.text()
         created = self.current_date()
-        if self.supplier_id is None:
-            print("Sorry, You need to add suppliers first.")
-        else:
-            # Generate and Set an invoice barcode if it does not exist.
-            while True:
-                generated_barcode = str(self.generate_reference())
-                if self.is_in_table("purchase_invoices","invoice_number",generated_barcode):
-                    continue
-                else:
-                    invoice_barcode = generated_barcode
-                    invoice_id = self.store("purchase_invoices",["supplier_id","invoice_number","created_at"],(self.supplier_id,invoice_barcode,created),True)
-                    break
+        
             
         table = self.ui.items_table
         products_list = {}
@@ -151,6 +148,25 @@ class InvoiceForm(Form):
         table_name = "products"
         columns = ["name","purchase_price","sale_price","quantity","barcode","invoice_id"]
 
+        # Calculates an invoice total.
+        invoice_total = 0 
+        for _ , product_info in products_list.items():
+            invoice_total += int(product_info[1]) * int(product_info[3]) # purchase_price * quantity
+
+        # Generates an invoice.
+        if self.supplier_id is None:
+            log.error("[red]Sorry, You need to add suppliers first.[/red]")
+        else:
+            # Generate and Set an invoice barcode if it does not exist.
+            while True:
+                generated_barcode = str(self.generate_reference())
+                if self.is_in_table("purchase_invoices","invoice_number",generated_barcode):
+                    continue
+                else:
+                    invoice_barcode = generated_barcode
+                    invoice_id = self.store("purchase_invoices",["supplier_id","invoice_number","total","deposit","created_at"],(self.supplier_id,invoice_barcode,str(invoice_total),invoice_deposit,created),True)
+                    break
+        
         # looping through products table and save them into database
         for _ , product_info in products_list.items():
             # unpacking product info

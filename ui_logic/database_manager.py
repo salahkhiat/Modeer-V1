@@ -346,6 +346,8 @@ class DatabaseManager(SharedFunctions):
                 id INTEGER PRIMARY KEY,
                 supplier_id INTEGER NOT NULL,
                 invoice_number TEXT,           -- Optional: unique invoice code
+                total TEXT,
+                deposit TEXT,
                 created_at TEXT ,
                 FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
             );
