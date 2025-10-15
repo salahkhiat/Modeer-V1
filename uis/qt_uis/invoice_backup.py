@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'invoice.ui'
+# Form implementation generated from reading ui file 'invoice_backup.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -61,17 +61,43 @@ class Ui_Form(object):
         self.add_item_btn.setObjectName("add_item_btn")
         self.horizontalLayout.addWidget(self.add_item_btn)
         self.verticalLayout.addLayout(self.horizontalLayout)
-
-
-        # Add a table.
         self.items_table = QtWidgets.QTableWidget(parent=Form)
         self.items_table.setStyleSheet("background-color:white;")
         self.items_table.setObjectName("items_table")
+        self.items_table.setColumnCount(5)
+        self.items_table.setRowCount(0)
+        item = QtWidgets.QTableWidgetItem()
+        font = QtGui.QFont()
+        font.setPointSize(16)
+        font.setBold(True)
+        item.setFont(font)
+        self.items_table.setHorizontalHeaderItem(0, item)
+        item = QtWidgets.QTableWidgetItem()
+        font = QtGui.QFont()
+        font.setPointSize(16)
+        font.setBold(True)
+        item.setFont(font)
+        self.items_table.setHorizontalHeaderItem(1, item)
+        item = QtWidgets.QTableWidgetItem()
+        font = QtGui.QFont()
+        font.setPointSize(16)
+        font.setBold(True)
+        item.setFont(font)
+        self.items_table.setHorizontalHeaderItem(2, item)
+        item = QtWidgets.QTableWidgetItem()
+        font = QtGui.QFont()
+        font.setPointSize(16)
+        font.setBold(True)
+        item.setFont(font)
+        self.items_table.setHorizontalHeaderItem(3, item)
+        item = QtWidgets.QTableWidgetItem()
+        font = QtGui.QFont()
+        font.setPointSize(16)
+        font.setBold(True)
+        item.setFont(font)
+        self.items_table.setHorizontalHeaderItem(4, item)
+        self.items_table.horizontalHeader().setStretchLastSection(True)
         self.verticalLayout.addWidget(self.items_table)
-        #---
-
-
-
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.label_2 = QtWidgets.QLabel(parent=Form)
@@ -161,6 +187,16 @@ class Ui_Form(object):
         Form.setWindowTitle(_translate("Form", "Form"))
         self.amount.setPlaceholderText(_translate("Form", "المبلغ المدفوع $"))
         self.add_item_btn.setToolTip(_translate("Form", "أضف سلعة جديدة للفاتورة"))
+        item = self.items_table.horizontalHeaderItem(0)
+        item.setText(_translate("Form", "الإسم"))
+        item = self.items_table.horizontalHeaderItem(1)
+        item.setText(_translate("Form", "الشراء بـ"))
+        item = self.items_table.horizontalHeaderItem(2)
+        item.setText(_translate("Form", "البيع بـ"))
+        item = self.items_table.horizontalHeaderItem(3)
+        item.setText(_translate("Form", "الكمية"))
+        item = self.items_table.horizontalHeaderItem(4)
+        item.setText(_translate("Form", "المرجع"))
         self.label_2.setText(_translate("Form", "مبلغ الفاتورة : "))
         self.save_btn.setToolTip(_translate("Form", "حفظ الفاتورة"))
         self.clear_btn.setToolTip(_translate("Form", "تنظيف الفاتورة"))

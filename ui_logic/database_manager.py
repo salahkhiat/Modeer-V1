@@ -173,6 +173,38 @@ class DatabaseManager(SharedFunctions):
                 connection.close()
 
 
+    def is_db_table_empty(self, table: str) -> bool:
+        """
+        Check if a database table is empty.
+
+        :param table: Name of the database table to check.
+        :type table: str
+        :return: True if the table is empty, False otherwise.
+        :rtype: bool
+        """
+        connection = None
+        try:
+            connection = db.connect(self.get_database_ref())
+            cursor = connection.cursor()
+
+            query = f"SELECT 1 FROM {table} LIMIT 1"
+            cursor.execute(query)
+            result = cursor.fetchone()
+
+            if result:
+                return False  # Table has at least one row
+            else:
+                return True   # Table is empty
+
+        except db.Error as err:
+            print(f"Database error: {err}")
+            return False  # Default to False if there's an error (fail-safe)
+        finally:
+            if connection:
+                connection.close()
+
+
+
                      
 
     def create_default_column(self, table:str, column:str, name:str = "-") -> bool:

@@ -5,7 +5,9 @@ from hijri_converter import Gregorian
 from datetime import datetime
 
 from typing import Dict, Any, List
-import json, os, sys, random
+import json, os, sys, random, winsound
+
+
 
 
 class SharedFunctions:
@@ -173,4 +175,11 @@ class SharedFunctions:
             item = table.item(row, column_index)
             result.append(item.text() if item else "")
         return result
+    
+    def play_success_sound(self):
+        winsound.Beep(500, 700)
+
+    def play_failure_sound(self):
+        winsound.Beep(1500, 300)
+
 

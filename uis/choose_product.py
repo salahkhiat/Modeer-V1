@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'purchase.ui'
+# Form implementation generated from reading ui file 'sales_invoice.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #

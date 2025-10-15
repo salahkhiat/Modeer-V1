@@ -1,4 +1,6 @@
-from PyQt6.QtCore import Qt 
+from PyQt6.QtCore import Qt, QTimer
+
+
 from .base_form import MainForm
 
 from uis.database_ui import Ui_Form as DatabaseUi
@@ -31,8 +33,17 @@ from .service_form import ServiceForm
 from uis.invoice import Ui_Form as InvoiceUi 
 from .invoice_form import InvoiceForm
 
+from uis.choose_product import Ui_Form as ChooseProductUi 
+from .choose_product_form import ChooseProductForm
+
+from uis.error_msg import Ui_Dialog as ErrorUi
+from .error_form import ErrorForm
+
+from PyQt6.QtCore import pyqtSignal 
+
 from PyQt6.QtWidgets import QComboBox
 class MainScreen(MainForm):
+   
     def __init__(self,base_form):
         super().__init__(base_form)
 
@@ -151,9 +162,11 @@ class MainScreen(MainForm):
         self.ui.new_service_btn.clicked.connect(self.service_form)
 
     # add an invoice tab
-    def add_invoice_tab(self,index_list,title):
+    def add_invoice_tab(self,index_list,title,invoice_type=None):
+                
                 if len(index_list) < 3:
-                    form = InvoiceForm(InvoiceUi)
+                    form = InvoiceForm(InvoiceUi,invoice_type) 
+    
                     main_tab_widget = self.ui.tab_widget
                     # styling the active tab_bar
                     current_style = main_tab_widget.styleSheet()
@@ -170,6 +183,18 @@ class MainScreen(MainForm):
                 
                     # 🔑 Connect the cancel_btn to remove this tab
                     form.ui.cancel_btn.clicked.connect(lambda _, f=form: self.remove_tab_by_widget(f))
+
+                    # ✅ Close tab when invoice is saved
+                    form.invoice_saved.connect(lambda success, f=form: self.remove_tab_by_widget(f) if success else None)
+
+                   
+                    """
+
+
+                        find a solution "How to receive this emitted invoice type" in "invoice_form"
+                        
+
+                    """
                 else:
                     print(f"You achieved the top, You have created {len(index_list)} Invoices")
 
@@ -197,14 +222,22 @@ class MainScreen(MainForm):
 
     # set new customer invoice tab
     def customer_invoice_tab(self):
-        self.add_invoice_tab(self.opened_customers_invoices,"فاتورة الزبون ")
+        self.add_invoice_tab(self.opened_customers_invoices,"فاتورة الزبون ","customers")
 
     def add_customer_invoice_tab(self):
         self.ui.new_customer_invoice_btn.clicked.connect(self.customer_invoice_tab)
 
     # set new supplier invoice tab
     def supplier_invoice_tab(self):
-        self.add_invoice_tab(self.opened_suppliers_invoices,"فاتورة المورد")
+        # Are there suppliers 
+        if self.is_db_table_empty("suppliers") is True:
+            msg = "ليس لديك موردين بعد"
+            self.error_form = ErrorForm(ErrorUi,msg)
+            self.error_form.show()
+            QTimer.singleShot(2500,self.error_form.close)
+            return 
+        else:
+            self.add_invoice_tab(self.opened_suppliers_invoices,"فاتورة المورد","suppliers")
 
     def show_supplier_invoice_tab(self):
         self.ui.new_supplier_invoice_btn.clicked.connect(self.supplier_invoice_tab)
