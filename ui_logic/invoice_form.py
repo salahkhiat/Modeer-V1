@@ -1,6 +1,10 @@
 from .base_form import Form
-from .item_form import ItemForm
+
 from uis.item import Ui_Form as ItemUi
+from .item_form import ItemForm
+
+from uis.choose_item import Ui_ChooseItemUi as ChooseItemUi
+from .choose_item_form import ChooseItemForm
 
 from PyQt6.QtWidgets import QTableWidgetItem, QHeaderView, QTableWidget
 from PyQt6.QtGui import QFont 
@@ -46,6 +50,7 @@ class InvoiceForm(Form):
         # Invoice table details
         self.table = invoice_type
         self.column = "name"
+        self.invoice_total = 0 
 
         # test
 
@@ -162,16 +167,23 @@ class InvoiceForm(Form):
         table.setRowCount(0)
         # clear deposit
         self.ui.amount.clear() 
+        # clear total
+        self.invoice_total = 0 
+        self.ui.total.display(0)
         
     def clear_btn_clicked(self):
         self.ui.clear_btn.clicked.connect(self.refresh_invoice)
 
     def show_item_form(self):
+        form = None 
+        if self.table == "suppliers":
 
-        form = ItemForm(ItemUi)
-        form.item_added.connect(self.add_item_to_table)
-        referenses_list = self.q_table_column_as_list(self.ui.items_table,4)
-        form.set_table_refs(referenses_list)
+            form = ItemForm(ItemUi)
+            form.item_added.connect(self.add_item_to_table)
+            referenses_list = self.q_table_column_as_list(self.ui.items_table,4)
+            form.set_table_refs(referenses_list)
+        elif self.table == "customers":
+            form = ChooseItemForm(ChooseItemUi)
         form.exec()
     
     def add_item_btn_clicked(self):
@@ -184,6 +196,7 @@ class InvoiceForm(Form):
         font.setBold(bold)
         item.setFont(font)
         return item
+    
 
     def add_item_to_table(self,item_data:Dict[Any,Any]):
         
@@ -191,6 +204,11 @@ class InvoiceForm(Form):
         row = table.rowCount()
         
         table.insertRow(row)
+        # calculates total
+        p_price = item_data["purchase_price"]
+        qt = item_data["quantity"]
+        self.invoice_total += self.calculate_total(p_price, qt)
+        self.ui.total.display(self.invoice_total)
         
         table.setItem(row, 0, self.make_item(item_data['name']))
         table.setItem(row, 1, self.make_item(item_data['purchase_price']))

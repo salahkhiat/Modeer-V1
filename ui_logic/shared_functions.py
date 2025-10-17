@@ -182,4 +182,7 @@ class SharedFunctions:
     def play_failure_sound(self):
         winsound.Beep(1500, 300)
 
+    def calculate_total(self, price:str, quantity:str)-> int:
+        return int(price) * int(quantity)
+
 

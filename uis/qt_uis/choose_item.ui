@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>ChooseItemUi</class>
+ <widget class="QWidget" name="ChooseItemUi">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -24,6 +24,9 @@
   </property>
   <property name="windowTitle">
    <string>Form</string>
+  </property>
+  <property name="layoutDirection">
+   <enum>Qt::RightToLeft</enum>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color:#033a63;</string>
@@ -180,6 +183,9 @@
          <height>50</height>
         </size>
        </property>
+       <property name="shortcut">
+        <string>Return</string>
+       </property>
        <property name="flat">
         <bool>true</bool>
        </property>
@@ -221,6 +227,9 @@
          <height>50</height>
         </size>
        </property>
+       <property name="shortcut">
+        <string>Esc</string>
+       </property>
        <property name="flat">
         <bool>true</bool>
        </property>
@@ -231,5 +240,22 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>cancel_btn</sender>
+   <signal>clicked()</signal>
+   <receiver>ChooseItemUi</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>112</x>
+     <y>345</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>6</x>
+     <y>8</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
