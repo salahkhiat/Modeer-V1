@@ -167,7 +167,7 @@ class InvoiceForm(Form):
         table.setRowCount(0)
         # clear deposit
         self.ui.amount.clear() 
-        # clear total
+        # clear invoice total
         self.invoice_total = 0 
         self.ui.total.display(0)
         
