@@ -13,7 +13,8 @@ class ChooseItemForm(Form):
         self.setup_table_columns()
         table : QTableWidget = self.ui.items_table
         self.remove_rows_counter(table)
-        
+
+        self.make_row_scrollable(table,1)
         # database table details
         self.ui.name.textChanged.connect(lambda: self.put_data_into_table(self.get_product_name(),"name"))
         self.ui.ref.textChanged.connect(lambda: self.put_data_into_table(self.get_product_ref(),"barcode"))
