@@ -183,7 +183,7 @@ class DatabaseManager(SharedFunctions):
             target_columns = ', '.join(target)
             # Query with parameterized LIKE for prefix search
             query = f"SELECT {target_columns} FROM {table} WHERE {column} LIKE ?"
-            cursor.execute(query, (f"{keyword}%",))
+            cursor.execute(query, (f"%{keyword}%",))
             rows = cursor.fetchall()
 
             # Convert result rows to list of dicts

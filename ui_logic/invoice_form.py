@@ -54,18 +54,11 @@ class InvoiceForm(Form):
 
         # test
 
-        """
-        
-
-            Arrage invoice_form to be suitable with both suppliers/customers invoice.
-
-
-        """
-
-
-
         # Set column count and headers for items_table
         items_table : QTableWidget = self.ui.items_table 
+
+        # remove rows counter
+        self.remove_rows_counter(items_table)
         
         if invoice_type == "suppliers":
             items_table.setColumnCount(5)
@@ -124,11 +117,6 @@ class InvoiceForm(Form):
         else:
             log.error(f"{invoice_type} invoice_type is unknown")
 
-     
-
-
-        # Remove the IDs of the added rows.
-        self.ui.items_table.verticalHeader().setVisible(False)
 
         # Set  buttons
         self.ui.save_btn.setEnabled(False)

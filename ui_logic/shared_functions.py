@@ -184,5 +184,8 @@ class SharedFunctions:
 
     def calculate_total(self, price:str, quantity:str)-> int:
         return int(price) * int(quantity)
+    
+    def remove_rows_counter(self, table: QTableWidget):
+        table.verticalHeader().setVisible(False)
 
 

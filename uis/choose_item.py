@@ -69,7 +69,7 @@ class Ui_ChooseItemUi(object):
         font.setBold(True)
         item.setFont(font)
         self.items_table.setHorizontalHeaderItem(2, item)
-        self.items_table.horizontalHeader().setStretchLastSection(True)
+        self.items_table.horizontalHeader().setStretchLastSection(False)
         self.verticalLayout.addWidget(self.items_table)
         self.gridLayout.addLayout(self.verticalLayout, 1, 0, 1, 1)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()

@@ -1,5 +1,5 @@
 from .base_form import Form
-from PyQt6.QtWidgets import QTableWidgetItem, QTableWidget
+from PyQt6.QtWidgets import QTableWidgetItem, QTableWidget, QHeaderView
 from PyQt6.QtGui import QFont 
 
 class ChooseItemForm(Form):
@@ -9,9 +9,31 @@ class ChooseItemForm(Form):
         # set icons
         self.set_icon("add_btn","add_item.svg")
         self.set_icon("cancel_btn","cancel.svg")
+        # setup table 
+        self.setup_table_columns()
+        table : QTableWidget = self.ui.items_table
+        self.remove_rows_counter(table)
+        
         # database table details
         self.ui.name.textChanged.connect(lambda: self.put_data_into_table(self.get_product_name(),"name"))
         self.ui.ref.textChanged.connect(lambda: self.put_data_into_table(self.get_product_ref(),"barcode"))
+
+    def setup_table_columns(self):
+        table: QTableWidget = self.ui.items_table
+        
+        header = table.horizontalHeader()
+        
+        # Column 0: stretch (name)
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        
+        # Column 1: fixed width
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Interactive)
+        table.setColumnWidth(1, 120)
+
+        # Column 2: fixed width
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Interactive)
+        table.setColumnWidth(2, 120)
+
 
         
 
@@ -31,17 +53,35 @@ class ChooseItemForm(Form):
 
 
     def add_row(self,columns:list):
+
         table : QTableWidget = self.ui.items_table
+
         row_position = table.rowCount()
         table.insertRow(row_position)
         name, barcode, sale_price = columns
-        """
-            Set the size of table Font
-        """
-        # Set data in each column
-        table.setItem(row_position, 0, QTableWidgetItem(str(name)))
-        table.setItem(row_position, 1, QTableWidgetItem(str(barcode)))
-        table.setItem(row_position, 2, QTableWidgetItem(str(sale_price)))
+
+
+        # Set the size of table Font
+        header_font = QFont()
+        header_font.setPointSize(14)
+        header_font.setBold(True)
+
+        # Create and set items with the font
+        for col, value in enumerate([name, barcode, sale_price]):
+            item = QTableWidgetItem(str(value))
+            item.setFont(header_font)
+        
+            table.setItem(row_position, col, item)
+
+
+ 
+
+
+
+
+
+
+
 
     def put_data_into_table(self, prefix:str, column:str):
         self.ui.items_table.setRowCount(0)
