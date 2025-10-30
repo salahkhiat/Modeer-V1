@@ -161,6 +161,61 @@ class DatabaseManager(SharedFunctions):
             if connection:
                 connection.close()
 
+
+
+
+
+
+    """
+        table = "products"
+        columns = ("barcode", "sale_price", "quantity", "name")
+        keyword = "barcode"
+        target = 3434
+
+        item = self.get_item_info(table, columns, keyword, target)
+    
+    """
+    def get_item_info(self, table: str, columns: tuple, keyword: str, target) -> dict | None:
+        """
+        Fetch a single row from a database table where a specific column matches a target value.
+
+        Args:
+            table (str): Name of the table (e.g. "products")
+            columns (tuple): Columns to retrieve (e.g. ("barcode", "sale_price", "quantity"))
+            keyword (str): The column used in the WHERE condition (e.g. "barcode" or "id")
+            target: The value to match in the keyword column (e.g. 3434)
+
+        Returns:
+            dict | None: A dictionary representing one row, or None if not found.
+        """
+        connection = None
+        try:
+            # connect to database
+            connection = db.connect(self.get_database_ref())
+            cursor = connection.cursor()
+
+            # dynamically construct query
+            cols_str = ", ".join(columns)
+            query = f"SELECT {cols_str} FROM {table} WHERE {keyword} = ? LIMIT 1"
+
+            cursor.execute(query, (target,))
+            row = cursor.fetchone()
+
+            if row:
+                # return a dictionary {column_name: value}
+                return {col: val for col, val in zip(columns, row)}
+            else:
+                return None
+
+        except db.Error as err:
+            print(f"Database error: {err}")
+            return None
+
+        finally:
+            if connection:
+                connection.close()
+
+
     def search_by_similar(self, table: str, column: str, keyword: str, target: List[str]) -> List[Dict[str, Any]]:
         """
         Search for rows in a table where a column starts with a given keyword.
