@@ -188,40 +188,8 @@ class SharedFunctions:
     def remove_rows_counter(self, table: QTableWidget):
         table.verticalHeader().setVisible(False)
 
-    """
+
+
     
-        I was working on a PyQt6 app where the main invoice form opens a ChooseItemForm to search
-        and select a product. When a product row is clicked in the table, I want to send the selected 
-        product's barcode back to the main form.
-        We talked about using signals to pass that value. Please show me again how to emit a signal 
-        from ChooseItemForm and handle it in the main invoice form.
-    
-    
-    """
-
-    def make_row_scrollable(self, table: QTableWidget, column_index: int):
-        # 1. Make table rows selectable (full row)
-        table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
-        table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
-
-        # 2. Enable scrolling if needed
-        table.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
-        table.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
-
-        # 3. Connect to selection change signal
-        def on_row_selected():
-            selected_items = table.selectedItems()
-            if selected_items:
-                row = table.currentRow()
-                item: QTableWidgetItem = table.item(row, column_index)
-                if item:
-                    value = item.text()
-                    print(f"Selected value in column {column_index}: {value}")
-                    return value
-            return None
-
-        # Qt doesn't emit a signal directly when a row is selected,
-        # so we connect to itemSelectionChanged and call our function
-        table.itemSelectionChanged.connect(on_row_selected)
 
 

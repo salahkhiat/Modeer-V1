@@ -74,11 +74,7 @@ class InvoiceForm(Form):
                 item = QTableWidgetItem(title)
                 item.setFont(header_font)
                 items_table.setHorizontalHeaderItem(i, item)
-            
-
             # set table header
-        
-
             header = items_table.horizontalHeader()
             header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
             for col in range(1, 5):
@@ -87,6 +83,9 @@ class InvoiceForm(Form):
                     items_table.setColumnWidth(col, 140)
                 else:
                     items_table.setColumnWidth(col, 200)
+
+
+
         elif invoice_type == "customers": 
             items_table.setColumnCount(4)
 
@@ -101,11 +100,7 @@ class InvoiceForm(Form):
                 item = QTableWidgetItem(title)
                 item.setFont(header_font)
                 items_table.setHorizontalHeaderItem(i, item)
-            
-
             # set table header
-        
-
             header = self.ui.items_table.horizontalHeader()
             header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
             for col in range(1, 4):
@@ -165,14 +160,26 @@ class InvoiceForm(Form):
     def show_item_form(self):
         form = None 
         if self.table == "suppliers":
-
             form = ItemForm(ItemUi)
             form.item_added.connect(self.add_item_to_table)
             referenses_list = self.q_table_column_as_list(self.ui.items_table,4)
             form.set_table_refs(referenses_list)
+
         elif self.table == "customers":
             form = ChooseItemForm(ChooseItemUi)
+            form.item_barcode_sent.connect(self.add_item_to_cus_invoice)
         form.exec()
+
+    def add_item_to_cus_invoice(self,barcode):
+        pass 
+        """
+        
+            Get an item information from database, name, sale_price, quatity, barcode.
+            put them in an invoice table row
+        
+        """
+   
+
     
     def add_item_btn_clicked(self):
         self.ui.add_item_btn.clicked.connect( lambda: self.show_item_form())
@@ -199,7 +206,8 @@ class InvoiceForm(Form):
         self.ui.total.display(self.invoice_total)
         
         table.setItem(row, 0, self.make_item(item_data['name']))
-        table.setItem(row, 1, self.make_item(item_data['purchase_price']))
+        if self.invoice_type == "suppliers":
+            table.setItem(row, 1, self.make_item(item_data['purchase_price']))
         table.setItem(row, 2, self.make_item(item_data['sale_price']))
         table.setItem(row, 3, self.make_item(item_data['quantity']))
         table.setItem(row, 4, self.make_item(item_data['ref']))
