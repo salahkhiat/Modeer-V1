@@ -171,7 +171,17 @@ class InvoiceForm(Form):
         form.exec()
 
     def add_item_to_cus_invoice(self,barcode):
-        pass 
+        table = "products"
+        columns = ("name", "sale_price", "quantity", "barcode")
+        keyword = "barcode"
+        target = barcode
+        product_info : dict = self.get_item_info(table, columns, keyword, target)
+        row = [ value for value in product_info.values()]
+        row[2]=1
+        qtable : QTableWidget = self.ui.items_table
+        self.add_list_in_qtable(qtable, row)
+        
+
         """
         
             Get an item information from database, name, sale_price, quatity, barcode.

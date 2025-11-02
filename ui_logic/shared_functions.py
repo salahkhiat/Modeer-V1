@@ -1,6 +1,6 @@
 from PyQt6 import QtGui
 from PyQt6.QtWidgets import QComboBox, QTableWidget, QAbstractItemView, QTableWidgetItem
-
+from PyQt6.QtGui import QFont
 from hijri_converter import Gregorian
 from datetime import datetime
 
@@ -175,6 +175,34 @@ class SharedFunctions:
             item = table.item(row, column_index)
             result.append(item.text() if item else "")
         return result
+    
+    def add_list_in_qtable(self,table: QTableWidget, data: list):
+        """
+        Adds a list of values as a new row in a QTableWidget.
+
+        :param table: QTableWidget instance
+        :param data: list of values to insert
+        """
+        columns_count = len(data)
+
+        # Ensure table has enough columns
+        if table.columnCount() < columns_count:
+            table.setColumnCount(columns_count)
+
+        # Add new row at the end
+        current_row = table.rowCount()
+        table.insertRow(current_row)
+
+        # --- Custom font for the new row ---
+        custom_font = QFont()
+        custom_font.setPointSize(16)
+        custom_font.setBold(True)
+
+        # Fill the new row with data
+        for col, value in enumerate(data):
+            item = QTableWidgetItem(str(value))
+            item.setFont(custom_font)
+            table.setItem(current_row, col, item)
     
     def play_success_sound(self):
         winsound.Beep(500, 700)

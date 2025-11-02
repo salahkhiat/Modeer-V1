@@ -89,6 +89,8 @@ class ChooseItemForm(Form):
 
     def add_selected_item(self):        
         self.item_barcode_sent.emit(self.selected_item_barcode)
+        self.close()
+        self.play_success_sound()
 
     def add_btn_clicked(self):
         self.ui.add_btn.clicked.connect(self.add_selected_item)
