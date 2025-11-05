@@ -6,7 +6,7 @@ from .item_form import ItemForm
 from uis.choose_item import Ui_ChooseItemUi as ChooseItemUi
 from .choose_item_form import ChooseItemForm
 
-from PyQt6.QtWidgets import QTableWidgetItem, QHeaderView, QTableWidget
+from PyQt6.QtWidgets import QTableWidgetItem, QHeaderView, QTableWidget,  QStyledItemDelegate, QSpinBox
 from PyQt6.QtGui import QFont 
 from PyQt6.QtCore import pyqtSignal 
 
@@ -34,6 +34,15 @@ log = logging.getLogger("rich")
 # log.error("[red]✖ Operation failed[/red]")
 # ----- just to
 
+# this short class for make tables cells accept onley numbers.
+class OnlyDigitsInCell(QStyledItemDelegate):
+    def createEditor(self, parent, option, index):
+        spin = QSpinBox(parent)
+        spin.setMinimum(1)
+        spin.setMaximum(999999)
+        return spin
+    
+
 class InvoiceForm(Form):
     invoice_saved = pyqtSignal(bool)
 
@@ -42,7 +51,7 @@ class InvoiceForm(Form):
 
         # set invoice type
         self.invoice_type = invoice_type
-        print(self.invoice_type)
+
         # set icons
         self.set_icon("add_item_btn","add.svg")
         self.set_icon("clear_btn","refresh.svg")
@@ -56,6 +65,12 @@ class InvoiceForm(Form):
 
         # Set column count and headers for items_table
         items_table : QTableWidget = self.ui.items_table 
+
+        # Deal with Table cells 
+        items_table.setItemDelegateForColumn(2, OnlyDigitsInCell())
+
+        items_table.itemChanged.connect(self.get_cell_content)
+        
 
         # remove rows counter
         self.remove_rows_counter(items_table)
@@ -182,12 +197,17 @@ class InvoiceForm(Form):
         self.add_list_in_qtable(qtable, row)
         
 
-        """
-        
-            Get an item information from database, name, sale_price, quatity, barcode.
-            put them in an invoice table row
-        
-        """
+
+    def get_cell_content(self, cell: QTableWidgetItem):
+        print(cell.text())
+
+
+
+
+
+
+
+
    
 
     
@@ -206,6 +226,9 @@ class InvoiceForm(Form):
     def add_item_to_table(self,item_data:Dict[Any,Any]):
         
         table = self.ui.items_table
+
+        
+
         row = table.rowCount()
         
         table.insertRow(row)
@@ -221,6 +244,7 @@ class InvoiceForm(Form):
         table.setItem(row, 2, self.make_item(item_data['sale_price']))
         table.setItem(row, 3, self.make_item(item_data['quantity']))
         table.setItem(row, 4, self.make_item(item_data['ref']))
+        
         
         # enable save btn
         if table.rowCount() > 0:

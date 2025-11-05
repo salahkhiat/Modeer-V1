@@ -183,6 +183,15 @@ class SharedFunctions:
         :param table: QTableWidget instance
         :param data: list of values to insert
         """
+
+
+        """
+
+            We blocked the table signals.
+        
+        """
+
+        table.blockSignals(True)
         columns_count = len(data)
 
         # Ensure table has enough columns
@@ -203,6 +212,16 @@ class SharedFunctions:
             item = QTableWidgetItem(str(value))
             item.setFont(custom_font)
             table.setItem(current_row, col, item)
+        table.blockSignals(False)
+
+
+
+
+
+
+
+
+
     
     def play_success_sound(self):
         winsound.Beep(500, 700)
