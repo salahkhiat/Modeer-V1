@@ -1,7 +1,10 @@
 from .base_form import Form
 from PyQt6.QtWidgets import QTableWidgetItem, QTableWidget, QHeaderView, QAbstractItemView
 from PyQt6.QtGui import QFont 
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, QTimer
+
+from .error_form import ErrorForm
+from uis.error_msg import Ui_Dialog as ErrorFormUi
 
 class ChooseItemForm(Form):
     item_barcode_sent = pyqtSignal(int)
@@ -26,6 +29,13 @@ class ChooseItemForm(Form):
         
         # connect buttons
         self.add_btn_clicked()
+
+    def show_err_msg(self,msg:str):
+        form = ErrorForm(ErrorFormUi)
+        form.ui.err_msg.setText(msg.strip())
+        QTimer.singleShot(2000,form.close)
+        form.exec()
+
     def setup_table_columns(self):
         table: QTableWidget = self.ui.items_table
         
@@ -86,11 +96,24 @@ class ChooseItemForm(Form):
         for product in products :
             info = [product["name"], product["barcode"], product["sale_price"]]
             self.add_row(info)
+    
+    def get_item_quantity(self):
+        table = "products"
+        target = "quantity"
+        column = "barcode"
+        keyword = self.selected_item_barcode
+        return self.search_by(table,column,keyword,target)
 
-    def add_selected_item(self):        
-        self.item_barcode_sent.emit(self.selected_item_barcode)
-        self.close()
-        self.play_success_sound()
+    def add_selected_item(self):    
+        quantity = self.get_item_quantity()
+        if quantity < 1:
+            self.show_err_msg("الكمية نفذت")
+            self.play_failure_sound()
+        else:
+            self.item_barcode_sent.emit(self.selected_item_barcode)
+            self.close()
+            self.play_success_sound()
+        
 
     def add_btn_clicked(self):
         self.ui.add_btn.clicked.connect(self.add_selected_item)

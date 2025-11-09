@@ -4,6 +4,10 @@ from PyQt6.QtGui import QFont
 from hijri_converter import Gregorian
 from datetime import datetime
 
+
+
+
+
 from typing import Dict, Any, List
 import json, os, sys, random, winsound
 
@@ -74,6 +78,9 @@ class SharedFunctions:
             with open(settings,'r') as file:
                 settings = json.load(file)
             return settings
+    
+    
+
     
 
 
@@ -212,6 +219,7 @@ class SharedFunctions:
             item = QTableWidgetItem(str(value))
             item.setFont(custom_font)
             table.setItem(current_row, col, item)
+
         table.blockSignals(False)
 
 

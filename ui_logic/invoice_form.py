@@ -60,11 +60,32 @@ class InvoiceForm(Form):
         self.table = invoice_type
         self.column = "name"
         self.invoice_total = 0 
+        
 
         # test
 
         # Set column count and headers for items_table
         items_table : QTableWidget = self.ui.items_table 
+
+        # make the selected row blue.
+        items_table.setSelectionBehavior(
+            self.ui.items_table.SelectionBehavior.SelectRows
+        )
+        items_table.setSelectionMode(
+            self.ui.items_table.SelectionMode.SingleSelection
+        )
+        items_table.cellClicked.connect(self.on_row_clicked)
+
+        """
+        
+            Do this:
+                one_row_clicked need to put the selected item barcode in a variable named selected_item_barcode
+                then follow the needs in the issues list.
+        
+        
+        
+        """
+
 
         # Deal with Table cells 
         items_table.setItemDelegateForColumn(2, OnlyDigitsInCell())
@@ -196,10 +217,16 @@ class InvoiceForm(Form):
         qtable : QTableWidget = self.ui.items_table
         self.add_list_in_qtable(qtable, row)
         
+        
 
 
     def get_cell_content(self, cell: QTableWidgetItem):
-        print(cell.text())
+        if len(cell.text().strip()) == 0:
+            cell.setText("1")
+        if len(cell.text()) > 0: 
+            if int(cell.text()) == 0 : 
+                cell.setText("1")
+        
 
 
 
@@ -352,6 +379,33 @@ class InvoiceForm(Form):
             
     def save_btn_clicked(self):
         self.ui.save_btn.clicked.connect(self.save_invoice_in_db) 
+
+
+    def on_row_clicked(self, row: int, column: int):
+        """
+        When a cell is clicked, extract the entire row as a dictionary.
+        """
+        table = self.ui.items_table
+
+        # Get the column headers
+        headers = [
+            table.horizontalHeaderItem(i).text()
+            for i in range(table.columnCount())
+        ]
+
+        # Get the cell text values for this row
+        values = [
+            table.item(row, i).text() if table.item(row, i) else ""
+            for i in range(table.columnCount())
+        ]
+
+        # Combine headers and values into a dictionary
+        row_data = dict(zip(headers, values))
+
+        print(row_data)  # Example: {'name': 'iphonex', 'price': '2000.00', 'barcode': '2342'}
+
+        # You can also do something with it:
+        # self.show_row_data(row_data)
 
 
         
