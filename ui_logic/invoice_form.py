@@ -8,7 +8,11 @@ from .choose_item_form import ChooseItemForm
 
 from PyQt6.QtWidgets import QTableWidgetItem, QHeaderView, QTableWidget,  QStyledItemDelegate, QSpinBox
 from PyQt6.QtGui import QFont 
-from PyQt6.QtCore import pyqtSignal 
+from PyQt6.QtCore import pyqtSignal , QTimer
+
+from .error_form import ErrorForm
+from uis.error_msg import Ui_Dialog as ErrorFormUi
+
 
 from typing import Dict , Any 
 
@@ -63,7 +67,12 @@ class InvoiceForm(Form):
         
 
         # test
+        
 
+        # tested 
+
+        # default variables 
+        self.selected_product_barcode = None 
         # Set column count and headers for items_table
         items_table : QTableWidget = self.ui.items_table 
 
@@ -74,18 +83,9 @@ class InvoiceForm(Form):
         items_table.setSelectionMode(
             self.ui.items_table.SelectionMode.SingleSelection
         )
-        items_table.cellClicked.connect(self.on_row_clicked)
+        items_table.cellClicked.connect(self.select_item_barcode)
 
-        """
-        
-            Do this:
-                one_row_clicked need to put the selected item barcode in a variable named selected_item_barcode
-                then follow the needs in the issues list.
-        
-        
-        
-        """
-
+    
 
         # Deal with Table cells 
         items_table.setItemDelegateForColumn(2, OnlyDigitsInCell())
@@ -217,15 +217,40 @@ class InvoiceForm(Form):
         qtable : QTableWidget = self.ui.items_table
         self.add_list_in_qtable(qtable, row)
         
+    def show_err_msg(self,msg:str):
+        self.play_failure_sound()
+        form = ErrorForm(ErrorFormUi)
+        form.ui.err_msg.setText(msg.strip())
+        QTimer.singleShot(2000,form.close)
+        form.exec()
         
+
+    def is_enough_quantity(self, quantity:int):
+
+        product_info = self.get_item_info("products",("quantity",),"barcode",str(self.selected_product_barcode))
+        if int(product_info["quantity"]) < quantity:
+            self.show_err_msg("لا تتوفر الكمية في المخزون")
+            
 
 
     def get_cell_content(self, cell: QTableWidgetItem):
         if len(cell.text().strip()) == 0:
             cell.setText("1")
-        if len(cell.text()) > 0: 
+        elif len(cell.text()) > 0: 
             if int(cell.text()) == 0 : 
                 cell.setText("1")
+            else:
+                self.is_enough_quantity(int(cell.text()))
+                cell.setText("1")
+        else:
+            pass
+        """
+            HERE solve the next problem
+        """
+        
+
+
+        
         
 
 
@@ -381,31 +406,18 @@ class InvoiceForm(Form):
         self.ui.save_btn.clicked.connect(self.save_invoice_in_db) 
 
 
-    def on_row_clicked(self, row: int, column: int):
-        """
-        When a cell is clicked, extract the entire row as a dictionary.
-        """
+    def select_item_barcode(self, row: int):
+        """ SET SELECTED PRODUCT BARCODE OF SELECTED ITEMS_TABLE ROW"""
         table = self.ui.items_table
-
-        # Get the column headers
-        headers = [
-            table.horizontalHeaderItem(i).text()
-            for i in range(table.columnCount())
-        ]
-
         # Get the cell text values for this row
         values = [
             table.item(row, i).text() if table.item(row, i) else ""
             for i in range(table.columnCount())
         ]
+        self.selected_product_barcode = values[3]
+        
 
-        # Combine headers and values into a dictionary
-        row_data = dict(zip(headers, values))
 
-        print(row_data)  # Example: {'name': 'iphonex', 'price': '2000.00', 'barcode': '2342'}
-
-        # You can also do something with it:
-        # self.show_row_data(row_data)
 
 
         
