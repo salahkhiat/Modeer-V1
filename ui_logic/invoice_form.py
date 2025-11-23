@@ -216,6 +216,11 @@ class InvoiceForm(Form):
         row[2]=1
         qtable : QTableWidget = self.ui.items_table
         self.add_list_in_qtable(qtable, row)
+
+        # Calculate the price 
+        sale_price = int(product_info["sale_price"])
+        self.invoice_total += sale_price
+        self.ui.total.display(self.invoice_total)
         
     def show_err_msg(self,msg:str):
         self.play_failure_sound()
@@ -225,28 +230,54 @@ class InvoiceForm(Form):
         form.exec()
         
 
-    def is_enough_quantity(self, quantity:int):
+    def is_enough_quantity(self, quantity:int) -> bool:
+        """return True if the quantity is enough, otherwise return False."""
 
         product_info = self.get_item_info("products",("quantity",),"barcode",str(self.selected_product_barcode))
         if int(product_info["quantity"]) < quantity:
             self.show_err_msg("لا تتوفر الكمية في المخزون")
+            return False 
+        else:
+            return True 
             
 
 
     def get_cell_content(self, cell: QTableWidgetItem):
-        if len(cell.text().strip()) == 0:
+        qt = cell.text().strip() # quantity 
+
+        # if a quantity field is empty.
+        if len(qt) == 0:
             cell.setText("1")
-        elif len(cell.text()) > 0: 
-            if int(cell.text()) == 0 : 
+        # if not empty.
+        elif len(qt) > 0: 
+            # if the quantity is 0
+            if int(qt) == 0 : 
                 cell.setText("1")
-            else:
-                self.is_enough_quantity(int(cell.text()))
-                cell.setText("1")
-        else:
-            pass
-        """
-            HERE solve the next problem
-        """
+            # if a quantity is greater than 0 
+            elif int(qt) > 0 :
+                # if there is enough quantity in Stock.
+                quantity = self.is_enough_quantity(int(qt))
+                qtable: QTableWidget = self.ui.items_table
+                rows = qtable.rowCount()
+                # set total to 0 
+                self.invoice_total = 0 
+
+                # calculates total
+                for row in range(rows):
+                    _sale_price = float(qtable.item(row,1).text())
+                    
+                    _quantity = int(qtable.item(row,2).text())
+                    item_total = _sale_price * _quantity
+                    self.invoice_total += item_total
+                self.ui.total.display(self.invoice_total)
+                    
+                if quantity is False:
+                    cell.setText("1")
+                else:
+                    cell.setText(qt.strip())
+                
+
+        
         
 
 
