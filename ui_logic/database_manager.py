@@ -167,14 +167,10 @@ class DatabaseManager(SharedFunctions):
 
 
     """
-        table = "products"
-        columns = ("barcode", "sale_price", "quantity", "name")
-        keyword = "barcode"
-        target = 3434
 
-        item = self.get_item_info(table, columns, keyword, target)
     
     """
+    
     def get_item_info(self, table: str, columns: tuple, keyword: str, target) -> dict | None:
         """
         Fetch a single row from a database table where a specific column matches a target value.
@@ -187,6 +183,13 @@ class DatabaseManager(SharedFunctions):
 
         Returns:
             dict | None: A dictionary representing one row, or None if not found.
+
+            Examples:
+                >>> table = "products"
+                >>> columns = ("barcode", "sale_price", "quantity", "name")
+                >>> keyword = "barcode"
+                >>> target = 3434
+                >>> item = obj.get_item_info(table, columns, keyword, target)
         """
         connection = None
         try:
@@ -505,26 +508,31 @@ class DatabaseManager(SharedFunctions):
 
             # Customers Invoices
             """
-            CREATE TABLE IF NOT EXISTS customers_invoices (
+            CREATE TABLE IF NOT EXISTS sale_invoices (
                 id INTEGER PRIMARY KEY,
-                customer_id INTEGER,
-                sold_price REAL,
+                customer_id INTEGER NOT NULL,
+                invoice_number TEXT,           -- Optional: unique invoice code
+                total TEXT,
+                deposit TEXT,
+                created_at TEXT ,
                 FOREIGN KEY (customer_id) REFERENCES customers(id)
             );
             """,
 
-            # Orders
+            # Sales History
             """
-            CREATE TABLE IF NOT EXISTS orders (
+            CREATE TABLE IF NOT EXISTS sales_history (
                 id INTEGER PRIMARY KEY,
-                invoice_id INTEGER,
-                product_id INTEGER,
-                product_name TEXT,
-                unit_price REAL,
-                sold_price REAL,
-                quantity INTEGER,
-                FOREIGN KEY (invoice_id) REFERENCES customers_invoices(id),
-                FOREIGN KEY (product_id) REFERENCES product(id)
+                invoice_id INTEGER NOT NULL,
+                product_id INTEGER,                 -- FK to products, nullable if you allow free-text items
+                product_name TEXT NOT NULL,        -- Snapshot of name
+                barcode TEXT,                      -- Optional snapshot of barcode
+                quantity INTEGER NOT NULL,
+                purchase_price REAL NOT NULL,      -- Snapshot of price at sale time
+                sale_price REAL,                   -- Optional: expected sale price
+                total REAL GENERATED ALWAYS AS (quantity * sale_price) STORED,  -- Auto-calculated
+                FOREIGN KEY (invoice_id) REFERENCES sale_invoices(id),
+                FOREIGN KEY (product_id) REFERENCES products(id)
             );
             """,
 

@@ -86,11 +86,11 @@ class InvoiceForm(Form):
         items_table.cellClicked.connect(self.select_item_barcode)
 
     
+        if self.invoice_total == "customers":
+            # Deal with Table cells 
+            items_table.setItemDelegateForColumn(2, OnlyDigitsInCell())
 
-        # Deal with Table cells 
-        items_table.setItemDelegateForColumn(2, OnlyDigitsInCell())
-
-        items_table.itemChanged.connect(self.get_cell_content)
+            items_table.itemChanged.connect(self.get_cell_content)
         
 
         # remove rows counter
@@ -243,6 +243,7 @@ class InvoiceForm(Form):
 
 
     def get_cell_content(self, cell: QTableWidgetItem):
+        """Dealing with a quantity's field + calculating a customer's invoice total"""
         qt = cell.text().strip() # quantity 
 
         # if a quantity field is empty.
@@ -265,7 +266,6 @@ class InvoiceForm(Form):
                 # calculates total
                 for row in range(rows):
                     _sale_price = float(qtable.item(row,1).text())
-                    
                     _quantity = int(qtable.item(row,2).text())
                     item_total = _sale_price * _quantity
                     self.invoice_total += item_total
@@ -277,23 +277,6 @@ class InvoiceForm(Form):
                     cell.setText(qt.strip())
                 
 
-        
-        
-
-
-        
-        
-
-
-
-
-
-
-
-
-   
-
-    
     def add_item_btn_clicked(self):
         self.ui.add_item_btn.clicked.connect( lambda: self.show_item_form())
 
@@ -307,11 +290,7 @@ class InvoiceForm(Form):
     
 
     def add_item_to_table(self,item_data:Dict[Any,Any]):
-        
         table = self.ui.items_table
-
-        
-
         row = table.rowCount()
         
         table.insertRow(row)
@@ -362,7 +341,10 @@ class InvoiceForm(Form):
         # Calculates an invoice total.
         invoice_total = 0 
         for _ , product_info in products_list.items():
-            invoice_total += int(product_info[1]) * int(product_info[3]) # purchase_price * quantity
+            if self.invoice_type == "suppliers":
+                invoice_total += int(product_info[1]) * int(product_info[3]) # purchase_price * quantity
+            elif self.invoice_type == "customers":
+                invoice_total += int(product_info[1]) * int(product_info[3]) # sale_price * quantity
 
         # Generates an invoice.
         if self.user_id is None:
@@ -372,6 +354,13 @@ class InvoiceForm(Form):
             while True:
                 generated_barcode = str(self.generate_reference())
                 if self.is_in_table("purchase_invoices","invoice_number",generated_barcode):
+
+
+                    """
+                            You should work here ....
+
+                    """
+
                     continue
                 else:
                     invoice_barcode = generated_barcode
