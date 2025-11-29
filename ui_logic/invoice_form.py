@@ -86,11 +86,11 @@ class InvoiceForm(Form):
         items_table.cellClicked.connect(self.select_item_barcode)
 
     
-        if self.invoice_total == "customers":
+        # if self.invoice_total == "customers":
             # Deal with Table cells 
-            items_table.setItemDelegateForColumn(2, OnlyDigitsInCell())
+        # items_table.setItemDelegateForColumn(2, OnlyDigitsInCell())
 
-            items_table.itemChanged.connect(self.get_cell_content)
+        # items_table.itemChanged.connect(self.get_cell_content)
         
 
         # remove rows counter
@@ -169,6 +169,10 @@ class InvoiceForm(Form):
         # accept only numbers in amount field.
         self.accept_numbers_only(self.ui.amount)
 
+    def validating_qt_cell(self):
+        self.ui.items_table.setItemDelegateForColumn(2, OnlyDigitsInCell())
+        self.ui.items_table.itemChanged.connect(self.get_cell_content)
+
     def put_users_on_combo(self):
         combo = self.ui.users
         self.fetch_then_put(self.table,self.column,combo)
@@ -221,6 +225,8 @@ class InvoiceForm(Form):
         sale_price = int(product_info["sale_price"])
         self.invoice_total += sale_price
         self.ui.total.display(self.invoice_total)
+        self.validating_qt_cell()
+        self.enable_save_btn()
         
     def show_err_msg(self,msg:str):
         self.play_failure_sound()
@@ -245,7 +251,7 @@ class InvoiceForm(Form):
     def get_cell_content(self, cell: QTableWidgetItem):
         """Dealing with a quantity's field + calculating a customer's invoice total"""
         qt = cell.text().strip() # quantity 
-
+        print(f"quantity is : {qt}")
         # if a quantity field is empty.
         if len(qt) == 0:
             cell.setText("1")
@@ -257,24 +263,37 @@ class InvoiceForm(Form):
             # if a quantity is greater than 0 
             elif int(qt) > 0 :
                 # if there is enough quantity in Stock.
-                quantity = self.is_enough_quantity(int(qt))
+                quantity = None 
+                if self.invoice_type == "customers":
+                    quantity = self.is_enough_quantity(int(qt))
+
                 qtable: QTableWidget = self.ui.items_table
                 rows = qtable.rowCount()
                 # set total to 0 
                 self.invoice_total = 0 
 
                 # calculates total
+                item_total = 0
                 for row in range(rows):
-                    _sale_price = float(qtable.item(row,1).text())
-                    _quantity = int(qtable.item(row,2).text())
-                    item_total = _sale_price * _quantity
+                    
+                    if self.invoice_type == "customers":
+                        _sale_price = float(qtable.item(row,1).text())
+                        _quantity = int(qtable.item(row,2).text())
+                        item_total = _sale_price * _quantity
+
+                    elif self.invoice_type == "suppliers":
+                        _purchase_price = float(qtable.item(row,1).text())
+                        _quantity = int(qtable.item(row,3).text())
+                        item_total = _purchase_price * _quantity
+
                     self.invoice_total += item_total
                 self.ui.total.display(self.invoice_total)
-                    
-                if quantity is False:
-                    cell.setText("1")
-                else:
-                    cell.setText(qt.strip())
+                
+                if self.invoice_type == "customers":
+                    if quantity is False:
+                        cell.setText("1")
+                    else:
+                        cell.setText(qt.strip())
                 
 
     def add_item_btn_clicked(self):
@@ -304,10 +323,15 @@ class InvoiceForm(Form):
         if self.invoice_type == "suppliers":
             table.setItem(row, 1, self.make_item(item_data['purchase_price']))
         table.setItem(row, 2, self.make_item(item_data['sale_price']))
+        
         table.setItem(row, 3, self.make_item(item_data['quantity']))
         table.setItem(row, 4, self.make_item(item_data['ref']))
         
+        self.enable_save_btn()
+
         
+    def enable_save_btn(self):
+        table = self.ui.items_table
         # enable save btn
         if table.rowCount() > 0:
             self.ui.save_btn.setEnabled(True)
@@ -350,26 +374,29 @@ class InvoiceForm(Form):
         if self.user_id is None:
             log.error("[red]Sorry, You need to add suppliers first.[/red]")
         else:
-            # Generate and Set an invoice barcode if it does not exist.
+            # Generates and Sets an invoice barcode if it does not exist.
             while True:
                 generated_barcode = str(self.generate_reference())
-                if self.is_in_table("purchase_invoices","invoice_number",generated_barcode):
+                if self.invoice_type == "suppliers":
+                    if self.is_in_table("purchase_invoices","invoice_number",generated_barcode):
+                        continue
+                    else:
+                        invoice_barcode = generated_barcode
+                        invoice_id = self.store("purchase_invoices",["supplier_id","invoice_number","total","deposit","created_at"],(self.user_id,invoice_barcode,str(invoice_total),invoice_deposit,created),True)
+                        break
 
-
-                    """
-                            You should work here ....
-
-                    """
-
-                    continue
-                else:
-                    invoice_barcode = generated_barcode
-                    invoice_id = self.store("purchase_invoices",["supplier_id","invoice_number","total","deposit","created_at"],(self.user_id,invoice_barcode,str(invoice_total),invoice_deposit,created),True)
-                    break
+                elif self.invoice_type == "customers":
+                    if self.is_in_table("sale_invoices","invoice_number",generated_barcode):
+                        continue
+                    else:
+                        invoice_barcode = generated_barcode
+                        invoice_id = self.store("sale_invoices",["customer_id","invoice_number","total","deposit","created_at"],(self.user_id,invoice_barcode,str(invoice_total),invoice_deposit,created),True)
+                        break
         
         # looping through products table and save them into database
         for _ , product_info in products_list.items():
             # unpacking product info
+
             name, purchase_price, sale_price, quantity, barcode = product_info.values()
             data = (name, purchase_price, sale_price, quantity, barcode,str(invoice_id))
 

@@ -1,3 +1,5 @@
-d = dict( age=18)
-
-print(d.get('name'))
+a = "5"
+if type(a) is str:
+    print("it is string")
+elif type(a) is int:
+    print("int")
