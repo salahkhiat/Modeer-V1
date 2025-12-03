@@ -368,7 +368,7 @@ class InvoiceForm(Form):
             if self.invoice_type == "suppliers":
                 invoice_total += int(product_info[1]) * int(product_info[3]) # purchase_price * quantity
             elif self.invoice_type == "customers":
-                invoice_total += int(product_info[1]) * int(product_info[3]) # sale_price * quantity
+                invoice_total += float(product_info[1]) * float(product_info[2]) # sale_price * quantity
 
         # Generates an invoice.
         if self.user_id is None:
@@ -393,55 +393,103 @@ class InvoiceForm(Form):
                         invoice_id = self.store("sale_invoices",["customer_id","invoice_number","total","deposit","created_at"],(self.user_id,invoice_barcode,str(invoice_total),invoice_deposit,created),True)
                         break
         
-        # looping through products table and save them into database
-        for _ , product_info in products_list.items():
-            # unpacking product info
 
-            name, purchase_price, sale_price, quantity, barcode = product_info.values()
-            data = (name, purchase_price, sale_price, quantity, barcode,str(invoice_id))
 
-            # p_h means purchases_history
-            p_h_table = "purchases_history"
-            p_h_columns = ["invoice_id","product_id","product_name","barcode","quantity","purchase_price","sale_price"]
+
+
+        
+                            # if an invoice type is for a supplier
+        if self.invoice_type == "suppliers":
+            # looping through products table and save them into database
+            for _ , product_info in products_list.items():
+                
             
+                # unpacking product info
+                name, purchase_price, sale_price, quantity, barcode = product_info.values()
+                data = (name, purchase_price, sale_price, quantity, barcode,str(invoice_id))
 
-            # If a product is already existing in a database.
-            if self.is_in_table("products","barcode",barcode):
+                # p_h means purchases_history
+                p_h_table = "purchases_history"
+                p_h_columns = ["invoice_id","product_id","product_name","barcode","quantity","purchase_price","sale_price"]
+                
 
-                updated_columns = ["name", "purchase_price", "sale_price", "quantity","invoice_id"]
-                updated_data = (name, purchase_price, sale_price, quantity,str(invoice_id))
+                # If a product is already existing in a database.
+                if self.is_in_table("products","barcode",barcode):
 
-                # If product info updated successfully
-                if self.update_info("products",updated_columns,updated_data,"barcode = ?",(barcode,)):
-                    updated_product_id = self.search_by("products","barcode",barcode,"id")
+                    updated_columns = ["name", "purchase_price", "sale_price", "quantity","invoice_id"]
+                    updated_data = (name, purchase_price, sale_price, quantity,str(invoice_id))
 
-                    # If a product barcode is not existing in a database.
-                    if updated_product_id is None:
-                        log.error(f"[red]product:{name} with {barcode} barcode is not existing in a database.[/red]")
-                        return 
+                    # If product info updated successfully
+                    if self.update_info("products",updated_columns,updated_data,"barcode = ?",(barcode,)):
+                        updated_product_id = self.search_by("products","barcode",barcode,"id")
+
+                        # If a product barcode is not existing in a database.
+                        if updated_product_id is None:
+                            log.error(f"[red]product:{name} with {barcode} barcode is not existing in a database.[/red]")
+                            return 
+                        else:
+                            p_h_data = (invoice_id,updated_product_id,name,barcode,quantity,purchase_price,sale_price)
+                            # If product info was not inserted into a purchases_history table
+                            if self.store(p_h_table,p_h_columns,p_h_data) is not True:
+                                log.error(f"[red]Product:{name} with {barcode} barcode was not inserted in purchases_table. [/red]")
+                                return
+
                     else:
-                        p_h_data = (invoice_id,updated_product_id,name,barcode,quantity,purchase_price,sale_price)
-                        # If product info was not inserted into a purchases_history table
-                        if self.store(p_h_table,p_h_columns,p_h_data) is not True:
-                            log.error(f"[red]Product:{name} with {barcode} barcode was not inserted in purchases_table. [/red]")
-                            return
+                        log.error(f"[red]Product:{name} with {barcode} was not updated. [/red]")
+                        return
 
+                # If a product is not existing in a database.
                 else:
-                    log.error(f"[red]Product:{name} with {barcode} was not updated. [/red]")
-                    return
+                    product_id = self.store(table_name,columns,data,True)
+                    p_h_data = (invoice_id,product_id,name,barcode,quantity,purchase_price,sale_price)
+        
+                    if product_id is False:
+                        log.error(f"[red]Product:{name} with {barcode} was not inserted into products table.[/red]")
+                        return
+                    else:
+                        if self.store(p_h_table,p_h_columns,p_h_data) is False:
+                            log.error(f"[red]Product:{name} with barcode {barcode} was not inserted into purchases_history [/red]")
+                            return 
+                        
+                        
+                        # if an invoice type is for a customers
+        elif self.invoice_type == "customers":
+                                
+            # looping through products table and save them into database
+            
+            for _ , product_info in products_list.items():
+                
+                print(product_info)
+                # unpacking product info
+                name, sale_price, quantity, barcode = product_info.values()
+                data = (name, sale_price, quantity, barcode,str(invoice_id))
 
-            # If a product is not existing in a database.
-            else:
-                product_id = self.store(table_name,columns,data,True)
-                p_h_data = (invoice_id,product_id,name,barcode,quantity,purchase_price,sale_price)
-    
-                if product_id is False:
-                    log.error(f"[red]Product:{name} with {barcode} was not inserted into products table.[/red]")
-                    return
-                else:
-                    if self.store(p_h_table,p_h_columns,p_h_data) is False:
-                        log.error(f"[red]Product:{name} with barcode {barcode} was not inserted into purchases_history [/red]")
-                        return 
+                # s_h means sales_history
+                s_h_table = "sales_history"
+                s_h_columns = ["invoice_id","product_id","product_name","barcode","quantity","purchase_price","sale_price"]
+                
+
+                # If a product is existing in a database.
+                if self.is_in_table("products","barcode",barcode):
+
+
+                    
+                    product_id = 999 # a test
+                    purchase_price = 3000 # a test
+
+
+
+                    s_h_data = (invoice_id,product_id,name,barcode,quantity,purchase_price,sale_price)
+
+                    if self.store(s_h_table,s_h_columns,s_h_data) is False:
+                            log.error(f"[red]Product:{name} with barcode {barcode}  has not sold  [/red]")
+                            return 
+                    else:
+                            log.warning(f"[green]Product:{name} with barcode {barcode}  has sold successfully  [/green]")
+                            
+        
+        
+                    
                     
 
         self.play_success_sound()  
