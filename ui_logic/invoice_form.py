@@ -473,12 +473,26 @@ class InvoiceForm(Form):
                 if self.is_in_table("products","barcode",barcode):
 
 
+                    item_info = self.get_item_info("products",("id","quantity","purchase_price"),"barcode",barcode)
+                    product_id = int(item_info["id"])
+                    stock = item_info["quantity"]
+                    purchase_price = float(item_info["purchase_price"])
+
+
+                    # Check if is there enough quantity in stock
+                    if quantity > stock:
+                        log.error("[red] You don't have enough quantity in stock [/red]")
+                    elif quantity <= stock:
+                        new_sock = int(stock) - int(quantity)
+                        # update the stock
+                        """
+                            UPDATE THE STOCK 
+                            working is in this area
+                        
+                        """
+
+
                     
-                    product_id = 999 # a test
-                    purchase_price = 3000 # a test
-
-
-
                     s_h_data = (invoice_id,product_id,name,barcode,quantity,purchase_price,sale_price)
 
                     if self.store(s_h_table,s_h_columns,s_h_data) is False:
