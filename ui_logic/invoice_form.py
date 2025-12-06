@@ -394,11 +394,10 @@ class InvoiceForm(Form):
                         break
         
 
-
-
-
         
-                            # if an invoice type is for a supplier
+            """ 
+                    if an invoice type is for suppliers
+            """
         if self.invoice_type == "suppliers":
             # looping through products table and save them into database
             for _ , product_info in products_list.items():
@@ -452,7 +451,10 @@ class InvoiceForm(Form):
                             return 
                         
                         
-                        # if an invoice type is for a customers
+            """ 
+                    if an invoice type is for customers
+            """
+
         elif self.invoice_type == "customers":
                                 
             # looping through products table and save them into database
@@ -475,24 +477,22 @@ class InvoiceForm(Form):
 
                     item_info = self.get_item_info("products",("id","quantity","purchase_price"),"barcode",barcode)
                     product_id = int(item_info["id"])
-                    stock = item_info["quantity"]
+                    stock = int(item_info["quantity"])
                     purchase_price = float(item_info["purchase_price"])
 
 
                     # Check if is there enough quantity in stock
-                    if quantity > stock:
+                    the_quantity = int(quantity)
+                    if the_quantity > stock:
                         log.error("[red] You don't have enough quantity in stock [/red]")
-                    elif quantity <= stock:
-                        new_sock = int(stock) - int(quantity)
-                        # update the stock
-                        """
-                            UPDATE THE STOCK 
-                            working is in this area
-                        
-                        """
-
-
+                        return 
                     
+                    elif the_quantity <= stock:
+                        new_sock = stock - int(quantity)
+                        # update stock
+                        self.update_info("products",["quantity"],(new_sock,),"barcode=?",(barcode,))
+                 
+
                     s_h_data = (invoice_id,product_id,name,barcode,quantity,purchase_price,sale_price)
 
                     if self.store(s_h_table,s_h_columns,s_h_data) is False:
@@ -501,11 +501,6 @@ class InvoiceForm(Form):
                     else:
                             log.warning(f"[green]Product:{name} with barcode {barcode}  has sold successfully  [/green]")
                             
-        
-        
-                    
-                    
-
         self.play_success_sound()  
         self.invoice_saved.emit(True)           
 
