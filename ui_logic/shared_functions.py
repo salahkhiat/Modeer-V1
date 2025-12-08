@@ -78,10 +78,6 @@ class SharedFunctions:
             with open(settings,'r') as file:
                 settings = json.load(file)
             return settings
-    
-    
-
-    
 
 
     def fetch_then_put(self, table:str, column:str, combo:QComboBox) -> None:
