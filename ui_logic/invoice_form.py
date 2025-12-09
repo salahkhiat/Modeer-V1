@@ -449,6 +449,17 @@ class InvoiceForm(Form):
                         if self.store(p_h_table,p_h_columns,p_h_data) is False:
                             log.error(f"[red]Product:{name} with barcode {barcode} was not inserted into purchases_history [/red]")
                             return 
+            
+            # this part assigns the deposit amount on suppliers_transactions
+            # if float(invoice_deposit) > 0:
+            #     tran_table = "suppliers_transactions"
+            #     tran_columns = ["supplier_id","invoice_id","amount","type","created"]
+            #     tran_data = (self.user_id,invoice_id,float(invoice_deposit),"deposit",self.current_date())
+            #     if not self.store(tran_table,tran_columns,tran_data):
+            #         print("the deposit has not added")
+            #     else:
+            #         print("the deposit has added successfully")
+
                         
                         
             """ 
@@ -461,7 +472,7 @@ class InvoiceForm(Form):
             
             for _ , product_info in products_list.items():
                 
-                print(product_info)
+                
                 # unpacking product info
                 name, sale_price, quantity, barcode = product_info.values()
                 data = (name, sale_price, quantity, barcode,str(invoice_id))

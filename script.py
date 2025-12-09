@@ -1,3 +1,3 @@
-
-fn, sn, tn = None 
-print(fn)
+names = ["a","s","gg"]
+names.pop(names.index("gg"))
+print(names)
