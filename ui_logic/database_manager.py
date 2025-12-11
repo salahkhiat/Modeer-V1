@@ -611,9 +611,11 @@ class DatabaseManager(SharedFunctions):
             """
             CREATE TABLE IF NOT EXISTS customers_payments (
                 id INTEGER PRIMARY KEY,
+                customer_id INTEGER,
                 amount REAL,
                 note TEXT,
-                created TEXT
+                created TEXT,
+                FOREIGN KEY (customer_id) REFERENCES customers(id)
             );
             """,
 
