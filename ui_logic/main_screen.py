@@ -36,6 +36,10 @@ from .invoice_form import InvoiceForm
 from uis.choose_product import Ui_Form as ChooseProductUi 
 from .choose_product_form import ChooseProductForm
 
+# We used 'category' UI for requested products form because it has the same required properties.
+from uis.category import Ui_Form as RequestedProductUi
+from .requested_product_form import RequestedProductForm
+
 from uis.error_msg import Ui_Dialog as ErrorUi
 from .error_form import ErrorForm
 
@@ -66,6 +70,7 @@ class MainScreen(MainForm):
         self.show_database_form()
         self.show_account_form()
         self.show_analysis_form()
+        self.show_requested_product_form()
         self.show_mobile_form()
         self.show_expense_form()
         self.show_withdrawal_form()
@@ -98,9 +103,16 @@ class MainScreen(MainForm):
     def database_form(self):
         form = DatabaseForm(DatabaseUi)
         form.exec()
-    def show_database_form(self):
 
+    def show_database_form(self):
         self.ui.set_db_btn.clicked.connect(self.database_form)
+    
+    def requested_product_form(self):
+        form = RequestedProductForm(RequestedProductUi)
+        form.exec()
+
+    def show_requested_product_form(self):
+        self.ui.requested_products_btn.clicked.connect(self.requested_product_form)
 
     # set new user form button
     def account_form(self):
