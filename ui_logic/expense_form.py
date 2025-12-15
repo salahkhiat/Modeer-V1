@@ -1,11 +1,17 @@
 from PyQt6.QtWidgets import QComboBox, QLineEdit, QPushButton
 from .base_form import Form
 
+from .expenses_category_form import ExpensesCategoryForm
+from uis.category import Ui_Form as CategoryUi
+
 class ExpenseForm(Form):
     def __init__(self,base_form):
         super().__init__(base_form)
         # set form title
         self.setWindowTitle("تسجيل مصروف جديد")
+
+        # set icons 
+        self.set_icon("add_category_btn","add.svg")
         
 
         # default settings
@@ -14,11 +20,12 @@ class ExpenseForm(Form):
         categories_combo:QComboBox = self.ui.category
         categories_combo.addItems(categories)
 
-        current_category = categories_combo.currentText()
+        # Default validation variables.
+        self.is_valid_category = False
     
-        # getting a selected employee's id, then assign it into obj.selected_employee_id.
-        self.selected_category_id = self.get_item_info("expenses_categories",("id",),"name",current_category)["id"]
-        categories_combo.currentTextChanged.connect(self.set_current_category_id)
+        # Connect buttons
+        self.add_category_clicked()
+
 
         # an amount field
         self.amount: QLineEdit = self.ui.amount
@@ -31,16 +38,16 @@ class ExpenseForm(Form):
         save_btn: QPushButton = self.ui.save_btn
         save_btn.clicked.connect(self.create_transaction)
 
-
-    def set_current_category_id(self,text:str):
-        """
-            setting a selected category id
-        """
-        self.selected_category_id = self.get_item_info("expenses_categories",("id",),"name",text.strip())["id"]
-        print(f"the ID of {text.strip()} is {self.selected_category_id}.")
-
     
     def create_transaction(self):
+        cat_dic = self.get_table_as_dict("expenses_categories","name")
+
+        cat_name = self.ui.category.currentText()
+        cat_id = None
+        for id, name in cat_dic.items():
+            if name == cat_name:
+                cat_id = id
+
         valid_amount = self.is_amount("amount")
         if not valid_amount:
             print("invalid amount")
@@ -51,7 +58,7 @@ class ExpenseForm(Form):
             
             columns = ["category_id","note","amount","created"]
             data = (
-                self.selected_category_id,
+                cat_id,
                 note,
                 amount,
                 self.current_date()
@@ -67,6 +74,24 @@ class ExpenseForm(Form):
             self.close()
             self.play_success_sound()
 
+    def show_category_form(self) -> int:
+            """
+            Show add category form.
+            """
+            category_form = ExpensesCategoryForm(CategoryUi)
+            category_form.category_saved.connect(self.refresh_categories)
+            return category_form.exec()
+    
+    def add_category_clicked(self):
+        self.ui.add_category_btn.clicked.connect(self.show_category_form)
+
+    def refresh_categories(self, saved:bool) -> bool:
+        if saved:
+            self.ui.category.clear()
+            self.fetch_then_put("expenses_categories","name",self.ui.category)
+            return True 
+        else:
+            return False 
     
         
         
