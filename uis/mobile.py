@@ -30,7 +30,7 @@ class Ui_Form(object):
         font.setBold(True)
         self.seller_name.setFont(font)
         self.seller_name.setStyleSheet("background-color:white;")
-        self.seller_name.setMaxLength(64)
+        self.seller_name.setMaxLength(30)
         self.seller_name.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.seller_name.setObjectName("seller_name")
         self.verticalLayout.addWidget(self.seller_name)

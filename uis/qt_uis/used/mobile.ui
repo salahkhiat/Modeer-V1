@@ -62,7 +62,7 @@
        <string notr="true">background-color:white;</string>
       </property>
       <property name="maxLength">
-       <number>64</number>
+       <number>30</number>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
