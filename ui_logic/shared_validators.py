@@ -35,7 +35,7 @@ class SharedValidators(DatabaseManager):
         field.setEnabled(state)
 
 
-    # Check the minimum and the maximum of an amount. min = 1 DZD , max = 100000 DZD.
+    # Check the minimum and the maximum of an amount. min = 1 DZD , max = 1000000 DZD.
     def is_price(self, field_name:str):
         field = getattr(self.ui,field_name).text()
         if len(field) > 0:
@@ -43,10 +43,10 @@ class SharedValidators(DatabaseManager):
             if amount == 0 :
                 self.set_err_msg(field_name,"الصفر قيمة مرفوضة")
                 return False 
-            elif amount > 100000:
-                self.set_err_msg(field_name,"أقصى مبلغ هو : 100000 دج")
+            elif amount > 1000000:
+                self.set_err_msg(field_name,"أقصى مبلغ هو : 1000000 دج")
                 return False
-            elif amount > 0 and amount < 100001:
+            elif amount > 0 and amount < 1000001:
                 self.set_err_msg(field_name, "الحقل جاهز")
                 return True 
             

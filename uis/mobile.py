@@ -78,7 +78,7 @@ class Ui_Form(object):
         font.setBold(True)
         self.document_id.setFont(font)
         self.document_id.setStyleSheet("background-color:white;")
-        self.document_id.setMaxLength(20)
+        self.document_id.setMaxLength(18)
         self.document_id.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.document_id.setObjectName("document_id")
         self.verticalLayout.addWidget(self.document_id)
