@@ -409,6 +409,49 @@ class DatabaseManager(SharedFunctions):
             if conn:
                 conn.close()
 
+    def get_sales_income(self) -> float:
+        """
+        Calculate total sales income based on conditional rules.
+
+        Rules:
+        - If customer_id == 1:
+            - If deposit == 0 → use total
+            - If deposit > 0 → use deposit
+        - If customer_id != 1:
+            - Always use deposit
+
+        :return: Calculated sales income.
+        :rtype: float
+        """
+        connection = None
+        try:
+            connection = db.connect(self.get_database_ref())
+            cursor = connection.cursor()
+
+            query = """
+                SELECT SUM(
+                    CASE
+                        WHEN customer_id = 1 AND deposit = 0 THEN total
+                        WHEN customer_id = 1 AND deposit > 0 THEN deposit
+                        ELSE deposit
+                    END
+                )
+                FROM sale_invoices
+            """
+            cursor.execute(query)
+            result = cursor.fetchone()
+
+            return result[0] if result and result[0] is not None else 0.0
+
+        except db.Error as err:
+            print(f"Database error: {err}")
+            return 0.0  # Fail-safe default
+
+        finally:
+            if connection:
+                connection.close()
+
+
     def prepare_database(self,database_reference:str) -> bool:
         """
         Create a database and its tables if they not exists.
