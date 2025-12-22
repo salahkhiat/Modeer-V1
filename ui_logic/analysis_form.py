@@ -1,4 +1,5 @@
-from PyQt6.QtWidgets import QTableWidgetItem
+from PyQt6.QtWidgets import QHeaderView, QTableWidget
+
 
 from .base_form import Form
 
@@ -9,15 +10,27 @@ class AnalysisForm(Form):
         self.setWindowTitle("إحصائيات الشهر")
         
         # default
-        self.incomes_table = self.ui.incomes_table
 
-        income = self.get_sales_income()
+        incomes_table: QTableWidget = self.ui.incomes_table
+        # header
+        header = incomes_table.horizontalHeader()
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        incomes_table.setColumnWidth(0, 160)
 
-        row = self.incomes_table.rowCount()
-        self.incomes_table.insertRow(row)
+        sales_income = self.get_sales_income()
+        services_income= self.get_services_income()
+        income = float(sales_income) + float(services_income) 
 
-        self.incomes_table.setItem(row, 0, QTableWidgetItem("Sales income"))
-        self.incomes_table.setItem(row, 1, QTableWidgetItem(f"{income:.2f}"))
+        row = incomes_table.rowCount()
+        incomes_table.insertRow(row)
+        self.remove_rows_counter(incomes_table)
+        income_label = "دخل الشهر"
+        incomes_table.setItem(row, 0, self.make_item(income_label))
+        incomes_table.setItem(row, 1, self.make_item(f"{income:.2f}"))
+
+
+
+
         
        
 

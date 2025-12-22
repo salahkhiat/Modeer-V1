@@ -87,14 +87,15 @@ class ServiceForm(Form):
                 cat_id = id
         
         note = self.ui.note.text()
-        amount = self.ui.amount.text()
-        deposit = self.ui.deposit.text()
+        amount = 0 if self.ui.amount.text().strip() == "" else float(self.ui.amount.text())
+        deposit = 0 if self.ui.deposit.text().strip() == "" else float(self.ui.deposit.text())
         created = self.current_date()
         
-        columns = ["customer_id","category_id","description","default_price","created"]
-        data = [cus_id,cat_id,note,amount,created]
+        columns = ["customer_id","category_id","description","default_price","paid_price","created"]
+        data = [cus_id,cat_id,note,amount,deposit,created]
         table = "services"
 
+       
         fields = [self.ui.note,self.ui.amount,self.ui.deposit]
 
         if (self.is_valid_category or self.is_valid_note) and (self.is_valid_amount ):
@@ -107,6 +108,7 @@ class ServiceForm(Form):
                 if self.store(table, columns, tuple(data)):
                     self.clear_fields(fields)
             self.close()
+            self.play_success_sound()
         elif  (not  self.is_valid_category and not self.is_valid_note) or (not self.is_valid_amount):
 
             if not self.is_valid_amount:

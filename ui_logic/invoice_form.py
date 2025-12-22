@@ -138,7 +138,7 @@ class InvoiceForm(Form):
                 items_table.setHorizontalHeaderItem(i, item)
             # set table header
             header = self.ui.items_table.horizontalHeader()
-            header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+            header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch) 
             for col in range(1, 4):
                 header.setSectionResizeMode(col, QHeaderView.ResizeMode.Interactive)
                 if col != 3:
