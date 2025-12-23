@@ -1,3 +1,2 @@
-names = ["a","s","gg"]
-names.pop(names.index("gg"))
-print(names)
+name = "1447-06-20"
+print(name[:7])
