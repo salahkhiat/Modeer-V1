@@ -7,15 +7,13 @@ class AnalysisForm(Form):
         # set form title
         self.setWindowTitle("إحصائيات الشهر")
         
-        # default settings
-
+        # incomes
         incomes_table: QTableWidget = self.ui.incomes_table
-        # header
+            # headers
         header = incomes_table.horizontalHeader()
         header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
         incomes_table.setColumnWidth(0, 200)
         incomes_table.verticalHeader().setDefaultSectionSize(55)
-
 
         sales_income = self.get_sales_income()
         services_income= self.get_services_income()
@@ -26,7 +24,6 @@ class AnalysisForm(Form):
 
         row = incomes_table.rowCount()
         
-
         incomes_table.insertRow(row)
         cus_pay_label = "مدفوعات الزبائن"
         incomes_table.setItem(row, 0, self.make_item(cus_pay_label))
@@ -46,6 +43,34 @@ class AnalysisForm(Form):
         income_label = " مدخول الشهر"
         incomes_table.setItem(row, 0, self.make_item(income_label))
         incomes_table.setItem(row, 1, self.make_item(f"{income:.2f}"))
+
+        # expenses
+        expenses_table: QTableWidget = self.ui.expenses_table
+        ex_header = expenses_table.horizontalHeader()
+        ex_header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        expenses_table.setColumnWidth(0, 250)
+        expenses_table.verticalHeader().setDefaultSectionSize(55)
+
+        self.remove_rows_counter(expenses_table)
+        row = expenses_table.rowCount()
+        month_expenses = self.get_expenses()
+        monthly_sup_deposits = self.get_monthly_suppliers_deposits()
+        monthly_emp_withdrawals = self.get_monthly_employees_withdrawals()
+
+        expenses_table.insertRow(row)
+        ex_label = "مصروف الشهر"
+        expenses_table.setItem(row, 0, self.make_item(ex_label))
+        expenses_table.setItem(row, 1, self.make_item(f"{month_expenses:.2f}"))
+
+        expenses_table.insertRow(row)
+        mo_sup_deposits_label = "إيداعات الشهر للمردين "
+        expenses_table.setItem(row, 0, self.make_item(mo_sup_deposits_label))
+        expenses_table.setItem(row, 1, self.make_item(f"{monthly_sup_deposits:.2f}"))
+
+        expenses_table.insertRow(row)
+        mo_emp_deposits_label = "سحوبات الشهر للعمال "
+        expenses_table.setItem(row, 0, self.make_item(mo_emp_deposits_label))
+        expenses_table.setItem(row, 1, self.make_item(f"{monthly_emp_withdrawals:.2f}"))
 
 
 

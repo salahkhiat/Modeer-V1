@@ -488,6 +488,67 @@ class DatabaseManager(SharedFunctions):
         finally:
             if connection:
                 connection.close()
+    def get_expenses(self) -> float:
+        """
+        Calculate total expenses  based on conditional rules.
+
+        """
+        connection = None
+        try: 
+            connection = db.connect(self.get_database_ref())
+            cursor = connection.cursor()
+            created = self.current_date()[:7] # 1447-06
+
+            query = """
+                SELECT SUM(amount)
+                FROM expenses
+                WHERE created LIKE ? 
+            """
+            cursor.execute(query,(f"{created}%",))
+            result = cursor.fetchone()
+
+            return result[0] if result and result[0] is not None else 0.0
+
+        except db.Error as err:
+            print(f"Database error: {err}")
+            return 0.0  # Fail-safe default
+
+        finally:
+            if connection:
+                connection.close()
+
+    def get_monthly_suppliers_deposits(self) -> float:
+        """
+        Calculate deposits to suppliers  based on conditional rules.
+
+        """
+        connection = None
+        try: 
+            connection = db.connect(self.get_database_ref())
+            cursor = connection.cursor()
+            created = self.current_date()[:7] # 1447-06
+
+            query = """
+                SELECT SUM(
+                    CASE
+                          WHEN type = 'deposit' THEN amount
+                    END
+                )
+                FROM suppliers_transactions
+                WHERE created LIKE ? 
+            """
+            cursor.execute(query,(f"{created}%",))
+            result = cursor.fetchone()
+
+            return result[0] if result and result[0] is not None else 0.0
+
+        except db.Error as err:
+            print(f"Database error: {err}")
+            return 0.0  # Fail-safe default
+
+        finally:
+            if connection:
+                connection.close()
 
     def get_customers_payments(self) -> float:
         """
@@ -504,6 +565,36 @@ class DatabaseManager(SharedFunctions):
             query = """
                 SELECT SUM(amount)
                 FROM customers_payments
+                WHERE created LIKE ?
+            """
+            cursor.execute(query,(f"{created}%",))
+            result = cursor.fetchone()
+
+            return result[0] if result and result[0] is not None else 0.0
+
+        except db.Error as err:
+            print(f"Database error: {err}")
+            return 0.0  # Fail-safe default
+
+        finally:
+            if connection:
+                connection.close()
+
+    def get_monthly_employees_withdrawals(self) -> float:
+        """
+        Calculate total employees_withdrawals  based on conditional rules.
+
+        """
+        connection = None
+        try: 
+            connection = db.connect(self.get_database_ref())
+            cursor = connection.cursor()
+            created = self.current_date()[:7] # 1447-06
+            
+
+            query = """
+                SELECT SUM(amount)
+                FROM employees_withdrawals
                 WHERE created LIKE ?
             """
             cursor.execute(query,(f"{created}%",))
