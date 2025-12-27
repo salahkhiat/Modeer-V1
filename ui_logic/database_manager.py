@@ -488,6 +488,37 @@ class DatabaseManager(SharedFunctions):
         finally:
             if connection:
                 connection.close()
+
+    def get_sales_capital(self) -> float:
+        """
+        Calculate total sales capital (sum of invoice capitals) for the current month.
+        """
+        connection = None
+        try:
+            connection = db.connect(self.get_database_ref())
+            cursor = connection.cursor()
+
+            created = self.current_date()[:7]  # e.g. '1447-06'
+
+            query = """
+                SELECT SUM(sh.purchase_price * sh.quantity)
+                FROM sales_history sh
+                JOIN sale_invoices si ON si.id = sh.invoice_id
+                WHERE si.created_at LIKE ?
+            """
+            cursor.execute(query, (f"{created}%",))
+            result = cursor.fetchone()
+
+            return result[0] if result and result[0] is not None else 0.0
+
+        except db.Error as err:
+            print(f"Database error: {err}")
+            return 0.0
+
+        finally:
+            if connection:
+                connection.close()
+
     def get_expenses(self) -> float:
         """
         Calculate total expenses  based on conditional rules.

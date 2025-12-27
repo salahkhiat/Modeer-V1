@@ -12,17 +12,27 @@ class AnalysisForm(Form):
             # headers
         header = incomes_table.horizontalHeader()
         header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        incomes_table.setColumnWidth(0, 200)
-        incomes_table.verticalHeader().setDefaultSectionSize(55)
+        incomes_table.setColumnWidth(0, 240)
+        # incomes_table.verticalHeader().setDefaultSectionSize(55)
+        incomes_table.verticalHeader().setDefaultSectionSize(45)
 
         sales_income = self.get_sales_income()
         services_income= self.get_services_income()
         customers_payments = self.get_customers_payments()
         income = float(sales_income) + float(services_income)  + float(customers_payments)
+        sales_capital = self.get_sales_capital()
+        sales_profit = sales_income - sales_capital
+
+        month_profit = sales_profit + services_income
 
         self.remove_rows_counter(incomes_table)
 
         row = incomes_table.rowCount()
+
+        incomes_table.insertRow(row)
+        income_label = " مدخول الشهر"
+        incomes_table.setItem(row, 0, self.make_item(income_label))
+        incomes_table.setItem(row, 1, self.make_item(f"{income:.2f}"))
         
         incomes_table.insertRow(row)
         cus_pay_label = "مدفوعات الزبائن"
@@ -35,14 +45,19 @@ class AnalysisForm(Form):
         incomes_table.setItem(row, 1, self.make_item(f"{services_income:.2f}"))
 
         incomes_table.insertRow(row)
-        sales_label = "المبيعات"
-        incomes_table.setItem(row, 0, self.make_item(sales_label))
-        incomes_table.setItem(row, 1, self.make_item(f"{sales_income:.2f}"))
+        sales_profit_label = "أرباح السلع"
+        incomes_table.setItem(row, 0, self.make_item(sales_profit_label))
+        incomes_table.setItem(row, 1, self.make_item(f"{sales_profit:.2f}"))
 
-        incomes_table.insertRow(row)
-        income_label = " مدخول الشهر"
-        incomes_table.setItem(row, 0, self.make_item(income_label))
-        incomes_table.setItem(row, 1, self.make_item(f"{income:.2f}"))
+        # incomes_table.insertRow(row)
+        # capital_label = "رأس مال المبيعات"
+        # incomes_table.setItem(row, 0, self.make_item(capital_label))
+        # incomes_table.setItem(row, 1, self.make_item(f"{sales_capital:.2f}"))
+
+        
+
+
+
 
         # expenses
         expenses_table: QTableWidget = self.ui.expenses_table
