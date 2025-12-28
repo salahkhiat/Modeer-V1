@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>828</width>
-    <height>439</height>
+    <height>500</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
      <x>9</x>
      <y>9</y>
      <width>811</width>
-     <height>341</height>
+     <height>391</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -172,8 +172,8 @@
   <widget class="QPushButton" name="cancel_btn">
    <property name="geometry">
     <rect>
-     <x>380</x>
-     <y>370</y>
+     <x>150</x>
+     <y>420</y>
      <width>60</width>
      <height>58</height>
     </rect>
@@ -203,6 +203,51 @@ QPushButton:hover{
    <property name="icon">
     <iconset>
      <normaloff>../icons/cancel.svg</normaloff>../icons/cancel.svg</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>50</width>
+     <height>50</height>
+    </size>
+   </property>
+   <property name="flat">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="get_current_month_btn">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>420</y>
+     <width>60</width>
+     <height>58</height>
+    </rect>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>60</width>
+     <height>60</height>
+    </size>
+   </property>
+   <property name="cursor">
+    <cursorShape>PointingHandCursor</cursorShape>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+	border: 1px solid gray;
+	border-radius:15px;
+}
+QPushButton:hover{
+	background-color:#3f5482;
+	border: 1px solid #3f5482;
+}</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../../../icons/refresh.svg</normaloff>../../../icons/refresh.svg</iconset>
    </property>
    <property name="iconSize">
     <size>

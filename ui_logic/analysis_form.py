@@ -30,17 +30,22 @@ class AnalysisForm(Form):
         row = incomes_table.rowCount()
 
         incomes_table.insertRow(row)
+        month_profit_label = "ربح الشهر"
+        incomes_table.setItem(row, 0, self.make_item(month_profit_label))
+        incomes_table.setItem(row, 1, self.make_item(f"{month_profit:.2f}"))
+
+        incomes_table.insertRow(row)
         income_label = " مدخول الشهر"
         incomes_table.setItem(row, 0, self.make_item(income_label))
         incomes_table.setItem(row, 1, self.make_item(f"{income:.2f}"))
         
         incomes_table.insertRow(row)
-        cus_pay_label = "مدفوعات الزبائن"
+        cus_pay_label = " إداعات الزبون المميز"
         incomes_table.setItem(row, 0, self.make_item(cus_pay_label))
         incomes_table.setItem(row, 1, self.make_item(f"{customers_payments:.2f}"))
 
         incomes_table.insertRow(row)
-        services_label = "الخدمات"
+        services_label = "أرباح الخدمات "
         incomes_table.setItem(row, 0, self.make_item(services_label))
         incomes_table.setItem(row, 1, self.make_item(f"{services_income:.2f}"))
 
@@ -49,10 +54,10 @@ class AnalysisForm(Form):
         incomes_table.setItem(row, 0, self.make_item(sales_profit_label))
         incomes_table.setItem(row, 1, self.make_item(f"{sales_profit:.2f}"))
 
-        # incomes_table.insertRow(row)
-        # capital_label = "رأس مال المبيعات"
-        # incomes_table.setItem(row, 0, self.make_item(capital_label))
-        # incomes_table.setItem(row, 1, self.make_item(f"{sales_capital:.2f}"))
+        incomes_table.insertRow(row)
+        capital_label = "رأس مال المبيعات"
+        incomes_table.setItem(row, 0, self.make_item(capital_label))
+        incomes_table.setItem(row, 1, self.make_item(f"{sales_capital:.2f}"))
 
         
 
