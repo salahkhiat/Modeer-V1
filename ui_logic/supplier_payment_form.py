@@ -20,7 +20,7 @@ class SupplierPaymentForm(Form):
         current_transaction_type:QComboBox = self.ui.transaction_type
         self.selected_transaction_index = self.ui.transaction_type.currentIndex()
         current_transaction_type.currentIndexChanged.connect(self.set_transaction_index)
-        self.types = {0:"deposit",1:"debt"}
+        self.types = {0:"debt",1:"deposit"}
 
         # an amount field
         self.amount: QLineEdit = self.ui.amount
@@ -38,6 +38,7 @@ class SupplierPaymentForm(Form):
         """
             setting a selected supplier id
         """
+        
         self.selected_supplier_id = self.get_item_info("suppliers",("id",),"name",text.strip())["id"]
     
     def set_transaction_index(self,index:int):

@@ -75,17 +75,26 @@ class AnalysisForm(Form):
         row = expenses_table.rowCount()
         month_expenses = self.get_expenses()
         monthly_sup_deposits = self.get_monthly_suppliers_deposits()
+        monthly_sup_debts = self.get_monthly_suppliers_debts()
         monthly_emp_withdrawals = self.get_monthly_employees_withdrawals()
+        monthly_sup_new_debts = monthly_sup_debts - monthly_sup_deposits
 
         expenses_table.insertRow(row)
         ex_label = "مصروف الشهر"
         expenses_table.setItem(row, 0, self.make_item(ex_label))
         expenses_table.setItem(row, 1, self.make_item(f"{month_expenses:.2f}"))
 
+
+        
+        # expenses_table.insertRow(row)
+        # mo_sup_deposits_label = "إيداعات الشهر للمردين "
+        # expenses_table.setItem(row, 0, self.make_item(mo_sup_deposits_label))
+        # expenses_table.setItem(row, 1, self.make_item(f"{monthly_sup_deposits:.2f}"))
+
         expenses_table.insertRow(row)
-        mo_sup_deposits_label = "إيداعات الشهر للمردين "
-        expenses_table.setItem(row, 0, self.make_item(mo_sup_deposits_label))
-        expenses_table.setItem(row, 1, self.make_item(f"{monthly_sup_deposits:.2f}"))
+        mo_sup_debts_label = "ديون الشهر للمردين "
+        expenses_table.setItem(row, 0, self.make_item(mo_sup_debts_label))
+        expenses_table.setItem(row, 1, self.make_item(f"{monthly_sup_new_debts:.2f}"))
 
         expenses_table.insertRow(row)
         mo_emp_deposits_label = "سحوبات الشهر للعمال "

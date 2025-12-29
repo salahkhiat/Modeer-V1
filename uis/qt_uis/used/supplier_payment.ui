@@ -112,12 +112,12 @@
        </property>
        <item>
         <property name="text">
-         <string>إيداع</string>
+         <string>دين - شراء</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>دين</string>
+         <string>إيداع </string>
         </property>
        </item>
       </widget>
@@ -242,13 +242,13 @@
         <string notr="true">background-color:white;</string>
        </property>
        <property name="maxLength">
-        <number>64</number>
+        <number>80</number>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
        <property name="placeholderText">
-        <string>ملحوظة</string>
+        <string>وصف قصير</string>
        </property>
       </widget>
      </item>

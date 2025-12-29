@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'supplier_payment.ui'
+# Form implementation generated from reading ui file 'payment.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -98,7 +98,7 @@ class Ui_Form(object):
         font.setBold(True)
         self.note.setFont(font)
         self.note.setStyleSheet("background-color:white;")
-        self.note.setMaxLength(80)
+        self.note.setMaxLength(64)
         self.note.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.note.setObjectName("note")
         self.verticalLayout.addWidget(self.note)
@@ -158,7 +158,7 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
-        self.transaction_type.setItemText(0, _translate("Form", "دين - شراء"))
-        self.transaction_type.setItemText(1, _translate("Form", "إيداع "))
+        self.transaction_type.setItemText(0, _translate("Form", "إيداع"))
+        self.transaction_type.setItemText(1, _translate("Form", "دين"))
         self.amount.setPlaceholderText(_translate("Form", "المبلغ"))
-        self.note.setPlaceholderText(_translate("Form", "وصف قصير"))
+        self.note.setPlaceholderText(_translate("Form", "ملحوظة"))
