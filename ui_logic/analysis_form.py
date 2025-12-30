@@ -30,14 +30,14 @@ class AnalysisForm(Form):
         row = incomes_table.rowCount()
 
         incomes_table.insertRow(row)
-        month_profit_label = "ربح الشهر"
-        incomes_table.setItem(row, 0, self.make_item(month_profit_label))
-        incomes_table.setItem(row, 1, self.make_item(f"{month_profit:.2f}"))
+        month_profit_label = "الأرباح "
+        incomes_table.setItem(row, 0, self.make_item(month_profit_label,color="green"))
+        incomes_table.setItem(row, 1, self.make_item(f"{month_profit:.2f}",color="green"))
 
-        incomes_table.insertRow(row)
-        income_label = " مدخول الشهر"
-        incomes_table.setItem(row, 0, self.make_item(income_label))
-        incomes_table.setItem(row, 1, self.make_item(f"{income:.2f}"))
+        # incomes_table.insertRow(row)
+        # income_label = "الدخل الإجمالي"
+        # incomes_table.setItem(row, 0, self.make_item(income_label))
+        # incomes_table.setItem(row, 1, self.make_item(f"{income:.2f}"))
         
         incomes_table.insertRow(row)
         cus_pay_label = " إداعات الزبون المميز"
@@ -77,40 +77,50 @@ class AnalysisForm(Form):
         monthly_sup_debts = self.get_monthly_suppliers_debts()
         monthly_emp_withdrawals = self.get_monthly_employees_withdrawals()
         monthly_sup_new_debts = monthly_sup_debts - monthly_sup_deposits
-
-        total_mo_ex = month_expenses + monthly_sup_deposits + mo_purchases_deposits + monthly_emp_withdrawals
+        outcome = month_expenses + monthly_sup_deposits + mo_purchases_deposits + monthly_emp_withdrawals
 
         expenses_table.insertRow(row)
-        total_ex_label = "خراج الشهر"
+        total_ex_label = "الخرج الإجمالي"
         expenses_table.setItem(row, 0, self.make_item(total_ex_label))
-        expenses_table.setItem(row, 1, self.make_item(f"{total_mo_ex:.2f}"))
+        expenses_table.setItem(row, 1, self.make_item(f"{outcome:.2f}"))
 
         expenses_table.insertRow(row)
-        ex_label = "مصروف الشهر"
+        ex_label = " مصاريف عامة"
         expenses_table.setItem(row, 0, self.make_item(ex_label))
         expenses_table.setItem(row, 1, self.make_item(f"{month_expenses:.2f}"))
 
         expenses_table.insertRow(row)
-        mo_purchases_deposits_label = " إيدعات المشتريات"
+        mo_purchases_deposits_label = "مشتريات سلع"
         expenses_table.setItem(row, 0, self.make_item(mo_purchases_deposits_label))
         expenses_table.setItem(row, 1, self.make_item(f"{mo_purchases_deposits:.2f}"))
 
-
-        
-        # expenses_table.insertRow(row)
-        # mo_sup_deposits_label = "إيداعات الشهر للمردين "
-        # expenses_table.setItem(row, 0, self.make_item(mo_sup_deposits_label))
-        # expenses_table.setItem(row, 1, self.make_item(f"{monthly_sup_deposits:.2f}"))
+        expenses_table.insertRow(row)
+        mo_sup_deposits_label = "إيداعاتي للموردين"
+        expenses_table.setItem(row, 0, self.make_item(mo_sup_deposits_label))
+        expenses_table.setItem(row, 1, self.make_item(f"{monthly_sup_deposits:.2f}"))
 
         expenses_table.insertRow(row)
-        mo_sup_debts_label = "ديون الشهر للمردين "
+        mo_sup_debts_label = "دين جديد - الموردين"
         expenses_table.setItem(row, 0, self.make_item(mo_sup_debts_label))
         expenses_table.setItem(row, 1, self.make_item(f"{monthly_sup_new_debts:.2f}"))
 
         expenses_table.insertRow(row)
-        mo_emp_withdrawals_label = "سحوبات الشهر للعمال "
+        mo_emp_withdrawals_label = "سحوبات  العمال "
         expenses_table.setItem(row, 0, self.make_item(mo_emp_withdrawals_label))
         expenses_table.setItem(row, 1, self.make_item(f"{monthly_emp_withdrawals:.2f}"))
+
+
+        # cunclution 
+        net_result = income - outcome
+
+        incomes_table.insertRow(row)
+        net_result_label = "الصافي "
+        color = "green"
+        if net_result < 0:
+            color = "red"
+        incomes_table.setItem(row, 0, self.make_item(net_result_label,color=color))
+        incomes_table.setItem(row, 1, self.make_item(f"{net_result:.2f}",color=color))
+
 
 
 

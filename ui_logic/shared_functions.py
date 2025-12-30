@@ -1,6 +1,6 @@
 from PyQt6 import QtGui
 from PyQt6.QtWidgets import QComboBox, QTableWidget, QAbstractItemView, QTableWidgetItem
-from PyQt6.QtGui import QFont
+from PyQt6.QtGui import QFont, QColor
 from hijri_converter import Gregorian
 from datetime import datetime
 
@@ -242,12 +242,14 @@ class SharedFunctions:
     def remove_rows_counter(self, table: QTableWidget):
         table.verticalHeader().setVisible(False)
 
-    def make_item(self,text, font_size=18, bold=True):
+    def make_item(self,text, font_size=18, bold=True, color=None):
         item = QTableWidgetItem(text)
         font = QFont()
         font.setPointSize(font_size)
         font.setBold(bold)
         item.setFont(font)
+        if color:
+            item.setForeground(QColor(color))
         return item
 
 
