@@ -6,7 +6,15 @@ class AnalysisForm(Form):
         super().__init__(base_form)
         # set form title
         self.setWindowTitle("إحصائيات الشهر")
+        # set icon
+        self.set_icon("switch_analysis_btn","refresh.svg")
+
+        self.get_analysis()
         
+
+    def get_analysis(self,s_date:str="today"):
+        """ Getting analysis depending on search date or s_date 'today' or 'month' """
+
         # incomes
         incomes_table: QTableWidget = self.ui.incomes_table
             # headers
@@ -16,33 +24,42 @@ class AnalysisForm(Form):
         # incomes_table.verticalHeader().setDefaultSectionSize(55)
         incomes_table.verticalHeader().setDefaultSectionSize(45)
 
-        sales_income = self.get_sales_income()
-        services_income= self.get_services_income()
-        customers_payments = self.get_customers_payments()
+        sales_income = self.get_sales_income(s_date)
+        services_income= self.get_services_income(s_date)
+        customers_payments = self.get_customers_payments(s_date)
         income = float(sales_income) + float(services_income)  + float(customers_payments)
-        sales_capital = self.get_sales_capital()
+        sales_capital = self.get_sales_capital(s_date)
         sales_profit = sales_income - sales_capital
-
         month_profit = sales_profit + services_income
+        """
+        
+        
+        Start working from this Area
+        
+        """
+
 
         self.remove_rows_counter(incomes_table)
 
         row = incomes_table.rowCount()
 
+
         incomes_table.insertRow(row)
-        month_profit_label = "الأرباح "
+        income_label = "الدخل الإجمالي"
+        incomes_table.setItem(row, 0, self.make_item(income_label))
+        incomes_table.setItem(row, 1, self.make_item(f"{income:.2f}"))
+
+        incomes_table.insertRow(row)
+        month_profit_label = "الربح الإجمالي "
         incomes_table.setItem(row, 0, self.make_item(month_profit_label,color="green"))
         incomes_table.setItem(row, 1, self.make_item(f"{month_profit:.2f}",color="green"))
 
-        # incomes_table.insertRow(row)
-        # income_label = "الدخل الإجمالي"
-        # incomes_table.setItem(row, 0, self.make_item(income_label))
-        # incomes_table.setItem(row, 1, self.make_item(f"{income:.2f}"))
+
         
-        incomes_table.insertRow(row)
-        cus_pay_label = " إداعات الزبون المميز"
-        incomes_table.setItem(row, 0, self.make_item(cus_pay_label))
-        incomes_table.setItem(row, 1, self.make_item(f"{customers_payments:.2f}"))
+        # incomes_table.insertRow(row)
+        # cus_pay_label = " إداعات الزبون المميز"
+        # incomes_table.setItem(row, 0, self.make_item(cus_pay_label))
+        # incomes_table.setItem(row, 1, self.make_item(f"{customers_payments:.2f}"))
 
         incomes_table.insertRow(row)
         services_label = "أرباح الخدمات "

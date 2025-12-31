@@ -409,7 +409,7 @@ class DatabaseManager(SharedFunctions):
             if conn:
                 conn.close()
 
-    def get_sales_income(self) -> float:
+    def get_sales_income(self,s_date:str="today") -> float:
         """
         Calculate total sales income based on conditional rules.
 
@@ -427,7 +427,9 @@ class DatabaseManager(SharedFunctions):
         try:
             connection = db.connect(self.get_database_ref())
             cursor = connection.cursor()
-            created = self.current_date()[:7] # 1447-06
+            created = self.current_date() # 1447-06-01
+            if s_date == "month":
+                created = self.current_date()[:7] # 1447-06
 
             query = """
                 SELECT SUM(
@@ -455,7 +457,7 @@ class DatabaseManager(SharedFunctions):
                 connection.close()
 
 
-    def get_services_income(self) -> float:
+    def get_services_income(self,s_date:str="today") -> float:
         """
         Calculate total services income based on conditional rules.
 
@@ -464,7 +466,9 @@ class DatabaseManager(SharedFunctions):
         try: 
             connection = db.connect(self.get_database_ref())
             cursor = connection.cursor()
-            created = self.current_date()[:7] # 1447-06
+            created = self.current_date() # 1447-06-01
+            if s_date == "month":
+                created = self.current_date()[:7] # 1447-06
 
             query = """
                 SELECT SUM(
@@ -489,7 +493,7 @@ class DatabaseManager(SharedFunctions):
             if connection:
                 connection.close()
 
-    def get_sales_capital(self) -> float:
+    def get_sales_capital(self,s_date:str="today") -> float:
         """
         Calculate total sales capital (sum of invoice capitals) for the current month.
         """
@@ -498,7 +502,9 @@ class DatabaseManager(SharedFunctions):
             connection = db.connect(self.get_database_ref())
             cursor = connection.cursor()
 
-            created = self.current_date()[:7]  # e.g. '1447-06'
+            created = self.current_date() # 1447-06-01
+            if s_date == "month":
+                created = self.current_date()[:7] # 1447-06
 
             query = """
                 SELECT SUM(sh.purchase_price * sh.quantity)
@@ -643,7 +649,7 @@ class DatabaseManager(SharedFunctions):
             if connection:
                 connection.close()
 
-    def get_customers_payments(self) -> float:
+    def get_customers_payments(self,s_date:str="today") -> float:
         """
         Calculate total customer_payments  based on conditional rules.
 
@@ -652,7 +658,9 @@ class DatabaseManager(SharedFunctions):
         try: 
             connection = db.connect(self.get_database_ref())
             cursor = connection.cursor()
-            created = self.current_date()[:7] # 1447-06
+            created = self.current_date() # 1447-06-01
+            if s_date == "month":
+                created = self.current_date()[:7] # 1447-06
             
 
             query = """

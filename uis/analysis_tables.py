@@ -12,10 +12,10 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(828, 500)
+        Form.resize(828, 571)
         Form.setStyleSheet("background-color:#033a63;")
         self.horizontalLayoutWidget = QtWidgets.QWidget(parent=Form)
-        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(9, 9, 811, 391))
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(9, 79, 811, 391))
         self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
@@ -93,7 +93,7 @@ class Ui_Form(object):
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.cancel_btn = QtWidgets.QPushButton(parent=Form)
-        self.cancel_btn.setGeometry(QtCore.QRect(150, 420, 60, 58))
+        self.cancel_btn.setGeometry(QtCore.QRect(150, 490, 60, 58))
         self.cancel_btn.setMaximumSize(QtCore.QSize(60, 60))
         self.cancel_btn.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.cancel_btn.setStyleSheet("QPushButton{\n"
@@ -111,11 +111,11 @@ class Ui_Form(object):
         self.cancel_btn.setIconSize(QtCore.QSize(50, 50))
         self.cancel_btn.setFlat(True)
         self.cancel_btn.setObjectName("cancel_btn")
-        self.get_current_month_btn = QtWidgets.QPushButton(parent=Form)
-        self.get_current_month_btn.setGeometry(QtCore.QRect(620, 420, 60, 58))
-        self.get_current_month_btn.setMaximumSize(QtCore.QSize(60, 60))
-        self.get_current_month_btn.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.get_current_month_btn.setStyleSheet("QPushButton{\n"
+        self.switch_analysis_btn = QtWidgets.QPushButton(parent=Form)
+        self.switch_analysis_btn.setGeometry(QtCore.QRect(620, 490, 60, 58))
+        self.switch_analysis_btn.setMaximumSize(QtCore.QSize(60, 60))
+        self.switch_analysis_btn.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.switch_analysis_btn.setStyleSheet("QPushButton{\n"
 "    border: 1px solid gray;\n"
 "    border-radius:15px;\n"
 "}\n"
@@ -123,13 +123,22 @@ class Ui_Form(object):
 "    background-color:#3f5482;\n"
 "    border: 1px solid #3f5482;\n"
 "}")
-        self.get_current_month_btn.setText("")
+        self.switch_analysis_btn.setText("")
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap("../../../icons/refresh.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.get_current_month_btn.setIcon(icon1)
-        self.get_current_month_btn.setIconSize(QtCore.QSize(50, 50))
-        self.get_current_month_btn.setFlat(True)
-        self.get_current_month_btn.setObjectName("get_current_month_btn")
+        self.switch_analysis_btn.setIcon(icon1)
+        self.switch_analysis_btn.setIconSize(QtCore.QSize(50, 50))
+        self.switch_analysis_btn.setFlat(True)
+        self.switch_analysis_btn.setObjectName("switch_analysis_btn")
+        self.analysis_title = QtWidgets.QLabel(parent=Form)
+        self.analysis_title.setGeometry(QtCore.QRect(280, 10, 241, 51))
+        font = QtGui.QFont()
+        font.setPointSize(25)
+        font.setBold(True)
+        self.analysis_title.setFont(font)
+        self.analysis_title.setStyleSheet("color:white")
+        self.analysis_title.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.analysis_title.setObjectName("analysis_title")
 
         self.retranslateUi(Form)
         self.cancel_btn.clicked.connect(Form.close) # type: ignore
@@ -148,3 +157,4 @@ class Ui_Form(object):
         item.setText(_translate("Form", "الدخل"))
         item = self.incomes_table.horizontalHeaderItem(1)
         item.setText(_translate("Form", "المبلغ"))
+        self.analysis_title.setText(_translate("Form", "إحصائيات اليوم"))
