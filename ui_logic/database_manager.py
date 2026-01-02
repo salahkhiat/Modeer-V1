@@ -525,7 +525,7 @@ class DatabaseManager(SharedFunctions):
             if connection:
                 connection.close()
 
-    def get_expenses(self) -> float:
+    def get_expenses(self,s_date:str="today") -> float:
         """
         Calculate total expenses  based on conditional rules.
 
@@ -534,7 +534,9 @@ class DatabaseManager(SharedFunctions):
         try: 
             connection = db.connect(self.get_database_ref())
             cursor = connection.cursor()
-            created = self.current_date()[:7] # 1447-06
+            created = self.current_date() # 1447-06-01
+            if s_date == "month":
+                created = self.current_date()[:7] # 1447-06
 
             query = """
                 SELECT SUM(amount)
@@ -554,7 +556,7 @@ class DatabaseManager(SharedFunctions):
             if connection:
                 connection.close()
 
-    def get_monthly_suppliers_deposits(self) -> float:
+    def get_suppliers_deposits(self,s_date:str="today") -> float:
         """
         Calculate deposits to suppliers  based on conditional rules.
 
@@ -563,7 +565,9 @@ class DatabaseManager(SharedFunctions):
         try: 
             connection = db.connect(self.get_database_ref())
             cursor = connection.cursor()
-            created = self.current_date()[:7] # 1447-06
+            created = self.current_date() # 1447-06-01
+            if s_date == "month":
+                created = self.current_date()[:7] # 1447-06
 
             query = """
                 SELECT SUM(
@@ -587,7 +591,7 @@ class DatabaseManager(SharedFunctions):
             if connection:
                 connection.close()
                 
-    def get_monthly_suppliers_debts(self) -> float:
+    def get_suppliers_debts(self,s_date:str="today") -> float:
         """
         Calculate deposits to suppliers  based on conditional rules.
 
@@ -596,7 +600,9 @@ class DatabaseManager(SharedFunctions):
         try: 
             connection = db.connect(self.get_database_ref())
             cursor = connection.cursor()
-            created = self.current_date()[:7] # 1447-06
+            created = self.current_date() # 1447-06-01
+            if s_date == "month":
+                created = self.current_date()[:7] # 1447-06
 
             query = """
                 SELECT SUM(
@@ -620,7 +626,7 @@ class DatabaseManager(SharedFunctions):
             if connection:
                 connection.close()
 
-    def get_monthly_purchases_deposits(self) -> float:
+    def get_purchases_deposits(self,s_date:str="today") -> float:
         """
         Calculate deposits to suppliers  based on purchase_invoices and conditional rules.
 
@@ -629,7 +635,9 @@ class DatabaseManager(SharedFunctions):
         try: 
             connection = db.connect(self.get_database_ref())
             cursor = connection.cursor()
-            created = self.current_date()[:7] # 1447-06
+            created = self.current_date() # 1447-06-01
+            if s_date == "month":
+                created = self.current_date()[:7] # 1447-06
 
             query = """
                 SELECT SUM(deposit)
@@ -681,7 +689,7 @@ class DatabaseManager(SharedFunctions):
             if connection:
                 connection.close()
 
-    def get_monthly_employees_withdrawals(self) -> float:
+    def get_employees_withdrawals(self,s_date:str="today") -> float:
         """
         Calculate total employees_withdrawals  based on conditional rules.
 
@@ -690,7 +698,9 @@ class DatabaseManager(SharedFunctions):
         try: 
             connection = db.connect(self.get_database_ref())
             cursor = connection.cursor()
-            created = self.current_date()[:7] # 1447-06
+            created = self.current_date() # 1447-06-01
+            if s_date == "month":
+                created = self.current_date()[:7] # 1447-06
             
 
             query = """

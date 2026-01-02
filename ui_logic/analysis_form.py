@@ -1,15 +1,40 @@
-from PyQt6.QtWidgets import QHeaderView, QTableWidget
+from PyQt6.QtWidgets import QHeaderView, QTableWidget, QPushButton, QLabel
 from .base_form import Form
 
 class AnalysisForm(Form):
     def __init__(self,base_form):
         super().__init__(base_form)
         # set form title
-        self.setWindowTitle("إحصائيات الشهر")
+        self.setWindowTitle("إحصائيات المعاملات")
         # set icon
         self.set_icon("switch_analysis_btn","refresh.svg")
-
+        self.analysis_time = "today"
         self.get_analysis()
+        switch_btn:QPushButton = self.ui.switch_analysis_btn
+        switch_btn.clicked.connect(self.switch_analysis_time)
+
+    def switch_analysis_time(self):
+        title_label: QLabel = self.ui.analysis_title
+        expenses_table:QTableWidget = self.ui.expenses_table
+        incomes_table:QTableWidget = self.ui.incomes_table
+        expenses_table.setRowCount(0)
+        incomes_table.setRowCount(0)
+        if self.analysis_time == "today":
+            self.analysis_time = "month"
+            title_label.setText("إحصائيات الشهر")
+        elif self.analysis_time == "month":
+            self.analysis_time = "today"
+            title_label.setText("إحصائيات اليوم")
+
+        self.get_analysis(self.analysis_time)
+        
+    
+        
+
+    
+
+
+
         
 
     def get_analysis(self,s_date:str="today"):
@@ -30,15 +55,7 @@ class AnalysisForm(Form):
         income = float(sales_income) + float(services_income)  + float(customers_payments)
         sales_capital = self.get_sales_capital(s_date)
         sales_profit = sales_income - sales_capital
-        month_profit = sales_profit + services_income
-        """
-        
-        
-        Start working from this Area
-        
-        """
-
-
+        profits = sales_profit + services_income
         self.remove_rows_counter(incomes_table)
 
         row = incomes_table.rowCount()
@@ -50,9 +67,9 @@ class AnalysisForm(Form):
         incomes_table.setItem(row, 1, self.make_item(f"{income:.2f}"))
 
         incomes_table.insertRow(row)
-        month_profit_label = "الربح الإجمالي "
-        incomes_table.setItem(row, 0, self.make_item(month_profit_label,color="green"))
-        incomes_table.setItem(row, 1, self.make_item(f"{month_profit:.2f}",color="green"))
+        profits_label = "الربح الإجمالي "
+        incomes_table.setItem(row, 0, self.make_item(profits_label,color="green"))
+        incomes_table.setItem(row, 1, self.make_item(f"{profits:.2f}",color="green"))
 
 
         
@@ -88,13 +105,13 @@ class AnalysisForm(Form):
         self.remove_rows_counter(expenses_table)
         row = expenses_table.rowCount()
 
-        month_expenses = self.get_expenses()
-        mo_purchases_deposits = self.get_monthly_purchases_deposits()
-        monthly_sup_deposits = self.get_monthly_suppliers_deposits()
-        monthly_sup_debts = self.get_monthly_suppliers_debts()
-        monthly_emp_withdrawals = self.get_monthly_employees_withdrawals()
-        monthly_sup_new_debts = monthly_sup_debts - monthly_sup_deposits
-        outcome = month_expenses + monthly_sup_deposits + mo_purchases_deposits + monthly_emp_withdrawals
+        expenses = self.get_expenses(s_date)
+        purchases_deposits = self.get_purchases_deposits(s_date)
+        suppliers_deposits = self.get_suppliers_deposits(s_date)
+        suppliers_debts = self.get_suppliers_debts(s_date)
+        employees_withdrawals = self.get_employees_withdrawals(s_date)
+        suppliers_new_debts = suppliers_debts - suppliers_deposits
+        outcome = expenses + suppliers_deposits + purchases_deposits + employees_withdrawals
 
         expenses_table.insertRow(row)
         total_ex_label = "الخرج الإجمالي"
@@ -104,27 +121,27 @@ class AnalysisForm(Form):
         expenses_table.insertRow(row)
         ex_label = " مصاريف عامة"
         expenses_table.setItem(row, 0, self.make_item(ex_label))
-        expenses_table.setItem(row, 1, self.make_item(f"{month_expenses:.2f}"))
+        expenses_table.setItem(row, 1, self.make_item(f"{expenses:.2f}"))
 
         expenses_table.insertRow(row)
-        mo_purchases_deposits_label = "مشتريات سلع"
-        expenses_table.setItem(row, 0, self.make_item(mo_purchases_deposits_label))
-        expenses_table.setItem(row, 1, self.make_item(f"{mo_purchases_deposits:.2f}"))
+        purchases_deposits_label = "مشتريات سلع"
+        expenses_table.setItem(row, 0, self.make_item(purchases_deposits_label))
+        expenses_table.setItem(row, 1, self.make_item(f"{purchases_deposits:.2f}"))
 
         expenses_table.insertRow(row)
-        mo_sup_deposits_label = "إيداعاتي للموردين"
-        expenses_table.setItem(row, 0, self.make_item(mo_sup_deposits_label))
-        expenses_table.setItem(row, 1, self.make_item(f"{monthly_sup_deposits:.2f}"))
+        suppliers_deposits_label = "إيداعاتي للموردين"
+        expenses_table.setItem(row, 0, self.make_item(suppliers_deposits_label))
+        expenses_table.setItem(row, 1, self.make_item(f"{suppliers_deposits:.2f}"))
 
         expenses_table.insertRow(row)
-        mo_sup_debts_label = "دين جديد - الموردين"
-        expenses_table.setItem(row, 0, self.make_item(mo_sup_debts_label))
-        expenses_table.setItem(row, 1, self.make_item(f"{monthly_sup_new_debts:.2f}"))
+        suppliers_new_debts_label = "دين جديد - الموردين"
+        expenses_table.setItem(row, 0, self.make_item(suppliers_new_debts_label))
+        expenses_table.setItem(row, 1, self.make_item(f"{suppliers_new_debts:.2f}"))
 
         expenses_table.insertRow(row)
-        mo_emp_withdrawals_label = "سحوبات  العمال "
-        expenses_table.setItem(row, 0, self.make_item(mo_emp_withdrawals_label))
-        expenses_table.setItem(row, 1, self.make_item(f"{monthly_emp_withdrawals:.2f}"))
+        employees_withdrawals_label = "سحوبات  العمال "
+        expenses_table.setItem(row, 0, self.make_item(employees_withdrawals_label))
+        expenses_table.setItem(row, 1, self.make_item(f"{employees_withdrawals:.2f}"))
 
 
         # cunclution 
