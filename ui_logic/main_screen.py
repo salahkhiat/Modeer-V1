@@ -1,9 +1,8 @@
 from PyQt6.QtCore import Qt, QTimer
 
-
 from .base_form import MainForm
 
-from uis.database_ui import Ui_Form as DatabaseUi
+from uis.database_ui import Ui_Form as DatabaseUi 
 from .database_form import DatabaseForm
 
 from uis.account import Ui_Form as AccountUi
@@ -45,13 +44,32 @@ from .error_form import ErrorForm
 
 from PyQt6.QtCore import pyqtSignal 
 
-from PyQt6.QtWidgets import QComboBox
+from PyQt6.QtWidgets import QComboBox, QTableWidget, QHeaderView
+
+from typing import Dict
+
 class MainScreen(MainForm):
    
     def __init__(self,base_form):
         super().__init__(base_form)
 
         # Test started part ------
+        r_p_table:QTableWidget = self.ui.requested_products_table 
+        self.remove_rows_counter(r_p_table)
+        requested_products:Dict = self.get_table_as_dict("requested_products","name")
+        header = r_p_table.horizontalHeader()
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        r_p_table.setColumnWidth(0, 620)
+
+        row = r_p_table.rowCount()
+
+        
+        for product in requested_products.values():
+            r_p_table.insertRow(row)
+            date_label = self.current_date()
+            r_p_table.setItem(row, 0, self.make_item(product))
+            r_p_table.setItem(row, 1, self.make_item(date_label))
+
         
         
         
@@ -199,14 +217,7 @@ class MainScreen(MainForm):
                     # ✅ Close tab when invoice is saved
                     form.invoice_saved.connect(lambda success, f=form: self.remove_tab_by_widget(f) if success else None)
 
-                   
-                    """
 
-
-                        find a solution "How to receive this emitted invoice type" in "invoice_form"
-                        
-
-                    """
                 else:
                     print(f"You achieved the top, You have created {len(index_list)} Invoices")
 

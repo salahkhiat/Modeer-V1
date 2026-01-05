@@ -28,14 +28,6 @@ class AnalysisForm(Form):
 
         self.get_analysis(self.analysis_time)
         
-    
-        
-
-    
-
-
-
-        
 
     def get_analysis(self,s_date:str="today"):
         """ Getting analysis depending on search date or s_date 'today' or 'month' """
