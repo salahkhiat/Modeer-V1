@@ -962,7 +962,8 @@ class DatabaseManager(SharedFunctions):
             """
             CREATE TABLE IF NOT EXISTS requested_products (
                 id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL
+                name TEXT NOT NULL,
+                created TEXT
             );
             """
         ]

@@ -54,21 +54,7 @@ class MainScreen(MainForm):
         super().__init__(base_form)
 
         # Test started part ------
-        r_p_table:QTableWidget = self.ui.requested_products_table 
-        self.remove_rows_counter(r_p_table)
-        requested_products:Dict = self.get_table_as_dict("requested_products","name")
-        header = r_p_table.horizontalHeader()
-        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        r_p_table.setColumnWidth(0, 620)
 
-        row = r_p_table.rowCount()
-
-        
-        for product in requested_products.values():
-            r_p_table.insertRow(row)
-            date_label = self.current_date()
-            r_p_table.setItem(row, 0, self.make_item(product))
-            r_p_table.setItem(row, 1, self.make_item(date_label))
 
         
         
@@ -117,6 +103,9 @@ class MainScreen(MainForm):
         self.create_default_column("customers","name")
         self.create_default_column("services_categories","name")
 
+        # Dealing with requested_products table
+        self.refresh_requested_products_table()
+
     # set database form button 
     def database_form(self):
         form = DatabaseForm(DatabaseUi)
@@ -127,10 +116,37 @@ class MainScreen(MainForm):
     
     def requested_product_form(self):
         form = RequestedProductForm(RequestedProductUi)
+        form.product_info.connect(self.refresh_requested_products_table)
         form.exec()
+        
+    
 
     def show_requested_product_form(self):
         self.ui.requested_products_btn.clicked.connect(self.requested_product_form)
+    
+    def refresh_requested_products_table(self,data:Dict=None):
+        r_p_table:QTableWidget = self.ui.requested_products_table 
+        r_p_table.setRowCount(0)
+        self.remove_rows_counter(r_p_table)
+        requested_products = None 
+        if data is None:
+            requested_products:Dict = self.get_table_as_dict("requested_products","name")
+        else:
+            requested_products = data
+        header = r_p_table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(1,QHeaderView.ResizeMode.ResizeToContents)
+       
+
+        row = r_p_table.rowCount()
+
+        
+        for product in requested_products.values():
+            r_p_table.insertRow(row)
+            date_label = self.current_date()
+            r_p_table.setItem(row, 0, self.make_item(product))
+            r_p_table.setItem(row, 1, self.make_item(date_label))
+
 
     # set new user form button
     def account_form(self):

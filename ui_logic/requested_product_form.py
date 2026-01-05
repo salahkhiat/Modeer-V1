@@ -1,6 +1,8 @@
 from .base_form import Form
+from PyQt6.QtCore import pyqtSignal 
+from typing import Dict
 class RequestedProductForm(Form):
-
+    product_info:pyqtSignal = pyqtSignal(dict)
     def __init__(self,base_form):
         super().__init__(base_form)
         # set form title
@@ -29,8 +31,9 @@ class RequestedProductForm(Form):
         name = self.ui.name
         
         table = "requested_products"
-        columns = ["name"]
-        data = (name.text(),)
+        columns = ["name","created"]
+        created = self.current_date()
+        data = (name.text(),created)
         
         if self.is_valid_name == True:
             if self.is_max(table,"name",max_len=100):
@@ -41,6 +44,8 @@ class RequestedProductForm(Form):
                 self.clear_fields(fields)
                 self.close()
                 self.play_success_sound()
+                requested_products:Dict = self.get_table_as_dict("requested_products","name")
+                self.product_info.emit(requested_products)
         else:
             return False 
             
