@@ -5,4 +5,7 @@ class SalesHistoryTableForm(Form):
         super().__init__(base_form)
         # set form title
         self.setWindowTitle("سجل المبيعات")
+        headers:list = ["test1","test2","test3"]
+        table = self.ui.table
+        self.set_table(table, headers)
         

@@ -884,19 +884,133 @@ QPushButton:hover{
    <property name="styleSheet">
     <string notr="true">color:white</string>
    </property>
-   <widget class="QMenu" name="menu">
+   <widget class="QMenu" name="management_menu">
     <property name="title">
-     <string>معاملات مالية</string>
+     <string>إدارة</string>
     </property>
+    <addaction name="suppliers_action"/>
+    <addaction name="customers_action"/>
+    <addaction name="employees_action"/>
+    <addaction name="products_action"/>
+    <addaction name="needs_action"/>
+    <addaction name="mobiles_action"/>
    </widget>
-   <widget class="QMenu" name="menu_2">
+   <widget class="QMenu" name="payments_menu">
     <property name="title">
-     <string>الحسابات</string>
+     <string>معاملات</string>
     </property>
+    <addaction name="suppliers_deposits_action"/>
+    <addaction name="customers_deposits_action"/>
+    <addaction name="employees_withdrawals_action"/>
+    <addaction name="expenses_action"/>
    </widget>
-   <addaction name="menu"/>
-   <addaction name="menu_2"/>
+   <widget class="QMenu" name="transactions_menu">
+    <property name="title">
+     <string>قائمة</string>
+    </property>
+    <addaction name="purchases_history_action"/>
+    <addaction name="purchases_invoices_action"/>
+    <addaction name="sales_history_action"/>
+    <addaction name="sales_invoices_action"/>
+    <addaction name="services_action"/>
+   </widget>
+   <widget class="QMenu" name="categories_menu">
+    <property name="title">
+     <string>أقسام</string>
+    </property>
+    <addaction name="services_category_action"/>
+    <addaction name="expenses_category_action"/>
+   </widget>
+   <addaction name="management_menu"/>
+   <addaction name="payments_menu"/>
+   <addaction name="transactions_menu"/>
+   <addaction name="categories_menu"/>
   </widget>
+  <action name="suppliers_action">
+   <property name="text">
+    <string>الموردين</string>
+   </property>
+  </action>
+  <action name="customers_action">
+   <property name="text">
+    <string>الزبائن</string>
+   </property>
+  </action>
+  <action name="employees_action">
+   <property name="text">
+    <string>العمال</string>
+   </property>
+  </action>
+  <action name="products_action">
+   <property name="text">
+    <string>السلع</string>
+   </property>
+  </action>
+  <action name="needs_action">
+   <property name="text">
+    <string>النقائص</string>
+   </property>
+  </action>
+  <action name="mobiles_action">
+   <property name="text">
+    <string>هواتف</string>
+   </property>
+  </action>
+  <action name="suppliers_deposits_action">
+   <property name="text">
+    <string>إيداعات للمردين</string>
+   </property>
+  </action>
+  <action name="customers_deposits_action">
+   <property name="text">
+    <string>دفعات الزبائن</string>
+   </property>
+  </action>
+  <action name="employees_withdrawals_action">
+   <property name="text">
+    <string>سحوبات العمال</string>
+   </property>
+  </action>
+  <action name="expenses_action">
+   <property name="text">
+    <string>مصاريف عامة</string>
+   </property>
+  </action>
+  <action name="purchases_history_action">
+   <property name="text">
+    <string>المشتريات</string>
+   </property>
+  </action>
+  <action name="purchases_invoices_action">
+   <property name="text">
+    <string>فواتير المشتريات</string>
+   </property>
+  </action>
+  <action name="sales_history_action">
+   <property name="text">
+    <string>المبيعات</string>
+   </property>
+  </action>
+  <action name="sales_invoices_action">
+   <property name="text">
+    <string>فواتير المبيعات</string>
+   </property>
+  </action>
+  <action name="services_action">
+   <property name="text">
+    <string>الخدمات</string>
+   </property>
+  </action>
+  <action name="services_category_action">
+   <property name="text">
+    <string>الخدمات</string>
+   </property>
+  </action>
+  <action name="expenses_category_action">
+   <property name="text">
+    <string>المصاريف</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

@@ -110,6 +110,7 @@ class InvoiceForm(Form):
                 item = QTableWidgetItem(title)
                 item.setFont(header_font)
                 items_table.setHorizontalHeaderItem(i, item)
+                
             # set table header
             header = items_table.horizontalHeader()
             header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)

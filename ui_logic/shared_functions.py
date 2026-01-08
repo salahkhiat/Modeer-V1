@@ -252,6 +252,19 @@ class SharedFunctions:
             item.setForeground(QColor(color))
         return item
 
+    def set_table(self,table:QTableWidget, headers:List[str]):
+            table.setColumnCount(len(headers))
+
+            header_font = QFont()
+            header_font.setPointSize(16)
+            header_font.setBold(True)
+
+            # Set each header item with font
+            for i, title in enumerate(headers):
+                item = QTableWidgetItem(title)
+                item.setFont(header_font)
+                table.setHorizontalHeaderItem(i, item) 
+
 
 
     
