@@ -414,12 +414,60 @@ class Ui_main_window(object):
         self.menuBar.setStyleSheet("color:white")
         self.menuBar.setObjectName("menuBar")
         self.management_menu = QtWidgets.QMenu(parent=self.menuBar)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        font.setBold(True)
+        self.management_menu.setFont(font)
+        self.management_menu.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.management_menu.setStyleSheet("QMenu::item{\n"
+"padding:15px 15px;\n"
+"}\n"
+"QMenu::item:selected{\n"
+"background-color:white;\n"
+"color:black;\n"
+"}")
         self.management_menu.setObjectName("management_menu")
         self.payments_menu = QtWidgets.QMenu(parent=self.menuBar)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        font.setBold(True)
+        self.payments_menu.setFont(font)
+        self.payments_menu.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.payments_menu.setStyleSheet("QMenu::item{\n"
+"padding:15px 15px;\n"
+"}\n"
+"QMenu::item:selected{\n"
+"background-color:white;\n"
+"color:black;\n"
+"}")
         self.payments_menu.setObjectName("payments_menu")
         self.transactions_menu = QtWidgets.QMenu(parent=self.menuBar)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        font.setBold(True)
+        self.transactions_menu.setFont(font)
+        self.transactions_menu.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.transactions_menu.setStyleSheet("QMenu::item{\n"
+"padding:15px 15px;\n"
+"}\n"
+"QMenu::item:selected{\n"
+"background-color:white;\n"
+"color:black;\n"
+"}")
         self.transactions_menu.setObjectName("transactions_menu")
         self.categories_menu = QtWidgets.QMenu(parent=self.menuBar)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        font.setBold(True)
+        self.categories_menu.setFont(font)
+        self.categories_menu.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.categories_menu.setStyleSheet("QMenu::item{\n"
+"padding:15px 15px;\n"
+"}\n"
+"QMenu::item:selected{\n"
+"background-color:white;\n"
+"color:black;\n"
+"}")
         self.categories_menu.setObjectName("categories_menu")
         main_window.setMenuBar(self.menuBar)
         self.suppliers_action = QtGui.QAction(parent=main_window)

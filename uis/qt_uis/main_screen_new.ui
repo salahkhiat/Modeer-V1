@@ -885,6 +885,24 @@ QPushButton:hover{
     <string notr="true">color:white</string>
    </property>
    <widget class="QMenu" name="management_menu">
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QMenu::item{
+padding:15px 15px;
+}
+QMenu::item:selected{
+background-color:white;
+color:black;
+}</string>
+    </property>
     <property name="title">
      <string>إدارة</string>
     </property>
@@ -896,6 +914,24 @@ QPushButton:hover{
     <addaction name="mobiles_action"/>
    </widget>
    <widget class="QMenu" name="payments_menu">
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QMenu::item{
+padding:15px 15px;
+}
+QMenu::item:selected{
+background-color:white;
+color:black;
+}</string>
+    </property>
     <property name="title">
      <string>معاملات</string>
     </property>
@@ -905,6 +941,24 @@ QPushButton:hover{
     <addaction name="expenses_action"/>
    </widget>
    <widget class="QMenu" name="transactions_menu">
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QMenu::item{
+padding:15px 15px;
+}
+QMenu::item:selected{
+background-color:white;
+color:black;
+}</string>
+    </property>
     <property name="title">
      <string>قائمة</string>
     </property>
@@ -915,6 +969,24 @@ QPushButton:hover{
     <addaction name="services_action"/>
    </widget>
    <widget class="QMenu" name="categories_menu">
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QMenu::item{
+padding:15px 15px;
+}
+QMenu::item:selected{
+background-color:white;
+color:black;
+}</string>
+    </property>
     <property name="title">
      <string>أقسام</string>
     </property>

@@ -42,6 +42,9 @@ from .requested_product_form import RequestedProductForm
 from uis.error_msg import Ui_Dialog as ErrorUi
 from .error_form import ErrorForm
 
+from uis.editable_items import Ui_ChooseItemUi as EditableItemsUi
+from .editable_items_form import EditableItemsForm
+
 from PyQt6.QtCore import pyqtSignal 
 
 from PyQt6.QtWidgets import QComboBox, QTableWidget, QHeaderView
@@ -105,6 +108,35 @@ class MainScreen(MainForm):
 
         # Dealing with requested_products table
         self.refresh_requested_products_table()
+
+        # MenuBar
+        self.ui.suppliers_action.triggered.connect(self.show_suppliers_table)
+        self.ui.customers_action.triggered.connect(self.show_customers_table)
+        self.ui.employees_action.triggered.connect(self.show_employees_table)
+
+    # show suppliers table / edit and delete
+    def show_suppliers_table(self):
+        form = EditableItemsForm(EditableItemsUi)
+        headers = ["الإسم","الهاتف","الحساب"]
+        form.set_window_title("جدول الموردين")
+        form.set_table_headers(headers)
+        form.exec()
+
+    # show customers table / edit and delete
+    def show_customers_table(self):
+        form = EditableItemsForm(EditableItemsUi)
+        headers = ["الإسم","الهاتف","الحساب"]
+        form.set_window_title("جدول الزبائن")
+        form.set_table_headers(headers)
+        form.exec()
+
+    # show employees table / edit and delete
+    def show_employees_table(self):
+        form = EditableItemsForm(EditableItemsUi)
+        headers = ["الإسم","الهاتف","الحساب"]
+        form.set_window_title("جدول العمال")
+        form.set_table_headers(headers)
+        form.exec()
 
     # set database form button 
     def database_form(self):
