@@ -378,6 +378,40 @@ class DatabaseManager(SharedFunctions):
         finally:
             if con:
                 con.close()
+
+
+    def get_table_cols_dict(self, table:str, columns:List[str]) -> Dict:
+        """
+        Returning table data as dictionary {"id":"column"}.
+        
+        Args:
+            table (str): The table name.
+            column (str): The table column.
+        Returns:
+            dict: Data as dictionary.
+        Examples:
+            >>> table = "student"
+            >>> column = "name"
+            >>> obj.get_table_as_dict(table,column)
+            {1:"Muhammed", 2:"Ahmed"}
+        """
+        con = None
+        try:
+            con = db.connect(self.get_database_ref())
+            cursor = con.cursor()
+            
+            query = f"SELECT id, {','.join(columns)} FROM {table}"
+            data = cursor.execute(query).fetchall()
+
+            # new_data = {item[0]:item[1] for item in data}
+            return data
+        
+        except db.Error as err:
+            print(f"database error: {err}")
+            return {} 
+        finally:
+            if con:
+                con.close()
     
     def tel_exists(self,table: str, tel: str) -> bool:
         """

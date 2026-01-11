@@ -49,7 +49,7 @@ from PyQt6.QtCore import pyqtSignal
 
 from PyQt6.QtWidgets import QComboBox, QTableWidget, QHeaderView
 
-from typing import Dict
+from typing import Dict, List
 
 class MainScreen(MainForm):
    
@@ -113,6 +113,13 @@ class MainScreen(MainForm):
         self.ui.suppliers_action.triggered.connect(self.show_suppliers_table)
         self.ui.customers_action.triggered.connect(self.show_customers_table)
         self.ui.employees_action.triggered.connect(self.show_employees_table)
+       
+    # show tab table
+    def show_tab_table(self,title:str,logicForm, uiForm, headers:List=["الإسم","الهاتف","الحساب"]):
+        form = logicForm(uiForm)
+        form.set_window_title(title)
+        form.set_table_headers(headers)
+        form.exec()
 
     # show suppliers table / edit and delete
     def show_suppliers_table(self):

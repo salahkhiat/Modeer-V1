@@ -9,6 +9,11 @@ class EditableItemsForm(Form):
         self.set_icon("delete_btn","delete.svg")
 
         # table
+        table = "suppliers"
+        columns = ["name","tel"]
+        print(self.get_table_cols_dict(table,columns))
+        
+
   
         
 

@@ -1,2 +1,2 @@
-name = "1447-06-20"
-print(name[:7])
+l = ["id","name", "age"]
+print(f"SELECT {','.join(l)}")
