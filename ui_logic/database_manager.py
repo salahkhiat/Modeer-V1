@@ -400,7 +400,7 @@ class DatabaseManager(SharedFunctions):
             con = db.connect(self.get_database_ref())
             cursor = con.cursor()
             
-            query = f"SELECT id, {','.join(columns)} FROM {table}"
+            query = f"SELECT {','.join(columns)} FROM {table}"
             data = cursor.execute(query).fetchall()
 
             # new_data = {item[0]:item[1] for item in data}

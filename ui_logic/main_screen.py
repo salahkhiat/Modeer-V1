@@ -110,40 +110,23 @@ class MainScreen(MainForm):
         self.refresh_requested_products_table()
 
         # MenuBar
-        self.ui.suppliers_action.triggered.connect(self.show_suppliers_table)
-        self.ui.customers_action.triggered.connect(self.show_customers_table)
-        self.ui.employees_action.triggered.connect(self.show_employees_table)
+        
+        self.ui.suppliers_action.triggered.connect(lambda:  self.show_tab("جدول الموردين","suppliers"))
+        self.ui.customers_action.triggered.connect(lambda: self.show_tab("جدول الزبائن","customers"))
+        self.ui.employees_action.triggered.connect(lambda: self.show_tab("جدول العمال","employees"))
+       
        
     # show tab table
-    def show_tab_table(self,title:str,logicForm, uiForm, headers:List=["الإسم","الهاتف","الحساب"]):
-        form = logicForm(uiForm)
+
+    def show_tab(self, title:str, db_table:str):
+        form = EditableItemsForm(EditableItemsUi)
+        headers = ["الإسم","الهاتف","الحساب"]
         form.set_window_title(title)
         form.set_table_headers(headers)
+        form.set_table_info(db_table,["name","tel"])
         form.exec()
 
-    # show suppliers table / edit and delete
-    def show_suppliers_table(self):
-        form = EditableItemsForm(EditableItemsUi)
-        headers = ["الإسم","الهاتف","الحساب"]
-        form.set_window_title("جدول الموردين")
-        form.set_table_headers(headers)
-        form.exec()
-
-    # show customers table / edit and delete
-    def show_customers_table(self):
-        form = EditableItemsForm(EditableItemsUi)
-        headers = ["الإسم","الهاتف","الحساب"]
-        form.set_window_title("جدول الزبائن")
-        form.set_table_headers(headers)
-        form.exec()
-
-    # show employees table / edit and delete
-    def show_employees_table(self):
-        form = EditableItemsForm(EditableItemsUi)
-        headers = ["الإسم","الهاتف","الحساب"]
-        form.set_window_title("جدول العمال")
-        form.set_table_headers(headers)
-        form.exec()
+   
 
     # set database form button 
     def database_form(self):
@@ -184,7 +167,7 @@ class MainScreen(MainForm):
             r_p_table.insertRow(row)
             date_label = self.current_date()
             r_p_table.setItem(row, 0, self.make_item(product))
-            r_p_table.setItem(row, 1, self.make_item(date_label))
+            r_p_table.setItem(row, 1, self.make_item(date_label)) 
 
 
     # set new user form button
