@@ -1,5 +1,6 @@
 from PyQt6 import QtGui
-from PyQt6.QtWidgets import QComboBox, QTableWidget, QAbstractItemView, QTableWidgetItem
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QComboBox, QTableWidget, QTableWidgetItem
 from PyQt6.QtGui import QFont, QColor
 from hijri_converter import Gregorian
 from datetime import datetime
@@ -244,6 +245,7 @@ class SharedFunctions:
 
     def make_item(self,text, font_size=18, bold=True, color=None):
         item = QTableWidgetItem(text)
+        item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
         font = QFont()
         font.setPointSize(font_size)
         font.setBold(bold)
@@ -252,18 +254,41 @@ class SharedFunctions:
             item.setForeground(QColor(color))
         return item
 
-    def set_table(self,table:QTableWidget, headers:List[str]):
-            table.setColumnCount(len(headers))
+    def set_table_properties(
+        self,
+        table: QTableWidget,
+        headers: List[str],
+        headers_width: List[int],
+        header_font_size: int = 16
+    ):
+        # --- Validation ---
+        if len(headers) != len(headers_width):
+            raise ValueError("headers and headers_width must have the same length")
 
-            header_font = QFont()
-            header_font.setPointSize(16)
-            header_font.setBold(True)
+        if sum(headers_width) != 100:
+            raise ValueError("headers_width must sum to 100 (%)")
 
-            # Set each header item with font
-            for i, title in enumerate(headers):
-                item = QTableWidgetItem(title)
-                item.setFont(header_font)
-                table.setHorizontalHeaderItem(i, item) 
+        # --- Columns count ---
+        table.setColumnCount(len(headers))
+
+        # --- Header font ---
+        header_font = QFont()
+        header_font.setPointSize(header_font_size)
+        header_font.setBold(True)
+
+        # --- Set header titles ---
+        for i, title in enumerate(headers):
+            item = QTableWidgetItem(title)
+            item.setFont(header_font)
+            table.setHorizontalHeaderItem(i, item)
+
+        # --- Calculate column widths (percent → pixels) ---
+        total_width = table.viewport().width()
+
+        for i, percent in enumerate(headers_width):
+            header_width = int(total_width * percent / 100)
+            table.setColumnWidth(i, header_width)
+        self.remove_rows_counter(table)
 
 
 

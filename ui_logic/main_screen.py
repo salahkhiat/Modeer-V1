@@ -110,23 +110,47 @@ class MainScreen(MainForm):
         self.refresh_requested_products_table()
 
         # MenuBar
+        users_header = ["الإسم","الهاتف","الحساب"]
+        users_header_width: List[int] = [35, 35, 30]
+        users_db_table_cols = ["name","tel"]
+
+    
         
-        self.ui.suppliers_action.triggered.connect(lambda:  self.show_tab("جدول الموردين","suppliers"))
-        self.ui.customers_action.triggered.connect(lambda: self.show_tab("جدول الزبائن","customers"))
-        self.ui.employees_action.triggered.connect(lambda: self.show_tab("جدول العمال","employees"))
-       
+        
+        self.ui.suppliers_action.triggered.connect(
+            lambda:  self.show_tab("جدول الموردين","suppliers",users_db_table_cols,users_header,users_header_width)
+        )
+        self.ui.customers_action.triggered.connect(
+            lambda:  self.show_tab("جدول الزبائن","customers",users_db_table_cols,users_header,users_header_width)
+        )
+        self.ui.employees_action.triggered.connect(
+            lambda:  self.show_tab("جدول الموظفين","employees",users_db_table_cols,users_header,users_header_width)
+        )
+    
+        
+        # self.ui.products_action.triggered.connect(lambda: self.show_tab("جدول السلع","products"))
        
     # show tab table
-
-    def show_tab(self, title:str, db_table:str):
+    def show_tab(
+            self, title: str, 
+            db_table: str, 
+            db_table_columns: List[str], 
+            headers: List[str], 
+            headers_width: List[int]
+    ):
         form = EditableItemsForm(EditableItemsUi)
-        headers = ["الإسم","الهاتف","الحساب"]
         form.set_window_title(title)
-        form.set_table_headers(headers)
-        form.set_table_info(db_table,["name","tel"])
+
+        # Table configuration
+        table: QTableWidget = form.ui.table
+
+        QTimer.singleShot(
+            0, 
+            lambda: self.set_table_properties(table, headers, headers_width)
+        )
+        form.set_db_table_info(table, db_table,db_table_columns)
         form.exec()
 
-   
 
     # set database form button 
     def database_form(self):
