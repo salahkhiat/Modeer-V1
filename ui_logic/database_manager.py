@@ -380,20 +380,20 @@ class DatabaseManager(SharedFunctions):
                 con.close()
 
 
-    def get_table_cols_dict(self, table:str, columns:List[str]) -> Dict:
+    def get_table_cols_list(self, table:str, columns:List[str]) -> List:
         """
-        Returning table data as dictionary {"id":"column"}.
+        Returning table data as list [(x, x), (x, x) . ...].
         
         Args:
             table (str): The table name.
             column (str): The table column.
         Returns:
-            dict: Data as dictionary.
+            list: Data as List.
         Examples:
             >>> table = "student"
             >>> column = "name"
             >>> obj.get_table_as_dict(table,column)
-            {1:"Muhammed", 2:"Ahmed"}
+            [(x, x), (x, x) . ...]
         """
         con = None
         try:
@@ -403,7 +403,6 @@ class DatabaseManager(SharedFunctions):
             query = f"SELECT {','.join(columns)} FROM {table}"
             data = cursor.execute(query).fetchall()
 
-            # new_data = {item[0]:item[1] for item in data}
             return data
         
         except db.Error as err:

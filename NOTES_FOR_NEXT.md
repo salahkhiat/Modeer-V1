@@ -5,3 +5,8 @@ NOTES FOR NEXT VERSION
 3- add a total column for each product (quantity*sale_price) into supplier's invoice.
 4- the ability to remove items form supplier/customer's invoice + dicrease the invoice total
 5- changing supplier's invoice quantity inside the table's field.
+
+        # table_widget.setRowCount() # 0 make the table empty
+        row = table_widget.rowCount()
+        # insertRow(0)  , insert at the top
+        # insertRow(rowCount()) , insert at the bottom

@@ -1,5 +1,5 @@
 from .base_form import Form
-from typing import List 
+from typing import List, Any 
 from PyQt6.QtWidgets import QComboBox, QTableWidget, QHeaderView
 
 class EditableItemsForm(Form):
@@ -16,16 +16,14 @@ class EditableItemsForm(Form):
             db_table: str, 
             columns: List[str]
     ):
-        users = self.get_table_cols_dict(db_table,columns)
-        
-        table_widget.setRowCount(0)
-        row = table_widget.rowCount()
-        for user in users:
-            name, tel = user
-            table_widget.insertRow(row)
-            table_widget.setItem(row, 0, self.make_item(name))
-            table_widget.setItem(row, 1, self.make_item(tel))
+        items = self.get_table_cols_list(db_table,columns)
+        table_widget.setColumnCount(len(columns)) # make the columns of Qt meet the db_table.
 
+        for item in items:
+            row = table_widget.rowCount() # where the next row should go
+            table_widget.insertRow(row) # insert new row at the bottom of the table
+            for col_id, col_info in enumerate(item):
+                table_widget.setItem(row, col_id, self.make_item(col_info))
 
     def set_window_title(self,title):
         self.setWindowTitle(title)

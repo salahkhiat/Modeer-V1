@@ -244,7 +244,7 @@ class SharedFunctions:
         table.verticalHeader().setVisible(False)
 
     def make_item(self,text, font_size=18, bold=True, color=None):
-        item = QTableWidgetItem(text)
+        item = QTableWidgetItem(str(text))
         item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
         font = QFont()
         font.setPointSize(font_size)

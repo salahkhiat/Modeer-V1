@@ -114,21 +114,23 @@ class MainScreen(MainForm):
         users_header_width: List[int] = [35, 35, 30]
         users_db_table_cols = ["name","tel"]
 
-    
-        
-        
         self.ui.suppliers_action.triggered.connect(
-            lambda:  self.show_tab("جدول الموردين","suppliers",users_db_table_cols,users_header,users_header_width)
+            lambda: self.show_tab("جدول الموردين","suppliers",users_db_table_cols,users_header,users_header_width)
         )
         self.ui.customers_action.triggered.connect(
-            lambda:  self.show_tab("جدول الزبائن","customers",users_db_table_cols,users_header,users_header_width)
+            lambda: self.show_tab("جدول الزبائن","customers",users_db_table_cols,users_header,users_header_width)
         )
         self.ui.employees_action.triggered.connect(
-            lambda:  self.show_tab("جدول الموظفين","employees",users_db_table_cols,users_header,users_header_width)
+            lambda: self.show_tab("جدول الموظفين","employees",users_db_table_cols,users_header,users_header_width)
         )
-    
-        
-        # self.ui.products_action.triggered.connect(lambda: self.show_tab("جدول السلع","products"))
+
+        products_header = ["الإسم", "المرجع", "الكمية", "البيع بـ", "الشراء بـ"]
+        products_header_width = [30, 20, 10, 20, 20]
+        products_db_table_cols = ["name", "barcode", "quantity", "sale_price", "purchase_price"]
+
+        self.ui.products_action.triggered.connect(
+            lambda: self.show_tab("جدول السلع", "products", products_db_table_cols, products_header, products_header_width)
+        )
        
     # show tab table
     def show_tab(
