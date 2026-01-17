@@ -14,7 +14,8 @@ class EditableItemsForm(Form):
             self,
             table_widget: QTableWidget, 
             db_table: str, 
-            columns: List[str]
+            columns: List[str],
+            font_size: int = 16
     ):
         items = self.get_table_cols_list(db_table,columns)
         table_widget.setColumnCount(len(columns)) # make the columns of Qt meet the db_table.
@@ -23,7 +24,7 @@ class EditableItemsForm(Form):
             row = table_widget.rowCount() # where the next row should go
             table_widget.insertRow(row) # insert new row at the bottom of the table
             for col_id, col_info in enumerate(item):
-                table_widget.setItem(row, col_id, self.make_item(col_info))
+                table_widget.setItem(row, col_id, self.make_item(col_info,font_size=font_size))
 
     def set_window_title(self,title):
         self.setWindowTitle(title)
