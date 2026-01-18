@@ -753,7 +753,52 @@ class DatabaseManager(SharedFunctions):
         finally:
             if connection:
                 connection.close()
+    
+    def get_supplier_transactions_sum(self, tran_type: str, user_id: int) -> float:
+        connection = None
+        try: 
+            connection = db.connect(self.get_database_ref())
+            cursor = connection.cursor()
+            query = """
+                SELECT SUM(amount)
+                FROM suppliers_transactions
+                WHERE type = ?
+                AND supplier_id = ? 
+            """
+            cursor.execute(query,(tran_type, user_id))
+            result = cursor.fetchone()
+            return result[0] if result and result[0] is not None else 0.0
 
+        except db.Error as err:
+            print(f"Database error: {err}")
+            return 0.0  # Fail-safe default
+
+        finally:
+            if connection:
+                connection.close()
+
+    def get_supplier_purchase_sum(self, col_name: str, user_id: int) -> float:
+        connection = None
+        try: 
+            connection = db.connect(self.get_database_ref())
+            cursor = connection.cursor()
+            query = f"""
+                SELECT SUM({col_name})
+                FROM purchase_invoices
+                WHERE supplier_id = ? 
+            """
+            cursor.execute(query,(user_id,))
+            result = cursor.fetchone()
+            
+            return result[0] if result and result[0] is not None else 0.0
+
+        except db.Error as err:
+            print(f"Database error: {err}")
+            return 0.0  # Fail-safe default
+
+        finally:
+            if connection:
+                connection.close()
 
     def prepare_database(self,database_reference:str) -> bool:
         """

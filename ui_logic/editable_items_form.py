@@ -9,6 +9,7 @@ class EditableItemsForm(Form):
         # set icons
         self.set_icon("edit_btn","edit.svg")
         self.set_icon("delete_btn","delete.svg")
+        
             
     def set_db_table_info(
             self,
@@ -25,6 +26,9 @@ class EditableItemsForm(Form):
             table_widget.insertRow(row) # insert new row at the bottom of the table
             for col_id, col_info in enumerate(item):
                 table_widget.setItem(row, col_id, self.make_item(col_info,font_size=font_size))
+    
+    def calculate_balance(self, account_type: str, user_id: int):
+        pass
 
     def set_window_title(self,title):
         self.setWindowTitle(title)

@@ -1,11 +1,18 @@
-items = [
-    ("ahmed","12", "06xxxx"),
-    ("noor","18", "07xxxx"),
-    ]
+example1 = {
+    "colors": {
+        1: "green",
+        2: "red",
+        3: "white"
+    },
+    "animals": {
+        1: "ox",
+        2: "fish",
+        3: "cat",
+        4: "dog"
+    }
+}
 
-
-for item in items:
-    print("new: row")
-    for col_id, col_info in enumerate(item):
-        print(f"col_id {col_id}, col_info {col_info}")
-    
+example2 = {
+    "colors": {1: "green", 2: "red", 3: "white"}, 
+    "animals": {1: "ox", 2: "fish", 3: "cat", 4: "dog"}
+}
