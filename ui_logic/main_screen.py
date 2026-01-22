@@ -112,7 +112,7 @@ class MainScreen(MainForm):
         # MenuBar
         users_header = ["الإسم","الهاتف","الحساب"]
         users_header_width: List[int] = [35, 35, 30]
-        users_db_table_cols = ["name","tel"]
+        users_db_table_cols = ["id", "name", "tel"]
 
         self.ui.suppliers_action.triggered.connect(
             lambda: self.show_tab("جدول الموردين","suppliers",users_db_table_cols,users_header,users_header_width)

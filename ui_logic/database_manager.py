@@ -399,11 +399,9 @@ class DatabaseManager(SharedFunctions):
         try:
             con = db.connect(self.get_database_ref())
             cursor = con.cursor()
-            
             query = f"SELECT {','.join(columns)} FROM {table}"
-            data = cursor.execute(query).fetchall()
-
-            return data
+            
+            return cursor.execute(query).fetchall()
         
         except db.Error as err:
             print(f"database error: {err}")
