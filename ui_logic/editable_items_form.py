@@ -1,6 +1,6 @@
 from .base_form import Form
 from typing import List, Any 
-from PyQt6.QtWidgets import QComboBox, QTableWidget, QHeaderView
+from PyQt6.QtWidgets import  QTableWidget, QLineEdit
 
 class EditableItemsForm(Form):
 
@@ -9,16 +9,37 @@ class EditableItemsForm(Form):
         # set icons
         self.set_icon("edit_btn","edit.svg")
         self.set_icon("delete_btn","delete.svg")
+
+        # default data
+        self.qt_table: QTableWidget = None 
+        self.db_table: str = None
+        self.columns: List = None 
+        self.column: str = "name" # for database searchs purposes : SELECT column FROM ...
+
+        # Search box
+        search_box: QLineEdit = self.ui.search_box
+        search_box.textChanged.connect(self.search_box)
         
     def set_db_table_info(
         self,
         table_widget: QTableWidget, 
         db_table: str, 
         columns: List[str],
-        font_size: int = 16
+        font_size: int = 16,
+        data = None
     ) -> None:
-        items = self.get_table_cols_list(db_table, columns)
-
+        
+        # set default table data
+        self.qt_table = table_widget
+        self.db_table = db_table
+        self.columns = columns
+        
+        items = None
+        if data == None:
+            items = self.get_table_cols_list(db_table, columns)
+        else:
+            items = data
+        
         # Make the columns of Qt meet the db_table.
         table_widget.setColumnCount(len(columns)) 
 
@@ -39,6 +60,7 @@ class EditableItemsForm(Form):
             for col_id, col_info in enumerate(item):
                     table_item = self.make_item(col_info, font_size=font_size)
                     table_widget.setItem(row, col_id, table_item)
+    
 
     def calculate_balance(self, account_type: str, user_id: int) -> float:
         if account_type == "supplier":
@@ -52,6 +74,28 @@ class EditableItemsForm(Form):
             
             return debts - deposits
         raise ValueError(f"Unsupported account type: {account_type}")
+    
+    def search_box(self, search_word: str) -> None:
+        self.qt_table.setRowCount(0)
+        search_word = str(search_word).strip()
+
+        items = self.search_by_similar(
+            self.db_table, self.column, search_word, self.columns
+        )
+        data = [ tuple(item.values()) for item in items]
+
+        self.set_db_table_info(self.qt_table, self.db_table, self.columns, 16, data)
+            
+            
+            
+            
+              
+              
+              
+              
+              
+
+        
         
     def set_window_title(self,title):
         self.setWindowTitle(title)

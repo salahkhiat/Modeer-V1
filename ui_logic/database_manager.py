@@ -136,7 +136,7 @@ class DatabaseManager(SharedFunctions):
             if conn:
                 conn.close()
 
-    def search_by(self,table: str, column: str, keyword: str, target: str) -> Any:
+    def search_by(self, table: str, column: str, keyword: str, target: str) -> Any:
         """
         Search for a single value in the database table based on a condition.
         """
@@ -144,8 +144,7 @@ class DatabaseManager(SharedFunctions):
         try:
             connection = db.connect(self.get_database_ref())
             cursor = connection.cursor()
-
-            query = f"SELECT {target} FROM {table} WHERE {column} = ? LIMIT 1"
+            query = f"SELECT {target} FROM {table} WHERE {column} = ? LIMIT 1" 
             cursor.execute(query, (keyword,))
             result = cursor.fetchone()
 
@@ -230,8 +229,8 @@ class DatabaseManager(SharedFunctions):
         :param target: List of columns to retrieve in the result
         :return: List of dictionaries with the requested columns
         """
-        if not keyword.strip():  # prevent empty or whitespace-only searches
-            return []
+        # if not keyword.strip():  # prevent empty or whitespace-only searches
+        #     return []
         connection = None
         try:
             connection = db.connect(self.get_database_ref())
@@ -240,7 +239,7 @@ class DatabaseManager(SharedFunctions):
             # Build the SELECT part dynamically from target list
             target_columns = ', '.join(target)
             # Query with parameterized LIKE for prefix search
-            query = f"SELECT {target_columns} FROM {table} WHERE {column} LIKE ?"
+            query = f"SELECT {target_columns} FROM {table} WHERE {column} LIKE ? "
             cursor.execute(query, (f"%{keyword}%",))
             rows = cursor.fetchall()
 
