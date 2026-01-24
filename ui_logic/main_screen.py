@@ -157,6 +157,7 @@ class MainScreen(MainForm):
             headers_width: List[int],
             font_size: int = 16
     ):
+        
         form = EditableItemsForm(EditableItemsUi)
         form.set_window_title(title)
 

@@ -10,12 +10,14 @@ class EditableItemsForm(Form):
         self.set_icon("edit_btn","edit.svg")
         self.set_icon("delete_btn","delete.svg")
 
-        # default data
+        # default settings
         self.qt_table: QTableWidget = None 
         self.db_table: str = None
         self.columns: List = None 
-        self.column: str = "name" # for database searchs purposes : SELECT column FROM ...
 
+        # obj.column for database searchs purposes : SELECT column FROM ...
+        self.column: str = "name" 
+        
         # Search box
         search_box: QLineEdit = self.ui.search_box
         search_box.textChanged.connect(self.search_box)
@@ -34,6 +36,7 @@ class EditableItemsForm(Form):
         self.db_table = db_table
         self.columns = columns
         
+        self.set_rows_scrollable(table_widget)
         items = None
         if data == None:
             items = self.get_table_cols_list(db_table, columns)

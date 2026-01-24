@@ -19,7 +19,7 @@ class ChooseItemForm(Form):
         self.setup_table_columns()
         self.table : QTableWidget = self.ui.items_table
         self.remove_rows_counter(self.table)
-        self.make_row_scrollable(self.table,1)
+        self.make_row_scrollable(self.table,1) 
         # initialize
         self.selected_item_barcode = None
 
@@ -69,13 +69,10 @@ class ChooseItemForm(Form):
 
 
     def add_row(self,columns:list):
-
         table : QTableWidget = self.ui.items_table
-
         row_position = table.rowCount()
         table.insertRow(row_position)
         name, barcode, sale_price = columns
-
 
         # Set the size of table Font
         header_font = QFont()

@@ -1,18 +1,13 @@
 from PyQt6 import QtGui
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QComboBox, QTableWidget, QTableWidgetItem
+from PyQt6.QtWidgets import (
+    QComboBox, QTableWidget, QTableWidgetItem, QAbstractItemView
+)
 from PyQt6.QtGui import QFont, QColor
 from hijri_converter import Gregorian
 from datetime import datetime
-
-
-
-
-
 from typing import Dict, Any, List
 import json, os, sys, random, winsound
-
-
 
 
 class SharedFunctions:
@@ -289,6 +284,39 @@ class SharedFunctions:
             header_width = int(total_width * percent / 100)
             table.setColumnWidth(i, header_width)
         self.remove_rows_counter(table)
+
+    def make_rows_scrollable(self, table: QTableWidget) -> None:
+        # 1. Make table rows selectable (full row).
+        table.setSelectionBehavior(
+            QAbstractItemView.SelectionBehavior.SelectRows
+        )
+        # 2. Make the user can only select one row at a time.
+        table.setSelectionMode(
+            QAbstractItemView.SelectionMode.SingleSelection
+        )
+
+    def update_variable_on_row_select(
+            self, table: QTableWidget = None, 
+            variable: str = None, 
+            column_index: int = None
+    ) -> None:
+        
+        if table is None or variable is None or column_index is None or table:
+            raise ValueError("table, variable and column_index are required")
+        else:
+        # Connect to selection change signal
+            def on_row_selected():
+                selected_items = table.selectedItems()
+                if selected_items:
+                    row = table.currentRow()
+                    item: QTableWidgetItem = table.item(row, column_index)
+                    if item:
+                        setattr(self, variable, item.text())  
+
+            # ✅ connect signal to update barcode whenever selection changes
+            table.itemSelectionChanged.connect(on_row_selected)
+
+ 
 
 
 
