@@ -11,9 +11,12 @@ class EditableItemsForm(Form):
         self.set_icon("delete_btn","delete.svg")
 
         # default settings
-        self.qt_table: QTableWidget = None 
+        self.qt_table: QTableWidget = self.ui.table 
         self.db_table: str = None
         self.columns: List = None 
+        self.user_id: int = None 
+
+        self.update_variable_on_row_select(self.qt_table, "user_id", 0)
 
         # obj.column for database searchs purposes : SELECT column FROM ...
         self.column: str = "name" 
@@ -35,33 +38,36 @@ class EditableItemsForm(Form):
         self.qt_table = table_widget
         self.db_table = db_table
         self.columns = columns
-        
-        self.set_rows_scrollable(table_widget)
+        self.variable = None 
+
         items = None
         if data == None:
             items = self.get_table_cols_list(db_table, columns)
         else:
             items = data
         
-        # Make the columns of Qt meet the db_table.
-        table_widget.setColumnCount(len(columns)) 
+        account_types = ["suppliers", "customers", "employees"]
+
+        if  db_table in account_types:
+            # Make the columns of Qt meet the db_table.
+            table_widget.setColumnCount(len(columns)+1) 
+        else:
+            table_widget.setColumnCount(len(columns)) 
 
         for item in items:
             item = list(item)
-
             if db_table == "suppliers":
                 balance = self.calculate_balance("supplier", item[0])
-                item.pop(0)
                 item.append(balance)
-
+    
             # where the next row should go
             row = table_widget.rowCount() 
-
+            
             # insert new row at the bottom of the table
             table_widget.insertRow(row) 
 
             for col_id, col_info in enumerate(item):
-                    table_item = self.make_item(col_info, font_size=font_size)
+                    table_item = self.make_item(col_info, font_size=font_size, read_only=True)
                     table_widget.setItem(row, col_id, table_item)
     
 

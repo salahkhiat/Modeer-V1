@@ -110,8 +110,8 @@ class MainScreen(MainForm):
         self.refresh_requested_products_table()
 
         # MenuBar
-        users_header = ["الإسم","الهاتف","الحساب"]
-        users_header_width: List[int] = [35, 35, 30]
+        users_header = ["المرجع", "الإسم", "الهاتف", "الحساب"]
+        users_header_width: List[int] = [10, 30, 30, 30]
         users_db_table_cols = ["id", "name", "tel"]
 
         self.ui.suppliers_action.triggered.connect(

@@ -67,7 +67,6 @@ class ChooseItemForm(Form):
         products = self.search_by_similar(table,column,prefix,targets)
         return products
 
-
     def add_row(self,columns:list):
         table : QTableWidget = self.ui.items_table
         row_position = table.rowCount()
@@ -111,7 +110,6 @@ class ChooseItemForm(Form):
             self.close()
             self.play_success_sound()
         
-
     def add_btn_clicked(self):
         self.ui.add_btn.clicked.connect(self.add_selected_item)
 
@@ -119,10 +117,6 @@ class ChooseItemForm(Form):
         # 1. Make table rows selectable (full row)
         table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
-
-        # 2. Enable scrolling if needed
-        table.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
-        table.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
 
         # 3. Connect to selection change signal
         def on_row_selected():

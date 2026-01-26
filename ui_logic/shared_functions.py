@@ -238,8 +238,10 @@ class SharedFunctions:
     def remove_rows_counter(self, table: QTableWidget):
         table.verticalHeader().setVisible(False)
 
-    def make_item(self,text, font_size=18, bold=True, color=None):
+    def make_item(self,text, font_size=18, bold=True, color=None, read_only=False ):
         item = QTableWidgetItem(str(text))
+        if read_only is True:
+            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
         item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
         font = QFont()
         font.setPointSize(font_size)
@@ -296,25 +298,26 @@ class SharedFunctions:
         )
 
     def update_variable_on_row_select(
-            self, table: QTableWidget = None, 
+            self, 
+            table: QTableWidget = None, 
             variable: str = None, 
             column_index: int = None
     ) -> None:
         
-        if table is None or variable is None or column_index is None or table:
-            raise ValueError("table, variable and column_index are required")
-        else:
+        # Make QTable rows scrollable one by one
+        self.make_rows_scrollable(table)
+        
         # Connect to selection change signal
-            def on_row_selected():
-                selected_items = table.selectedItems()
-                if selected_items:
-                    row = table.currentRow()
-                    item: QTableWidgetItem = table.item(row, column_index)
-                    if item:
-                        setattr(self, variable, item.text())  
+        def on_row_selected():
+            selected_items = table.selectedItems()
+            if selected_items:
+                row = table.currentRow()
+                item: QTableWidgetItem = table.item(row, column_index)
+                if item:
+                    setattr(self, variable, item.text())  
 
-            # ✅ connect signal to update barcode whenever selection changes
-            table.itemSelectionChanged.connect(on_row_selected)
+        # ✅ connect signal to update barcode whenever selection changes
+        table.itemSelectionChanged.connect(on_row_selected)
 
  
 
