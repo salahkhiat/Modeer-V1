@@ -1,6 +1,12 @@
 from .base_form import Form
 from typing import List, Any 
-from PyQt6.QtWidgets import  QTableWidget, QLineEdit
+from PyQt6.QtWidgets import  QTableWidget, QLineEdit, QComboBox
+from PyQt6.QtCore import Qt, QTimer
+from .account_form import AccountForm
+from uis.account import Ui_Form as AccountFormUi
+
+from .error_form import ErrorForm
+from uis.error_msg import Ui_Dialog as ErrorFormUi
 
 class EditableItemsForm(Form):
 
@@ -14,9 +20,9 @@ class EditableItemsForm(Form):
         self.qt_table: QTableWidget = self.ui.table 
         self.db_table: str = None
         self.columns: List = None 
-        self.user_id: int = None 
+        self.item_id: int = None 
 
-        self.update_variable_on_row_select(self.qt_table, "user_id", 0)
+        self.update_variable_on_row_select(self.qt_table, "item_id", 0)
 
         # obj.column for database searchs purposes : SELECT column FROM ...
         self.column: str = "name" 
@@ -24,6 +30,9 @@ class EditableItemsForm(Form):
         # Search box
         search_box: QLineEdit = self.ui.search_box
         search_box.textChanged.connect(self.search_box)
+
+        # connect buttons
+        self.ui.edit_btn.clicked.connect(self.edit_item_info)
         
     def set_db_table_info(
         self,
@@ -94,6 +103,28 @@ class EditableItemsForm(Form):
         data = [ tuple(item.values()) for item in items]
 
         self.set_db_table_info(self.qt_table, self.db_table, self.columns, 16, data)
+
+    def edit_item_info(self):
+        
+        if self.item_id is None:
+            print("you didn't select an item yet")
+            return 
+        item_info = self.get_item_info(
+            self.db_table,
+            ("name", "tel"),
+            "id",
+            self.item_id
+        )
+        form = AccountForm(AccountFormUi)
+        name: QLineEdit = form.ui.name
+        tel: QLineEdit = form.ui.tel
+        account_type: QComboBox = form.ui.account_type
+        name.setText(item_info["name"])
+        tel.setText(item_info["tel"])
+        account_type.setItemText(0,"مورد")
+        account_type.setEnabled(False)
+        form.exec()
+            
             
             
             

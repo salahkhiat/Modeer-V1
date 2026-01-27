@@ -115,21 +115,47 @@ class MainScreen(MainForm):
         users_db_table_cols = ["id", "name", "tel"]
 
         self.ui.suppliers_action.triggered.connect(
-            lambda: self.show_tab("جدول الموردين","suppliers",users_db_table_cols,users_header,users_header_width)
+            lambda: self.show_tab(
+                "جدول الموردين",
+                "suppliers",
+                users_db_table_cols,
+                users_header,
+                users_header_width
+            )
         )
         self.ui.customers_action.triggered.connect(
-            lambda: self.show_tab("جدول الزبائن","customers",users_db_table_cols,users_header,users_header_width)
+            lambda: self.show_tab(
+                "جدول الزبائن",
+                "customers",
+                users_db_table_cols,
+                users_header,
+                users_header_width
+            )
         )
         self.ui.employees_action.triggered.connect(
-            lambda: self.show_tab("جدول الموظفين","employees",users_db_table_cols,users_header,users_header_width)
+            lambda: self.show_tab(
+                "جدول الموظفين",
+                "employees",
+                users_db_table_cols,
+                users_header,
+                users_header_width
+            )
         )
 
         products_header = ["الإسم", "المرجع", "الكمية", "البيع بـ", "الشراء بـ"]
         products_header_width = [45, 15, 10, 15, 15]
-        products_db_table_cols = ["name", "barcode", "quantity", "sale_price", "purchase_price"]
+        products_db_table_cols = [
+            "name", "barcode", "quantity", "sale_price", "purchase_price"
+        ]
 
         self.ui.products_action.triggered.connect(
-            lambda: self.show_tab("جدول السلع", "products", products_db_table_cols, products_header, products_header_width)
+            lambda: self.show_tab(
+                "جدول السلع", 
+                "products", 
+                products_db_table_cols, 
+                products_header, 
+                products_header_width
+            )
         )
 
         needs_header = ["وصف", "تاريخ الطلب"]
@@ -137,15 +163,32 @@ class MainScreen(MainForm):
         needs_db_table_cols = ["name", "created"]
 
         self.ui.needs_action.triggered.connect(
-            lambda: self.show_tab("جدول النقائص", "requested_products", needs_db_table_cols, needs_header, needs_header_width)
+            lambda: self.show_tab(
+                "جدول النقائص", 
+                "requested_products", 
+                needs_db_table_cols, 
+                needs_header, 
+                needs_header_width
+            )
         )
 
-        mobiles_header = ["موديل", "الشراء", "IMEI", "البائع", "رقم البائع", "تاريخ"]
+        mobiles_header = [
+            "موديل", "الشراء", "IMEI", "البائع", "رقم البائع", "تاريخ"
+        ]
         mobiles_header_width = [25, 10, 20, 20, 15, 10]
-        mobiles_db_table_cols = ["model", "price", "serial", "seller_name", "seller_tel", "created"]
+        mobiles_db_table_cols = [
+            "model", "price", "serial", "seller_name", "seller_tel", "created"
+        ]
 
         self.ui.mobiles_action.triggered.connect(
-            lambda: self.show_tab("جدول الهواتف التي تم شرائها", "mobiles", mobiles_db_table_cols, mobiles_header, mobiles_header_width, font_size=13)
+            lambda: self.show_tab(
+                "جدول الهواتف التي تم شرائها", 
+                "mobiles", 
+                mobiles_db_table_cols, 
+                mobiles_header, 
+                mobiles_header_width, 
+                font_size=13
+            )
         )
        
     # show tab table
@@ -156,7 +199,7 @@ class MainScreen(MainForm):
             headers: List[str], 
             headers_width: List[int],
             font_size: int = 16
-    ):
+    ) -> None:
         
         form = EditableItemsForm(EditableItemsUi)
         form.set_window_title(title)
@@ -168,7 +211,9 @@ class MainScreen(MainForm):
             0, 
             lambda: self.set_table_properties(table, headers, headers_width)
         )
-        form.set_db_table_info(table, db_table,db_table_columns,font_size=font_size)
+        form.set_db_table_info(
+            table, db_table,db_table_columns,font_size=font_size
+        )
         form.exec()
 
 
