@@ -2,8 +2,12 @@ from .base_form import Form
 from typing import List, Any 
 from PyQt6.QtWidgets import  QTableWidget, QLineEdit, QComboBox
 from PyQt6.QtCore import Qt, QTimer
+
 from .account_form import AccountForm
 from uis.account import Ui_Form as AccountFormUi
+
+from .item_form import ItemForm
+from uis.item import Ui_Form as ItemFormUi
 
 from .error_form import ErrorForm
 from uis.error_msg import Ui_Dialog as ErrorFormUi
@@ -105,26 +109,64 @@ class EditableItemsForm(Form):
         self.set_db_table_info(self.qt_table, self.db_table, self.columns, 16, data)
 
     def edit_item_info(self):
-        
+
         if self.item_id is None:
             print("you didn't select an item yet")
             return 
-        item_info = self.get_item_info(
-            self.db_table,
-            ("name", "tel"),
-            "id",
-            self.item_id
-        )
-        form = AccountForm(AccountFormUi)
-        name: QLineEdit = form.ui.name
-        tel: QLineEdit = form.ui.tel
-        account_type: QComboBox = form.ui.account_type
-        name.setText(item_info["name"])
-        tel.setText(item_info["tel"])
-        account_type.setItemText(0,"مورد")
-        account_type.setEnabled(False)
-        form.exec()
+        
+        # When tables are suppliers, customers, employees
+        users_table = ["suppliers", "customers", "employees"]
+
+        if self.db_table in users_table:
+            user_info = self.get_item_info(
+                self.db_table,
+                ("name", "tel"),
+                "id",
+                self.item_id
+            )
+       
+            form = AccountForm(AccountFormUi)
+            form.ui.name.setText(user_info["name"])
+            form.ui.tel.setText(user_info["tel"])
+
+            account_placeholder = {
+                "suppliers": "مورد",
+                "customers": "زبون",
+                "employees": "عامل"
+            }
+            form.ui.account_type.setItemText(0, account_placeholder[self.db_table])
+            form.ui.account_type.setEnabled(False)
+            form.exec()
+        
+        # When table is products
+        if self.db_table == "products":
+            product_information = self.get_item_info(
+                self.db_table,
+                (
+                    "barcode", 
+                    "name", 
+                    "quantity", 
+                    "sale_price", 
+                    "purchase_price"
+                ),
+                "barcode",
+                self.item_id
+            )
+            product_info = product_information.values()
+            barcode, name, quantity, sale_price, purchase_price = product_info
+        
+            form = ItemForm(ItemFormUi)
+
+            form.ui.title.setText(name)
+            form.ui.ref.setText(barcode)
+            form.ui.name.setText(name)
+            form.ui.quantity.setText(str(quantity))
+            form.ui.purchase_price.setText(purchase_price)
+            # form.ui.sale_price.setText(str(sale_price))
             
+            form.exec()
+            
+        
             
             
             

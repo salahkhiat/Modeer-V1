@@ -1,4 +1,7 @@
-a = [1, 2, 4]
-a.pop(0)
-a.append(5)
-print(a)
+names = {
+    0: "sam",
+    1: "mood"
+}
+
+first, second = names.values()
+print(first)

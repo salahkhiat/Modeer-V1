@@ -142,10 +142,10 @@ class MainScreen(MainForm):
             )
         )
 
-        products_header = ["الإسم", "المرجع", "الكمية", "البيع بـ", "الشراء بـ"]
-        products_header_width = [45, 15, 10, 15, 15]
+        products_header = ["المرجع", "الإسم", "الكمية", "البيع بـ", "الشراء بـ"]
+        products_header_width = [15, 45, 10, 15, 15]
         products_db_table_cols = [
-            "name", "barcode", "quantity", "sale_price", "purchase_price"
+            "barcode", "name", "quantity", "sale_price", "purchase_price"
         ]
 
         self.ui.products_action.triggered.connect(
@@ -212,7 +212,7 @@ class MainScreen(MainForm):
             lambda: self.set_table_properties(table, headers, headers_width)
         )
         form.set_db_table_info(
-            table, db_table,db_table_columns,font_size=font_size
+            table, db_table, db_table_columns, font_size=font_size
         )
         form.exec()
 
