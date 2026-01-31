@@ -194,25 +194,10 @@ class SharedValidators(DatabaseManager):
         for field in fields:
             field.clear()
     
-
-            
-    def update_validation_response(self,field_name :str ,validating_fun:str) -> None:
-        """
-        store a validation function response (True or False) in the is_valid_xxx indicator like is_valid_name etc.
-
-        :param field_name: a validation field name.
-        :type field_name: str
-        :param validating_fun: a validation function.
-        :type validating_fun: str
-
-        :example:
-            >>> obj.update_validation_response("is_valid_name","is_empty")
-        """
-        
-        validating = getattr(self,validating_fun)
+    def update_validation_response(self,field_name: str, validating_fun: str) -> None:        
+        validating = getattr(self, validating_fun)
         response = validating(field_name)
-        setattr(self,"is_valid_"+field_name,response)
-
+        setattr(self, "is_valid_" + field_name, response)
 
     def is_purchase_price(self, field_name:str) -> bool:
 

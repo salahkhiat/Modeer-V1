@@ -152,17 +152,21 @@ class EditableItemsForm(Form):
                 "barcode",
                 self.item_id
             )
-            product_info = product_information.values()
-            barcode, name, quantity, sale_price, purchase_price = product_info
-        
-            form = ItemForm(ItemFormUi)
+            # product_info = product_information.values()
+            barcode = product_information["barcode"]
+            name = product_information["name"]
+            quantity = product_information["quantity"]
+            sale_price = product_information["sale_price"]
+            purchase_price = product_information["purchase_price"]
 
+            form = ItemForm(ItemFormUi)
+            form.setWindowTitle(name)
             form.ui.title.setText(name)
             form.ui.ref.setText(barcode)
             form.ui.name.setText(name)
             form.ui.quantity.setText(str(quantity))
-            form.ui.purchase_price.setText(purchase_price)
-            # form.ui.sale_price.setText(str(sale_price))
+            form.ui.purchase_price.setText(f"{purchase_price:.0f}")
+            form.ui.sale_price.setText(f"{sale_price:.0f}")
             
             form.exec()
             

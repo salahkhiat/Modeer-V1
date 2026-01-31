@@ -217,15 +217,6 @@ class SharedFunctions:
 
         table.blockSignals(False)
 
-
-
-
-
-
-
-
-
-    
     def play_success_sound(self):
         winsound.Beep(500, 700)
 
