@@ -1,6 +1,6 @@
 from .base_form import Form
 from typing import List, Any 
-from PyQt6.QtWidgets import  QTableWidget, QLineEdit, QPushButton
+from PyQt6.QtWidgets import  QTableWidget, QLineEdit, QPushButton, QWidget
 from PyQt6.QtCore import Qt, QTimer
 
 from .account_form import AccountForm
@@ -38,7 +38,7 @@ class EditableItemsForm(Form):
         search_box.textChanged.connect(self.search_box)
 
         # connect buttons
-        self.ui.edit_btn.clicked.connect(self.edit_item_info)
+        self.ui.edit_btn.clicked.connect(self.show_edit_form)
         
     def set_db_table_info(
         self,
@@ -122,7 +122,7 @@ class EditableItemsForm(Form):
 
         self.set_db_table_info(self.qt_table, self.db_table, self.columns, 16, data)
 
-    def edit_item_info(self):
+    def show_edit_form(self):
 
         if self.item_id is None:
             print("you didn't select an item yet")
@@ -182,6 +182,9 @@ class EditableItemsForm(Form):
             form.ui.purchase_price.setText(f"{purchase_price:.0f}")
             form.ui.sale_price.setText(f"{sale_price:.0f}")
             form.exec()
+    
+
+            
 
         
             

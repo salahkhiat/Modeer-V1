@@ -32,27 +32,21 @@ class AccountForm(Form):
         name = self.ui.name
         tel = self.ui.tel
         combo_index = self.get_current_combo_index('account_type')
+        print(name.text())
         
-
         account_types = ["customers", "suppliers", "employees"]
         
         table = account_types[combo_index]
-        columns = ["name","tel"]
+        columns = ["name", "tel"]
         data = (name.text(),tel.text())
         
         if self.is_valid_name == True and self.is_valid_tel == True:
-            self.store(table,columns,data)
-            fields = [name,tel]
+            self.store(table, columns, data)
+            fields = [name, tel]
             self.clear_fields(fields)
             self.close()
-            
+              
     def save_btn_clicked(self) -> None:
-        """
-        Connect the save button's clicked signal to the save_account_form method.
-
-        This sets up the event handling so that when the save button is clicked,
-        the form data will be saved.
-        """
         self.ui.save_btn.clicked.connect(self.save_account_form)
         
 
