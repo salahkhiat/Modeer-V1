@@ -1,6 +1,6 @@
 from .base_form import Form
 from typing import List, Any 
-from PyQt6.QtWidgets import  QTableWidget, QLineEdit, QComboBox
+from PyQt6.QtWidgets import  QTableWidget, QLineEdit, QPushButton
 from PyQt6.QtCore import Qt, QTimer
 
 from .account_form import AccountForm
@@ -8,6 +8,9 @@ from uis.account import Ui_Form as AccountFormUi
 
 from .item_form import ItemForm
 from uis.item import Ui_Form as ItemFormUi
+
+from .category_form import CategoryForm as RequestedProductForm
+from uis.category import Ui_Form as RequestedProductFormUi
 
 from .error_form import ErrorForm
 from uis.error_msg import Ui_Dialog as ErrorFormUi
@@ -25,7 +28,6 @@ class EditableItemsForm(Form):
         self.db_table: str = None
         self.columns: List = None 
         self.item_id: int = None 
-
         self.update_variable_on_row_select(self.qt_table, "item_id", 0)
 
         # obj.column for database searchs purposes : SELECT column FROM ...
@@ -53,6 +55,8 @@ class EditableItemsForm(Form):
         self.columns = columns
         self.variable = None 
 
+        # disable buttons
+        self.disable_delete_edit_btns(db_table)
         items = None
         if data == None:
             items = self.get_table_cols_list(db_table, columns)
@@ -83,6 +87,16 @@ class EditableItemsForm(Form):
                     table_item = self.make_item(col_info, font_size=font_size, read_only=True)
                     table_widget.setItem(row, col_id, table_item)
     
+    def disable_delete_edit_btns(self, db_table):
+        if db_table == "requested_products":
+            edit_btn: QPushButton = self.ui.edit_btn
+            edit_btn.setEnabled(False)
+
+        if db_table == "mobiles": 
+            edit_btn: QPushButton = self.ui.edit_btn
+            delete_btn: QPushButton = self.ui.delete_btn
+            edit_btn.setEnabled(False)
+            delete_btn.setEnabled(False)
 
     def calculate_balance(self, account_type: str, user_id: int) -> float:
         if account_type == "supplier":
@@ -167,8 +181,9 @@ class EditableItemsForm(Form):
             form.ui.quantity.setText(str(quantity))
             form.ui.purchase_price.setText(f"{purchase_price:.0f}")
             form.ui.sale_price.setText(f"{sale_price:.0f}")
-            
             form.exec()
+
+        
             
         
             

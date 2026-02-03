@@ -158,9 +158,9 @@ class MainScreen(MainForm):
             )
         )
 
-        needs_header = ["وصف", "تاريخ الطلب"]
-        needs_header_width = [70, 30]
-        needs_db_table_cols = ["name", "created"]
+        needs_header = ["المعرف","وصف", "تاريخ الطلب"]
+        needs_header_width = [15, 55, 30]
+        needs_db_table_cols = ["id", "name", "created"]
 
         self.ui.needs_action.triggered.connect(
             lambda: self.show_tab(
