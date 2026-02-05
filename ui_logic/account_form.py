@@ -1,15 +1,17 @@
 from .base_form import Form
-
+from PyQt6.QtCore import pyqtSlot
 class AccountForm(Form):
-    def __init__(self,base_form):
+    def __init__(self,base_form, user_item_id: int=None):
         super().__init__(base_form)
         # Set form title
-        self.setWindowTitle("قم بإنشاء حساب")
+        self.setWindowTitle("قم بإنشاء حساب") 
         
         # Default validation values
         self.is_valid_name = False
         self.is_valid_tel = True
-        
+        if user_item_id:
+            self.user_item_id = user_item_id
+        print(user_item_id)
         # Filtering inputs
         telephone_field = self.ui.tel
         self.accept_numbers_only(telephone_field)
@@ -23,6 +25,7 @@ class AccountForm(Form):
 
         # Buttons connection
         self.save_btn_clicked()
+
 
     # save account form inputs
     def save_account_form(self) -> None:

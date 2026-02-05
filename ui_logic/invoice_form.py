@@ -64,15 +64,10 @@ class InvoiceForm(Form):
         self.table = invoice_type
         self.column = "name"
         self.invoice_total = 0 
-        
-
-        # test
-        
-
-        # tested 
 
         # default variables 
         self.selected_product_barcode = None 
+        
         # Set column count and headers for items_table
         items_table : QTableWidget = self.ui.items_table 
 
@@ -84,14 +79,6 @@ class InvoiceForm(Form):
             self.ui.items_table.SelectionMode.SingleSelection
         )
         items_table.cellClicked.connect(self.select_item_barcode)
-
-    
-        # if self.invoice_total == "customers":
-            # Deal with Table cells 
-        # items_table.setItemDelegateForColumn(2, OnlyDigitsInCell())
-
-        # items_table.itemChanged.connect(self.get_cell_content)
-        
 
         # remove rows counter
         self.remove_rows_counter(items_table)

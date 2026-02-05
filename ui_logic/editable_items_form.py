@@ -1,7 +1,6 @@
 from .base_form import Form
 from typing import List, Any 
 from PyQt6.QtWidgets import  QTableWidget, QLineEdit, QPushButton, QWidget
-from PyQt6.QtCore import Qt, QTimer
 
 from .account_form import AccountForm
 from uis.account import Ui_Form as AccountFormUi
@@ -139,7 +138,8 @@ class EditableItemsForm(Form):
                 self.item_id
             )
        
-            form = AccountForm(AccountFormUi)
+            form: QWidget = AccountForm(AccountFormUi, self.item_id)
+            form.setWindowTitle(user_info["name"])
             form.ui.name.setText(user_info["name"])
             form.ui.tel.setText(user_info["tel"])
 
@@ -151,6 +151,7 @@ class EditableItemsForm(Form):
             form.ui.account_type.setItemText(0, account_placeholder[self.db_table])
             form.ui.account_type.setEnabled(False)
             form.exec()
+    
         
         # When table is products
         if self.db_table == "products":

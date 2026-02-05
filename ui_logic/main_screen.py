@@ -45,9 +45,7 @@ from .error_form import ErrorForm
 from uis.editable_items import Ui_ChooseItemUi as EditableItemsUi
 from .editable_items_form import EditableItemsForm
 
-from PyQt6.QtCore import pyqtSignal 
-
-from PyQt6.QtWidgets import QComboBox, QTableWidget, QHeaderView
+from PyQt6.QtWidgets import QTableWidget, QHeaderView
 
 from typing import Dict, List
 
@@ -284,6 +282,7 @@ class MainScreen(MainForm):
     def expense_form(self):
         form = ExpenseForm(ExpenseUi)
         form.exec()
+
     def show_expense_form(self):
         self.ui.new_expense_btn.clicked.connect(self.expense_form)
 
@@ -291,6 +290,7 @@ class MainScreen(MainForm):
     def withdrawal_form(self):
         form = WithdrawalForm(WithdrawalUi)
         form.exec()
+
     def show_withdrawal_form(self):
         self.ui.new_employee_withdrawal_btn.clicked.connect(self.withdrawal_form)
     
@@ -298,6 +298,7 @@ class MainScreen(MainForm):
     def supplier_payment_form(self):
         form = SupplierPaymentForm(SupplierPaymentUi)
         form.exec()
+
     def show_supplier_payment_form(self):
         self.ui.new_supplier_transaction_btn.clicked.connect(self.supplier_payment_form)
 
@@ -305,6 +306,7 @@ class MainScreen(MainForm):
     def customer_payment_form(self):
         form = CustomerPaymentForm(CustomerPaymentUi)
         form.exec()
+        
     def show_customer_payment_form(self):
         self.ui.new_customer_transaction_btn.clicked.connect(self.customer_payment_form)
 

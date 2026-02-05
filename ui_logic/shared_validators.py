@@ -197,7 +197,7 @@ class SharedValidators(DatabaseManager):
     def update_validation_response(self,field_name: str, validating_fun: str) -> None:        
         validating = getattr(self, validating_fun)
         response = validating(field_name)
-        setattr(self, "is_valid_" + field_name, response)
+        setattr(self, "is_valid_" + field_name, response) 
 
     def is_purchase_price(self, field_name:str) -> bool:
 
