@@ -14,6 +14,9 @@ from uis.category import Ui_Form as RequestedProductFormUi
 from .error_form import ErrorForm
 from uis.error_msg import Ui_Dialog as ErrorFormUi
 
+from .confirmation_msg_form import ConfirmationMsgForm
+from uis.confirmation_msg import Ui_Dialog as ConfirmationMsgFormUi
+
 class EditableItemsForm(Form):
 
     def __init__(self,base_form):
@@ -186,11 +189,15 @@ class EditableItemsForm(Form):
             form.exec()
     
     def delete_item(self):
+        
         # 1 show deletion confirmation message
+        confirmation_msg = "هل أنت متأكد من عملية الحذف؟"
+        form = ConfirmationMsgForm(ConfirmationMsgFormUi, confirmation_msg)
+        form.exec()
 
 
         # 2 then delete
-         self.update_info(
+        self.update_info(
              self.db_table,
              ["is_deleted"],
              (1,),
