@@ -1,4 +1,5 @@
 from .base_form import Form
+
 from typing import List, Any 
 from PyQt6.QtWidgets import  QTableWidget, QLineEdit, QPushButton, QWidget
 
@@ -18,6 +19,7 @@ from .confirmation_msg_form import ConfirmationMsgForm
 from uis.confirmation_msg import Ui_Dialog as ConfirmationMsgFormUi
 
 class EditableItemsForm(Form):
+    
 
     def __init__(self,base_form):
         super().__init__(base_form)
@@ -188,14 +190,10 @@ class EditableItemsForm(Form):
             form.ui.sale_price.setText(f"{sale_price:.0f}")
             form.exec()
     
-    def delete_item(self):
+    def on_delete_confirmed(self, confirmed: bool):
+        if not confirmed:
+            return
         
-        # 1 show deletion confirmation message
-        confirmation_msg = "هل أنت متأكد من عملية الحذف؟"
-        form = ConfirmationMsgForm(ConfirmationMsgFormUi, confirmation_msg)
-        form.exec()
-
-
         # 2 then delete
         self.update_info(
              self.db_table,
@@ -205,7 +203,14 @@ class EditableItemsForm(Form):
              (self.item_id,)
          )
 
-         # 3 remove a deleted item from editable_form table
+    def delete_item(self):
+        confirmation_msg = "هل أنت متأكد من عملية الحذف؟"
+        form = ConfirmationMsgForm(ConfirmationMsgFormUi, confirmation_msg)
+        form.confirmed.connect(self.on_delete_confirmed)
+        form.exec()
+        self.play_success_sound()
+
+
 
     
     
