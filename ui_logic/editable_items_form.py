@@ -38,6 +38,7 @@ class EditableItemsForm(Form):
 
         # connect buttons
         self.ui.edit_btn.clicked.connect(self.show_edit_form)
+        self.ui.delete_btn.clicked.connect(self.delete_item)
         
     def set_db_table_info(
         self,
@@ -58,7 +59,7 @@ class EditableItemsForm(Form):
         self.disable_delete_edit_btns(db_table)
         items = None
         if data == None:
-            items = self.get_table_cols_list(db_table, columns)
+            items = self.get_table_cols_list(db_table, columns, 'is_deleted = ?', (0, ))
         else:
             items = data
         
@@ -138,7 +139,7 @@ class EditableItemsForm(Form):
                 self.item_id
             )
        
-            form: QWidget = AccountForm(AccountFormUi, self.item_id)
+            form: QWidget = AccountForm(AccountFormUi, self.item_id, self.db_table)
             form.setWindowTitle(user_info["name"])
             form.ui.name.setText(user_info["name"])
             form.ui.tel.setText(user_info["tel"])
@@ -183,6 +184,23 @@ class EditableItemsForm(Form):
             form.ui.purchase_price.setText(f"{purchase_price:.0f}")
             form.ui.sale_price.setText(f"{sale_price:.0f}")
             form.exec()
+    
+    def delete_item(self):
+        # 1 show deletion confirmation message
+
+
+        # 2 then delete
+         self.update_info(
+             self.db_table,
+             ["is_deleted"],
+             (1,),
+             "id = ?",
+             (self.item_id,)
+         )
+
+         # 3 remove a deleted item from editable_form table
+
+    
     
 
             

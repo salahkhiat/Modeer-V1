@@ -31,7 +31,7 @@ class SharedFunctions:
     
     # Returns the Index of the current selected combobox item
     def get_current_combo_index(self,combo_name:str) -> int:
-        return getattr(self.ui,combo_name).currentIndex()
+        return getattr(self.ui, combo_name).currentIndex()
 
     # get current date in Hijri or Gregorian. Hijri is the default.
     def current_date(self) -> str:

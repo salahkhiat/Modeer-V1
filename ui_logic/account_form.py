@@ -1,7 +1,8 @@
 from .base_form import Form
-from PyQt6.QtCore import pyqtSlot
+
 class AccountForm(Form):
-    def __init__(self,base_form, user_item_id: int=None):
+    def __init__(self,base_form, user_item_id: int=None, user_type: str=None):
+        
         super().__init__(base_form)
         # Set form title
         self.setWindowTitle("قم بإنشاء حساب") 
@@ -9,9 +10,15 @@ class AccountForm(Form):
         # Default validation values
         self.is_valid_name = False
         self.is_valid_tel = True
-        if user_item_id:
+        self.editable = False
+        
+        # Check user account type and user ID.
+        if user_item_id and user_type:
+            self.user_type = user_type
             self.user_item_id = user_item_id
-        print(user_item_id)
+
+            self.editable = True
+        
         # Filtering inputs
         telephone_field = self.ui.tel
         self.accept_numbers_only(telephone_field)
@@ -34,17 +41,30 @@ class AccountForm(Form):
         """ 
         name = self.ui.name
         tel = self.ui.tel
-        combo_index = self.get_current_combo_index('account_type')
-        print(name.text())
-        
-        account_types = ["customers", "suppliers", "employees"]
-        
-        table = account_types[combo_index]
+        table = None 
+
+        if self.editable is False:
+            combo_index = self.get_current_combo_index('account_type')
+            account_types = ["customers", "suppliers", "employees"]
+            table = account_types[combo_index]
+        else:
+            table = self.user_type
+
         columns = ["name", "tel"]
         data = (name.text(),tel.text())
         
         if self.is_valid_name == True and self.is_valid_tel == True:
-            self.store(table, columns, data)
+
+            # create a new user.
+            if self.editable is False:
+                self.store(table, columns, data)
+                
+            # edit a user information name and tel.    
+            else:
+                self.update_info(
+                    table, columns, data, "id=?",(self.user_item_id,)
+                )
+
             fields = [name, tel]
             self.clear_fields(fields)
             self.close()

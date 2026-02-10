@@ -378,29 +378,17 @@ class DatabaseManager(SharedFunctions):
             if con:
                 con.close()
 
-
-    def get_table_cols_list(self, table:str, columns:List[str]) -> List:
-        """
-        Returning table data as list [(x, x), (x, x) . ...].
-        
-        Args:
-            table (str): The table name.
-            column (str): The table column.
-        Returns:
-            list: Data as List.
-        Examples:
-            >>> table = "student"
-            >>> column = "name"
-            >>> obj.get_table_as_dict(table,column)
-            [(x, x), (x, x) . ...]
-        """
+    def get_table_cols_list(self, table:str, columns:List[str], where_clause:str=None, parms: tuple=()) -> List:
+   
         con = None
         try:
             con = db.connect(self.get_database_ref())
             cursor = con.cursor()
-            query = f"SELECT {','.join(columns)} FROM {table}"
+            query = f"SELECT {','.join(columns)} FROM {table}" 
+            if  where_clause:
+                query += f" WHERE {where_clause}"
             
-            return cursor.execute(query).fetchall()
+            return cursor.execute(query, parms).fetchall()
         
         except db.Error as err:
             print(f"database error: {err}")
@@ -823,7 +811,8 @@ class DatabaseManager(SharedFunctions):
             CREATE TABLE IF NOT EXISTS suppliers (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
-                tel TEXT
+                tel TEXT,
+                is_deleted BOOLEAN DEFAULT 0
             );
             """,
 
@@ -833,7 +822,7 @@ class DatabaseManager(SharedFunctions):
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
                 tel TEXT,
-                type TEXT
+                is_deleted BOOLEAN DEFAULT 0
             );
             """,
 
@@ -842,7 +831,8 @@ class DatabaseManager(SharedFunctions):
             CREATE TABLE IF NOT EXISTS employees (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
-                tel TEXT
+                tel TEXT,
+                is_deleted BOOLEAN DEFAULT 0
             );
             """,
 
