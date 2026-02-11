@@ -234,6 +234,6 @@ class Ui_Form(object):
         Form.setWindowTitle(_translate("Form", "Form"))
         self.label_2.setText(_translate("Form", "الزبون :"))
         self.label.setText(_translate("Form", "نوع الخدمة :"))
-        self.note.setPlaceholderText(_translate("Form", "ملحوظة"))
+        self.note.setPlaceholderText(_translate("Form", "ملحوظة : إسم الجهاز مثلا"))
         self.amount.setPlaceholderText(_translate("Form", "السعر"))
         self.deposit.setPlaceholderText(_translate("Form", "الإيداع"))

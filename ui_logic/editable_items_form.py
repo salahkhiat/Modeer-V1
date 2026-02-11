@@ -33,7 +33,7 @@ class EditableItemsForm(Form):
         self.columns: List = None 
         self.item_id: int = None 
         self.update_variable_on_row_select(self.qt_table, "item_id", 0)
-        account_types = ["suppliers", "customers", "employees"]
+        self.account_types = ["suppliers", "customers", "employees"]
 
         # obj.column for database searchs purposes : SELECT column FROM ...
         self.column: str = "name" 
