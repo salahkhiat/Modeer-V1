@@ -33,6 +33,7 @@ class EditableItemsForm(Form):
         self.columns: List = None 
         self.item_id: int = None 
         self.update_variable_on_row_select(self.qt_table, "item_id", 0)
+        account_types = ["suppliers", "customers", "employees"]
 
         # obj.column for database searchs purposes : SELECT column FROM ...
         self.column: str = "name" 
@@ -62,15 +63,16 @@ class EditableItemsForm(Form):
 
         # disable buttons
         self.disable_delete_edit_btns(db_table)
+
         items = None
         if data == None:
             items = self.get_table_cols_list(db_table, columns, 'is_deleted = ?', (0, ))
         else:
             items = data
         
-        account_types = ["suppliers", "customers", "employees"]
+        
 
-        if  db_table in account_types:
+        if  db_table in self.account_types:
             # Make the columns of Qt meet the db_table.
             table_widget.setColumnCount(len(columns)+1) 
         else:
@@ -89,8 +91,39 @@ class EditableItemsForm(Form):
             table_widget.insertRow(row) 
 
             for col_id, col_info in enumerate(item):
-                    table_item = self.make_item(col_info, font_size=font_size, read_only=True)
+                    table_item = self.make_item(
+                        col_info, font_size=font_size, read_only=True
+                    )
                     table_widget.setItem(row, col_id, table_item)
+
+    def refresh_table(self):
+        items = self.get_table_cols_list(
+            self.db_table, self.columns, 'is_deleted = ?', (0, )
+        )
+        
+        if  self.db_table in self.account_types:
+            # Make the columns of Qt meet the db_table.
+            self.qt_table.setColumnCount(len(self.columns)+1) 
+        else:
+            self.qt_table.setColumnCount(len(self.columns)) 
+
+        for item in items:
+            item = list(item)
+            if self.db_table == "suppliers":
+                balance = self.calculate_balance("supplier", item[0])
+                item.append(balance)
+    
+            # where the next row should go
+            row = self.qt_table.rowCount() 
+            
+            # insert new row at the bottom of the table
+            self.qt_table.insertRow(row) 
+
+            for col_id, col_info in enumerate(item):
+                    table_item = self.make_item(
+                        col_info, font_size=16, read_only=True
+                    )
+                    self.qt_table.setItem(row, col_id, table_item)
     
     def disable_delete_edit_btns(self, db_table):
         if db_table == "requested_products":
@@ -124,7 +157,7 @@ class EditableItemsForm(Form):
             self.db_table, self.column, search_word, self.columns
         )
         data = [ tuple(item.values()) for item in items]
-
+        print(data)
         self.set_db_table_info(self.qt_table, self.db_table, self.columns, 16, data)
 
     def show_edit_form(self):
@@ -158,7 +191,6 @@ class EditableItemsForm(Form):
             form.ui.account_type.setEnabled(False)
             form.exec()
     
-        
         # When table is products
         if self.db_table == "products":
             product_information = self.get_item_info(
@@ -202,6 +234,9 @@ class EditableItemsForm(Form):
              "id = ?",
              (self.item_id,)
          )
+        self.qt_table.setRowCount(0)
+
+        self.refresh_table()
 
     def delete_item(self):
         confirmation_msg = "هل أنت متأكد من عملية الحذف؟"
@@ -210,28 +245,6 @@ class EditableItemsForm(Form):
         form.exec()
         self.play_success_sound()
 
-
-
-    
-    
-
-            
-
-        
-            
-        
-            
-            
-            
-            
-              
-              
-              
-              
-              
-
-        
-        
     def set_window_title(self,title):
         self.setWindowTitle(title)
 
