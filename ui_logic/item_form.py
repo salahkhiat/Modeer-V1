@@ -2,10 +2,11 @@ from .base_form import Form
 
 from PyQt6.QtCore import pyqtSignal
 from typing import List
+from PyQt6.QtWidgets import QWidget
 
 class ItemForm(Form):
     item_added = pyqtSignal(dict)
-    def __init__(self,base_form):
+    def __init__(self, base_form, item_id=None):
         super().__init__(base_form)
         self.setWindowTitle("إدخال معلومات السلعة")
         # set icons
@@ -18,6 +19,10 @@ class ItemForm(Form):
         self.accept_numbers_only(self.ui.quantity)
         self.accept_numbers_only(self.ui.purchase_price)
         self.accept_numbers_only(self.ui.sale_price)
+
+        # For updating product information purpose only
+        if item_id:
+            self.item_id = item_id 
         
         # Validation
         self.is_valid_name = False
@@ -26,18 +31,17 @@ class ItemForm(Form):
         self.is_valid_quantity = False 
         self.is_valid_ref = False
 
-        
-
         # Validate fields.
         self.ui.name.textChanged.connect(lambda:self.update_validation_response("name","is_empty"))
         self.ui.quantity.textChanged.connect(lambda: self.update_validation_response("quantity","is_quantity"))
         self.ui.purchase_price.textChanged.connect(lambda:self.update_validation_response("purchase_price","is_purchase_price"))
         self.ui.sale_price.textChanged.connect(lambda:self.update_validation_response("sale_price","is_sale_price"))
         
-    def set_table_refs(self,table_refs:List):
+    def set_table_refs(self,table_refs:List=None):
+
         self.table_references_list = table_refs
 
-    def add_item_to_invoice(self):
+    def validating_fields(self):
         
         item_details = {
             'name': self.ui.name.text(),
@@ -63,6 +67,7 @@ class ItemForm(Form):
                     item_details['ref'] = generated_ref
                     self.is_valid_ref = True
                     break
+                
                 # if an invoice table widget is not empty.
                 elif len(self.table_references_list) > 0:
                     # If a reference is in an invoice table widget, if yes, regenerate it then recheck. 
@@ -108,20 +113,44 @@ class ItemForm(Form):
         }
         valid_fields = 0
 
-        for field, state in valid_data.items():
+        for _ , state in valid_data.items():
             if state:
                 valid_fields += 1
 
-        if valid_fields != 5:
-            print("Your data is not ready yet to be added into invoice table.")
-            
+        return (valid_fields, item_details)
+
+    def add_item_to_invoice(self):
+        validated_fields, item_details = self.validating_fields()
+
+        if validated_fields != 5:
+            print("A product info has entered is invalid.")
+
         else:
-            self.item_added.emit(item_details)
+            if not self.item_id:    
+                self.item_added.emit(item_details)
+            else:
+                print(self.product_form_info())
             self.close()
         
                
     def add_item_btn_clicked(self):
         self.ui.add_btn.clicked.connect(lambda: self.add_item_to_invoice())
+    
+    def product_form_info(self):
+        form: QWidget = self.ui 
+        return (
+            form.ref.text().strip(),
+            form.name.text().strip(),
+            form.quantity.text().strip(),
+            form.purchase_price.text().strip(),
+            form.sale_price.text().strip()
+        )
+    
+
+
+        
+
+    
 
         
 

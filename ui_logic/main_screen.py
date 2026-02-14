@@ -228,8 +228,6 @@ class MainScreen(MainForm):
         form.product_info.connect(self.refresh_requested_products_table)
         form.exec()
         
-    
-
     def show_requested_product_form(self):
         self.ui.requested_products_btn.clicked.connect(self.requested_product_form)
     
@@ -245,11 +243,9 @@ class MainScreen(MainForm):
         header = r_p_table.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         header.setSectionResizeMode(1,QHeaderView.ResizeMode.ResizeToContents)
-       
 
         row = r_p_table.rowCount()
 
-        
         for product in requested_products.values():
             r_p_table.insertRow(row)
             date_label = self.current_date()
@@ -354,14 +350,13 @@ class MainScreen(MainForm):
     def remove_tab_index(self,target):
         if target in self.opened_customers_invoices:
             self.opened_customers_invoices.remove(target) 
-            print(f"#{target} tab index was deleted")
             return True 
+        
         elif target in self.opened_suppliers_invoices:
             self.opened_suppliers_invoices.remove(target)
-            print(f"#{target} tab index was deleted")
             return True
+        
         else:
-            print(f"the #{target} tab index is not exists.")
             return False
         
     # remove an invoice tab

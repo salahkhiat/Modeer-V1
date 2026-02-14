@@ -166,7 +166,7 @@ class EditableItemsForm(Form):
             print("you didn't select an item yet")
             return 
         
-        # When tables are suppliers, customers, employees
+        # When table is suppliers, customers, employees
         users_table = ["suppliers", "customers", "employees"]
 
         if self.db_table in users_table:
@@ -212,7 +212,8 @@ class EditableItemsForm(Form):
             sale_price = product_information["sale_price"]
             purchase_price = product_information["purchase_price"]
 
-            form = ItemForm(ItemFormUi)
+            form = ItemForm(ItemFormUi,self.item_id)
+            form.set_icon("add_btn","apply.svg")
             form.setWindowTitle(name)
             form.ui.title.setText(name)
             form.ui.ref.setText(barcode)
@@ -221,6 +222,8 @@ class EditableItemsForm(Form):
             form.ui.purchase_price.setText(f"{purchase_price:.0f}")
             form.ui.sale_price.setText(f"{sale_price:.0f}")
             form.exec()
+        self.qt_table.setRowCount(0)
+        self.refresh_table()
     
     def on_delete_confirmed(self, confirmed: bool):
         if not confirmed:

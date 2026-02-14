@@ -502,13 +502,10 @@ class InvoiceForm(Form):
                             
         self.play_success_sound()  
         self.invoice_saved.emit(True)           
-
-
             
     def save_btn_clicked(self):
         self.ui.save_btn.clicked.connect(self.save_invoice_in_db) 
-
-
+        
     def select_item_barcode(self, row: int):
         """ SET SELECTED PRODUCT BARCODE OF SELECTED ITEMS_TABLE ROW"""
         table = self.ui.items_table
