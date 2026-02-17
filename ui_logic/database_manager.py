@@ -427,6 +427,24 @@ class DatabaseManager(SharedFunctions):
             if conn:
                 conn.close()
 
+    def is_belonged_to_other(self, current_id:str, current_barcode:str):
+        conn = None
+        try:
+            conn = db.connect(self.get_database_ref())
+            cursor = conn.cursor()
+            query = f"SELECT 1 FROM products WHERE id != ? AND barcode = ? LIMIT 1"
+            cursor.execute(query,(str(current_id), str(current_barcode)))
+            result = cursor.fetchone()
+            return result is not None
+        except db.Error as e:
+            print(f"Database error: {e}")
+            return False
+        finally:
+            if conn:
+                conn.close()
+
+
+
     def get_sales_income(self,s_date:str="today") -> float:
         """
         Calculate total sales income based on conditional rules.

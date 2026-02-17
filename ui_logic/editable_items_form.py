@@ -157,7 +157,7 @@ class EditableItemsForm(Form):
             self.db_table, self.column, search_word, self.columns
         )
         data = [ tuple(item.values()) for item in items]
-        print(data)
+        
         self.set_db_table_info(self.qt_table, self.db_table, self.columns, 16, data)
 
     def show_edit_form(self):
@@ -221,6 +221,7 @@ class EditableItemsForm(Form):
             form.ui.quantity.setText(str(quantity))
             form.ui.purchase_price.setText(f"{purchase_price:.0f}")
             form.ui.sale_price.setText(f"{sale_price:.0f}")
+            form.item_updated.connect(self.refresh_table)
             form.exec()
         self.qt_table.setRowCount(0)
         self.refresh_table()
@@ -250,6 +251,7 @@ class EditableItemsForm(Form):
 
     def set_window_title(self,title):
         self.setWindowTitle(title)
+
 
    
 

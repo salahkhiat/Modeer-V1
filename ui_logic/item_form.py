@@ -6,7 +6,8 @@ from PyQt6.QtWidgets import QWidget
 
 class ItemForm(Form):
     item_added = pyqtSignal(dict)
-    def __init__(self, base_form, item_id=None):
+    item_updated = pyqtSignal(bool)
+    def __init__(self, base_form, item_barcode=None):
         super().__init__(base_form)
         self.setWindowTitle("إدخال معلومات السلعة")
         # set icons
@@ -21,8 +22,8 @@ class ItemForm(Form):
         self.accept_numbers_only(self.ui.sale_price)
 
         # For updating product information purpose only
-        if item_id:
-            self.item_id = item_id 
+        if item_barcode:
+            self.item_barcode = item_barcode 
         
         # Validation
         self.is_valid_name = False
@@ -52,55 +53,82 @@ class ItemForm(Form):
         }
 
         """
-            Reference related.
+            barcode related.
         """
 
-        # if a reference field is Empty.
-        if not self.is_empty("ref",err_msg=False) :  
-            
-            while True:
-                # Generate a reference (barcode)
-                generated_ref = str(self.generate_reference())
-                
-                # if the invoice table widget is Empty.
-                if len(self.table_references_list) == 0:
-                    item_details['ref'] = generated_ref
-                    self.is_valid_ref = True
-                    break
-                
-                # if an invoice table widget is not empty.
-                elif len(self.table_references_list) > 0:
-                    # If a reference is in an invoice table widget, if yes, regenerate it then recheck. 
-                    if generated_ref in self.table_references_list:
-                        continue
-                    # Else store a generated ref (barcode), Then set it valid
-                    else:
+        
+        # if a barcode field is Empty.
+        if not self.is_empty("ref",err_msg=False): 
+
+            # this condition block is only for updating product information option.
+            if self.item_barcode:
+                self.is_valid_ref = False
+                    
+            else:
+
+                # this loop for saving new product.
+                while True:
+                    # Generate a reference (barcode)
+                    generated_ref = str(self.generate_reference())
+                    
+                    # if the invoice table widget is Empty.
+                    if len(self.table_references_list) == 0:
                         item_details['ref'] = generated_ref
                         self.is_valid_ref = True
                         break
+
+                    # if an invoice table widget is not empty.
+                    elif len(self.table_references_list) > 0:
+                        # If a reference is in an invoice table widget, if yes, regenerate it then recheck. 
+                        if generated_ref in self.table_references_list:
+                            continue
+                        # Else store a generated ref (barcode), Then set it valid
+                        else:
+                            item_details['ref'] = generated_ref
+                            self.is_valid_ref = True
+                            break
         # if a reference(barcode) field is not empty.
         else:
-            ref = item_details['ref']
-            # if an invoice table widget is empty.
-            if len(self.table_references_list) == 0:
-
-                # If the reference(barcode) is not empty.
-                if item_details['ref'].strip() != "":
-                        self.is_valid_ref = True
-
-            # If an invoice table widget is not empty.
-            if len(self.table_references_list) > 0:
-
-                # If a reference in an invoice table widget, if yes, ask the user to retry with new barcode.
-                if ref in self.table_references_list:
+            
+            # this condition block is only for updating product information option.
+            if self.item_barcode:
+                product_id = self.get_item_info(
+                    "products",
+                    ("id",),
+                    "barcode",
+                    str(self.item_barcode)
+                )['id']
+                
+                if self.is_belonged_to_other(product_id, item_details["ref"]) is True:
                     err_msg = "المرجع مستخدم مسبقا"
                     self.set_err_msg("ref",err_msg)
                     self.is_valid_ref = False
+                else:
+                    self.is_valid_ref = True
+                    
+            else:
+                ref = item_details['ref']
+                # if an invoice table widget is empty.
+                if len(self.table_references_list) == 0:
 
-                # If a reference is not in an invoice table widget and not empty then it is valid.
-                else: 
+                    # If the reference(barcode) is not empty.
                     if item_details['ref'].strip() != "":
-                        self.is_valid_ref = True
+                            self.is_valid_ref = True
+
+                # If an invoice table widget is not empty.
+                if len(self.table_references_list) > 0:
+
+                    # If a reference in an invoice table widget, if yes, ask the user to retry with new barcode.
+                    if ref in self.table_references_list:
+                        err_msg = "المرجع مستخدم مسبقا"
+                        self.set_err_msg("ref",err_msg)
+                        self.is_valid_ref = False
+
+                    # If a reference is not in an invoice table widget and not empty then it is valid.
+                    else: 
+                        if item_details['ref'].strip() != "":
+                            self.is_valid_ref = True
+
         """
             Quantity related.
         """
@@ -120,16 +148,23 @@ class ItemForm(Form):
         return (valid_fields, item_details)
 
     def add_item_to_invoice(self):
+       
         validated_fields, item_details = self.validating_fields()
 
         if validated_fields != 5:
             print("A product info has entered is invalid.")
 
         else:
-            if not self.item_id:    
+            # this condition block is only for saving product information option.
+            if not self.item_barcode:    
                 self.item_added.emit(item_details)
+
+            # this condition block is only for updating product information option.
             else:
-                print(self.product_form_info())
+                self.apply_updates()
+                self.play_success_sound()
+                self.item_updated.emit(True)
+
             self.close()
         
                
@@ -144,6 +179,22 @@ class ItemForm(Form):
             form.quantity.text().strip(),
             form.purchase_price.text().strip(),
             form.sale_price.text().strip()
+        )
+    
+    def apply_updates(self):
+        new_data = self.product_form_info()
+        columns = [
+            "barcode",
+            "name",
+            "quantity",
+            "purchase_price",
+            "sale_price"
+        ]
+        self.update_info(
+            "products",
+            columns,new_data,
+            f"barcode=?",
+            (self.item_barcode,)
         )
     
 
