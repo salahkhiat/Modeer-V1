@@ -231,11 +231,16 @@ class EditableItemsForm(Form):
             return
         
         # 2 then delete
+        form = None
+        if self.db_table == "products":
+            form = "barcode"
+        else:
+            form = "id"
         self.update_info(
              self.db_table,
              ["is_deleted"],
              (1,),
-             "id = ?",
+             f"{form} = ?",
              (self.item_id,)
          )
         self.qt_table.setRowCount(0)
