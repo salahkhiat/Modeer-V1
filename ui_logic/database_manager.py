@@ -218,7 +218,13 @@ class DatabaseManager(SharedFunctions):
                 connection.close()
 
 
-    def search_by_similar(self, table: str, column: str, keyword: str, target: List[str]) -> List[Dict[str, Any]]:
+    def search_by_similar(
+            self, table: str, 
+            column: str, 
+            keyword: str, 
+            target: List[str], 
+            hide_deleted=True,
+    ) -> List[Dict[str, Any]]:
         """
         Search for rows in a table where a column starts with a given keyword.
         Returns a list of dictionaries with the specified target columns.
@@ -227,10 +233,10 @@ class DatabaseManager(SharedFunctions):
         :param column: Column to perform the LIKE search on
         :param keyword: The prefix keyword to search for
         :param target: List of columns to retrieve in the result
+        :param hide_deleted: True to hide deleted targets
         :return: List of dictionaries with the requested columns
         """
-        # if not keyword.strip():  # prevent empty or whitespace-only searches
-        #     return []
+
         connection = None
         try:
             connection = db.connect(self.get_database_ref())
@@ -240,6 +246,13 @@ class DatabaseManager(SharedFunctions):
             target_columns = ', '.join(target)
             # Query with parameterized LIKE for prefix search
             query = f"SELECT {target_columns} FROM {table} WHERE {column} LIKE ? "
+
+            if hide_deleted is True:
+                query += f" AND is_deleted = 0"
+            
+            if table == "customers":
+                query += f" AND id != 1"
+       
             cursor.execute(query, (f"%{keyword}%",))
             rows = cursor.fetchall()
 
@@ -378,15 +391,25 @@ class DatabaseManager(SharedFunctions):
             if con:
                 con.close()
 
-    def get_table_cols_list(self, table:str, columns:List[str], where_clause:str=None, parms: tuple=()) -> List:
+    def get_table_cols_list(
+            self, 
+            table:str, 
+            columns:List[str], 
+            where_clause:str=None, 
+            parms: tuple=()
+        ) -> List:
    
         con = None
         try:
             con = db.connect(self.get_database_ref())
             cursor = con.cursor()
             query = f"SELECT {','.join(columns)} FROM {table}" 
+
             if  where_clause:
                 query += f" WHERE {where_clause}"
+                
+                if table == "customers":
+                    query += f" AND id != 1"
             
             return cursor.execute(query, parms).fetchall()
         
@@ -1058,6 +1081,9 @@ class DatabaseManager(SharedFunctions):
         # Commit changes and close connection
         conn.commit()
         conn.close()
+        
+        # Create a default customer
+        self.create_default_column("customers","name")
 
         print("Database and tables created successfully.")
     

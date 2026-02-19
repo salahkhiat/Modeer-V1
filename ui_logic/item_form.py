@@ -24,6 +24,8 @@ class ItemForm(Form):
         # For updating product information purpose only
         if item_barcode:
             self.item_barcode = item_barcode 
+        else:
+            self.item_barcode = None 
         
         # Validation
         self.is_valid_name = False

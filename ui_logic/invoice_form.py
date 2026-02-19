@@ -223,18 +223,21 @@ class InvoiceForm(Form):
         QTimer.singleShot(2000,form.close)
         form.exec()
         
-
     def is_enough_quantity(self, quantity:int) -> bool:
         """return True if the quantity is enough, otherwise return False."""
 
-        product_info = self.get_item_info("products",("quantity",),"barcode",str(self.selected_product_barcode))
+        product_info = self.get_item_info(
+            "products",
+            ("quantity",),
+            "barcode",
+            str(self.selected_product_barcode)
+        )
         if int(product_info["quantity"]) < quantity:
             self.show_err_msg("لا تتوفر الكمية في المخزون")
             return False 
         else:
             return True 
             
-
 
     def get_cell_content(self, cell: QTableWidgetItem):
         """Dealing with a quantity's field + calculating a customer's invoice total"""

@@ -38,7 +38,7 @@ class CustomerPaymentForm(Form):
         """
             setting a selected customer id
         """
-        self.selected_customer_id = self.get_item_info("customers",("id",),"name",text.strip())["id"]
+        self.selected_customer_id = self.get_item_info("customers",("id",),"name",str(text))["id"]
         print(f"the ID of {text.strip()} is {self.selected_customer_id}.")
 
     
