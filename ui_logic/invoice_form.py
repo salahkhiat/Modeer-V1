@@ -240,52 +240,103 @@ class InvoiceForm(Form):
             
 
     def get_cell_content(self, cell: QTableWidgetItem):
-        """Dealing with a quantity's field + calculating a customer's invoice total"""
-        qt = cell.text().strip() # quantity 
-        print(f"quantity is : {qt}")
-        # if a quantity field is empty.
-        if len(qt) == 0:
-            cell.setText("1")
-        # if not empty.
-        elif len(qt) > 0: 
-            # if the quantity is 0
-            if int(qt) == 0 : 
+        """
+        Dealing with a quantity, sale_price fields + calculating a customer's invoice total
+
+            cell.column() = 
+            index 1 is sale_price
+            index 2 is quantity
+        """
+
+        # quantity field has been editied.
+        if cell.column() == 2:
+            qt = cell.text().strip() # quantity 
+            
+            # if a quantity field is empty.
+            if len(qt) == 0:
                 cell.setText("1")
-            # if a quantity is greater than 0 
-            elif int(qt) > 0 :
-                # if there is enough quantity in Stock.
-                quantity = None 
-                if self.invoice_type == "customers":
-                    quantity = self.is_enough_quantity(int(qt))
 
-                qtable: QTableWidget = self.ui.items_table
-                rows = qtable.rowCount()
-                # set total to 0 
-                self.invoice_total = 0 
+            # if not empty.
+            elif len(qt) > 0: 
+                # if the quantity is 0
+                if int(qt) == 0 : 
+                    cell.setText("1")
+                # if a quantity is greater than 0 
+                elif int(qt) > 0 :
 
-                # calculates total
-                item_total = 0
-                for row in range(rows):
-                    
+                    quantity = None 
                     if self.invoice_type == "customers":
-                        _sale_price = float(qtable.item(row,1).text())
-                        _quantity = int(qtable.item(row,2).text())
-                        item_total = _sale_price * _quantity
+                        quantity = self.is_enough_quantity(int(qt))
 
-                    elif self.invoice_type == "suppliers":
-                        _purchase_price = float(qtable.item(row,1).text())
-                        _quantity = int(qtable.item(row,3).text())
-                        item_total = _purchase_price * _quantity
+                    self.calculates_invoice_total()
 
-                    self.invoice_total += item_total
-                self.ui.total.display(self.invoice_total)
+                    if self.invoice_type == "customers":
+                        if quantity is False:
+                            cell.setText("1")
+                        else:
+                            cell.setText(qt.strip())
+
+        # sale_price has been changed.
+        elif cell.column() == 1: 
+            real_price = str(
+                self.get_item_info(
+                "products",
+                ("sale_price",),
+                "barcode",
+                self.selected_product_barcode
+                )["sale_price"]
+            )
+            sale_price = cell.text().strip() 
+            if len(sale_price) == 0:
+                cell.setText(real_price)
+
+            elif len(sale_price) > 0:
+                if float(sale_price) == 0:
+                    self.show_err_msg("الصفر قيمة غير مقبلوة")
+                    cell.setText(real_price)
+                    self.play_failure_sound()
+
+                elif float(sale_price) > 900000:
+                    self.show_err_msg("السعر الأقصى المسموح به هو 90 مليون دج")
+                    cell.setText(real_price)
+                    self.play_failure_sound()
                 
-                if self.invoice_type == "customers":
-                    if quantity is False:
-                        cell.setText("1")
-                    else:
-                        cell.setText(qt.strip())
+                else:
+                    self.calculates_invoice_total()
                 
+
+    def calculates_invoice_total(self):
+        # quantity = None 
+        # if self.invoice_type == "customers":
+        #     quantity = self.is_enough_quantity(int(qt))
+
+        qtable: QTableWidget = self.ui.items_table
+        rows = qtable.rowCount()
+        # set total to 0 
+        self.invoice_total = 0 
+
+        # calculates total
+        item_total = 0
+        for row in range(rows):
+            
+            if self.invoice_type == "customers":
+                _sale_price = float(qtable.item(row,1).text())
+                _quantity = int(qtable.item(row,2).text())
+                item_total = _sale_price * _quantity
+
+            elif self.invoice_type == "suppliers":
+                _purchase_price = float(qtable.item(row,1).text())
+                _quantity = int(qtable.item(row,3).text())
+                item_total = _purchase_price * _quantity
+
+            self.invoice_total += item_total
+        self.ui.total.display(self.invoice_total)
+        
+        # if self.invoice_type == "customers":
+        #     if quantity is False:
+        #         cell.setText("1")
+        #     else:
+        #         cell.setText(qt.strip())
 
     def add_item_btn_clicked(self):
         self.ui.add_item_btn.clicked.connect( lambda: self.show_item_form())
