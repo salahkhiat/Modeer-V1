@@ -304,12 +304,7 @@ class InvoiceForm(Form):
                 else:
                     self.calculates_invoice_total()
                 
-
     def calculates_invoice_total(self):
-        # quantity = None 
-        # if self.invoice_type == "customers":
-        #     quantity = self.is_enough_quantity(int(qt))
-
         qtable: QTableWidget = self.ui.items_table
         rows = qtable.rowCount()
         # set total to 0 
@@ -331,12 +326,6 @@ class InvoiceForm(Form):
 
             self.invoice_total += item_total
         self.ui.total.display(self.invoice_total)
-        
-        # if self.invoice_type == "customers":
-        #     if quantity is False:
-        #         cell.setText("1")
-        #     else:
-        #         cell.setText(qt.strip())
 
     def add_item_btn_clicked(self):
         self.ui.add_item_btn.clicked.connect( lambda: self.show_item_form())
