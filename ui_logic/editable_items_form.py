@@ -27,6 +27,8 @@ class EditableItemsForm(Form):
         self.set_icon("edit_btn","edit.svg")
         self.set_icon("delete_btn","delete.svg")
 
+        
+
         # default settings
         self.qt_table: QTableWidget = self.ui.table 
         self.db_table: str = None
@@ -70,8 +72,6 @@ class EditableItemsForm(Form):
         else:
             items = data
         
-        
-
         if  db_table in self.account_types:
             # Make the columns of Qt meet the db_table.
             table_widget.setColumnCount(len(columns)+1) 
@@ -80,8 +80,14 @@ class EditableItemsForm(Form):
 
         for item in items:
             item = list(item)
+            # item[0] means the first column content in a table 
+            # e.g. supplier_id, customer_id ... etc
             if db_table == "suppliers":
-                balance = self.calculate_balance("supplier", item[0])
+                balance = self.get_user_balance("supplier", item[0]) 
+                item.append(balance)
+
+            elif db_table == "customers":
+                balance = self.get_user_balance("customer", item[0])
                 item.append(balance)
     
             # where the next row should go
@@ -110,8 +116,13 @@ class EditableItemsForm(Form):
         for item in items:
             item = list(item)
             if self.db_table == "suppliers":
-                balance = self.calculate_balance("supplier", item[0])
+                balance = self.get_user_balance("supplier", item[0])
                 item.append(balance)
+            
+            elif self.db_table == "customers":
+                balance = self.get_user_balance("customer", item[0])
+                item.append(balance)
+                
     
             # where the next row should go
             row = self.qt_table.rowCount() 
@@ -136,17 +147,65 @@ class EditableItemsForm(Form):
             edit_btn.setEnabled(False)
             delete_btn.setEnabled(False)
 
-    def calculate_balance(self, account_type: str, user_id: int) -> float:
-        if account_type == "supplier":
-            transactions_deposits = self.get_supplier_transactions_sum("deposit", user_id)
-            purchases_deposits = self.get_supplier_purchase_sum("deposit", user_id)
-            deposits = transactions_deposits + purchases_deposits
+    def supplier_balance(self, supplier_id:int):
+        transactions_deposits = self.get_supplier_transactions_sum("deposit", supplier_id)
+        purchases_deposits = self.get_supplier_purchase_sum("deposit", supplier_id)
+        deposits = transactions_deposits + purchases_deposits
 
-            transactions_debts = self.get_supplier_transactions_sum("debt", user_id)
-            purchases_total = self.get_supplier_purchase_sum("total", user_id)
-            debts = transactions_debts + purchases_total
-            
-            return debts - deposits
+        transactions_debts = self.get_supplier_transactions_sum("debt", supplier_id)
+        purchases_total = self.get_supplier_purchase_sum("total", supplier_id)
+        debts = transactions_debts + purchases_total
+        
+        return debts - deposits
+    
+    def customer_balance(self, customer_id:int):
+
+        sales = self.get_col_sum(
+            "sale_invoices",
+            "total",
+            "customer_id",
+            customer_id
+        )
+        services = self.get_col_sum(
+            "services",
+            "default_price",
+            "customer_id",
+            customer_id
+        )
+        all_debts = sales + services
+
+        payments = self.get_col_sum(
+            "customers_payments",
+            "amount",
+            "customer_id",
+            customer_id
+        )
+
+        deposits = self.get_col_sum(
+            "sale_invoices",
+            "deposit",
+            "customer_id",
+            customer_id
+        )
+
+        services_paids = self.get_col_sum(
+            "services",
+            "paid_price",
+            "customer_id",
+            customer_id
+        )
+
+        all_payments = payments + deposits + services_paids
+        
+        return all_debts - all_payments
+
+    def get_user_balance(self, account_type: str, user_id: int) -> float:
+        if account_type == "supplier":
+            return self.supplier_balance(user_id)
+        
+        elif account_type == "customer":
+            return self.customer_balance(user_id)
+
         raise ValueError(f"Unsupported account type: {account_type}")
     
     def search_box(self, search_word: str) -> None:

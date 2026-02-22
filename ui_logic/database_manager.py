@@ -826,6 +826,111 @@ class DatabaseManager(SharedFunctions):
             if connection:
                 connection.close()
 
+
+    def get_customer_payment_sum(self, customer_id: int) -> float:
+        connection = None
+        try: 
+            connection = db.connect(self.get_database_ref())
+            cursor = connection.cursor()
+            query = f"""
+                SELECT SUM(amount)
+                FROM customers_payments
+                WHERE customer_id = ? 
+            """
+            cursor.execute(query,(customer_id,))
+            result = cursor.fetchone()
+            
+            return result[0] if result and result[0] is not None else 0.0
+
+        except db.Error as err:
+            print(f"Database error: {err}")
+            return 0.0  # Fail-safe default
+        
+    def get_customer_deposit_sum(self, customer_id: int) -> float:
+        connection = None
+        try: 
+            connection = db.connect(self.get_database_ref())
+            cursor = connection.cursor()
+            query = f"""
+                SELECT SUM(deposit)
+                FROM sale_invoices
+                WHERE customer_id = ? 
+            """
+            cursor.execute(query,(customer_id,))
+            result = cursor.fetchone()
+            
+            return result[0] if result and result[0] is not None else 0.0
+
+        except db.Error as err:
+            print(f"Database error: {err}")
+            return 0.0  # Fail-safe default
+
+        finally:
+            if connection:
+                connection.close()
+
+    def get_customer_service_sum(self, customer_id: int) -> float:
+        connection = None
+        try: 
+            connection = db.connect(self.get_database_ref())
+            cursor = connection.cursor()
+            query = f"""
+                SELECT SUM(paid_price)
+                FROM services
+                WHERE customer_id = ? 
+            """
+            cursor.execute(query,(customer_id,))
+            result = cursor.fetchone()
+            
+            return result[0] if result and result[0] is not None else 0.0
+
+        except db.Error as err:
+            print(f"Database error: {err}")
+            return 0.0  # Fail-safe default
+
+        finally:
+            if connection:
+                connection.close()
+
+    def get_col_sum(self, table:str, col:str, where_item:str, target:int) -> float:
+        """ 
+        Sum the col according to the where_item and target.
+        
+        Args:
+            table (str): The table name.
+            col (str): The table column.
+            where_item (str): what need to be compared with it (e.g. customer_id column).
+            target (int): what should be compared with where_item (e.g. customer_id=89) or any ID.
+        Returns:
+            float: The sum of the entire selected column.
+        """
+        connection = None
+        try: 
+            connection = db.connect(self.get_database_ref())
+            cursor = connection.cursor()
+            query = f"""
+                SELECT SUM({col})
+                FROM {table}
+                WHERE {where_item} = ? 
+            """
+            cursor.execute(query,(target,))
+            result = cursor.fetchone()
+            
+            return result[0] if result and result[0] is not None else 0.0
+
+        except db.Error as err:
+            print(f"Database error: {err}")
+            return 0.0  # Fail-safe default
+
+        finally:
+            if connection:
+                connection.close()
+
+
+    
+
+    
+
     def prepare_database(self,database_reference:str) -> bool:
         """
         Create a database and its tables if they not exists.
