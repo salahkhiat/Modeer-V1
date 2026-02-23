@@ -58,6 +58,28 @@ class DatabaseManager(SharedFunctions):
             if connection:
                 connection.close()
 
+    def delete_item_from_db(self, table_name, where_clause, where_args):
+        connection = None
+        try:
+            connection = db.connect(self.get_database_ref())
+            cursor = connection.cursor()
+            query = f"DELETE FROM {table_name} WHERE {where_clause} = ?"
+
+            cursor.execute(query,(where_args,))
+            connection.commit()
+
+            if cursor.rowcount > 0: return True 
+            else: return False
+
+        except db.Error as err:
+            print(f"Database error: {err}")
+            return False
+        finally:
+            if connection:
+                connection.close()
+
+
+
     def update_info(self, table_name: str, columns: list[str], data: tuple, where_clause: str, where_args: tuple = ()) -> bool:
         """
         Update data in a database table.
@@ -102,8 +124,6 @@ class DatabaseManager(SharedFunctions):
         finally:
             if connection:
                 connection.close()
-
-    
     
     def is_in_table(self, table:str,column:str , target:str) -> bool:
         """
@@ -160,15 +180,6 @@ class DatabaseManager(SharedFunctions):
             if connection:
                 connection.close()
 
-
-
-
-
-
-    """
-
-    
-    """
     
     def get_item_info(self, table: str, columns: tuple, keyword: str, target) -> dict | None:
         """
@@ -419,6 +430,7 @@ class DatabaseManager(SharedFunctions):
         finally:
             if con:
                 con.close()
+    
     
     def tel_exists(self,table: str, tel: str) -> bool:
         """
@@ -925,6 +937,8 @@ class DatabaseManager(SharedFunctions):
         finally:
             if connection:
                 connection.close()
+
+        
 
 
     

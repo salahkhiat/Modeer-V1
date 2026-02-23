@@ -34,6 +34,7 @@ class EditableItemsForm(Form):
         self.item_id: int = None 
         self.update_variable_on_row_select(self.qt_table, "item_id", 0)
         self.account_types = ["suppliers", "customers", "employees"]
+        self.disable_delete_edit_btns(self.db_table)
 
         # tables where is_deleted option is enabled.
         self.is_deleted_tables = [
@@ -123,6 +124,7 @@ class EditableItemsForm(Form):
         if db_table == "requested_products":
             edit_btn: QPushButton = self.ui.edit_btn
             edit_btn.setEnabled(False)
+            edit_btn.setStyleSheet("border: 1px;background: gray;")
 
         if db_table == "mobiles": 
             edit_btn: QPushButton = self.ui.edit_btn
@@ -287,17 +289,24 @@ class EditableItemsForm(Form):
         
         # 2 then delete
         form = None
-        if self.db_table == "products":
+
+        if self.db_table == "products": 
             form = "barcode"
-        else:
+        else: 
             form = "id"
-        self.update_info(
-             self.db_table,
-             ["is_deleted"],
-             (1,),
-             f"{form} = ?",
-             (self.item_id,)
-         )
+        
+        if self.db_table not in self.is_deleted_tables:
+            self.delete_item_from_db(self.db_table, "id", self.item_id)
+        else:
+
+            self.update_info(
+                self.db_table,
+                ["is_deleted"],
+                (1,),
+                f"{form} = ?",
+                (self.item_id,)
+            )
+        
         self.qt_table.setRowCount(0)
 
         self.refresh_table()
