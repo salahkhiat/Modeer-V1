@@ -27,8 +27,6 @@ class EditableItemsForm(Form):
         self.set_icon("edit_btn","edit.svg")
         self.set_icon("delete_btn","delete.svg")
 
-        
-
         # default settings
         self.qt_table: QTableWidget = self.ui.table 
         self.db_table: str = None
@@ -36,6 +34,11 @@ class EditableItemsForm(Form):
         self.item_id: int = None 
         self.update_variable_on_row_select(self.qt_table, "item_id", 0)
         self.account_types = ["suppliers", "customers", "employees"]
+
+        # tables where is_deleted option is enabled.
+        self.is_deleted_tables = [
+            "suppliers", "customers", "employees", "products"
+        ]
 
         # obj.column for database searchs purposes : SELECT column FROM ...
         self.column: str = "name" 
@@ -72,9 +75,15 @@ class EditableItemsForm(Form):
     def refresh_table(self, data=None):
         items = None
         if data == None:
-            items = self.get_table_cols_list(
-            self.db_table, self.columns, 'is_deleted = ?', (0, )
-            )
+
+            if self.db_table not in self.is_deleted_tables:
+                items = self.get_table_cols_list(self.db_table, self.columns)
+                
+            else:
+                items = self.get_table_cols_list(
+                self.db_table, self.columns, 'is_deleted = ?', (0, )
+                )
+
         else:
             items = data
         
