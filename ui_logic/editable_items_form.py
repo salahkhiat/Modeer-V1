@@ -65,47 +65,18 @@ class EditableItemsForm(Form):
 
         # disable buttons
         self.disable_delete_edit_btns(db_table)
+        
+        self.refresh_table(data)
 
+
+    def refresh_table(self, data=None):
         items = None
         if data == None:
-            items = self.get_table_cols_list(db_table, columns, 'is_deleted = ?', (0, ))
+            items = self.get_table_cols_list(
+            self.db_table, self.columns, 'is_deleted = ?', (0, )
+            )
         else:
             items = data
-        
-        if  db_table in self.account_types:
-            # Make the columns of Qt meet the db_table.
-            table_widget.setColumnCount(len(columns)+1) 
-        else:
-            table_widget.setColumnCount(len(columns)) 
-
-        for item in items:
-            item = list(item)
-            # item[0] means the first column content in a table 
-            # e.g. supplier_id, customer_id ... etc
-            if db_table == "suppliers":
-                balance = self.get_user_balance("supplier", item[0]) 
-                item.append(balance)
-
-            elif db_table == "customers":
-                balance = self.get_user_balance("customer", item[0])
-                item.append(balance)
-    
-            # where the next row should go
-            row = table_widget.rowCount() 
-            
-            # insert new row at the bottom of the table
-            table_widget.insertRow(row) 
-
-            for col_id, col_info in enumerate(item):
-                    table_item = self.make_item(
-                        col_info, font_size=font_size, read_only=True
-                    )
-                    table_widget.setItem(row, col_id, table_item)
-
-    def refresh_table(self):
-        items = self.get_table_cols_list(
-            self.db_table, self.columns, 'is_deleted = ?', (0, )
-        )
         
         if  self.db_table in self.account_types:
             # Make the columns of Qt meet the db_table.
@@ -122,8 +93,11 @@ class EditableItemsForm(Form):
             elif self.db_table == "customers":
                 balance = self.get_user_balance("customer", item[0])
                 item.append(balance)
+            
+            elif self.db_table == "employees":
+                balance = self.get_user_balance("employee", item[0])
+                item.append(balance)
                 
-    
             # where the next row should go
             row = self.qt_table.rowCount() 
             
@@ -198,6 +172,16 @@ class EditableItemsForm(Form):
         all_payments = payments + deposits + services_paids
         
         return all_debts - all_payments
+    
+    def employee_balance(self, employee_id:int):
+
+        withdrawals = self.get_col_sum(
+            "employees_withdrawals",
+            "amount",
+            "employee_id",
+            employee_id
+        )
+        return withdrawals
 
     def get_user_balance(self, account_type: str, user_id: int) -> float:
         if account_type == "supplier":
@@ -205,6 +189,9 @@ class EditableItemsForm(Form):
         
         elif account_type == "customer":
             return self.customer_balance(user_id)
+        
+        elif account_type == "employee":
+            return self.employee_balance(user_id)
 
         raise ValueError(f"Unsupported account type: {account_type}")
     
