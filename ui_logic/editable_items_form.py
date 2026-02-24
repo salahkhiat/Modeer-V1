@@ -19,7 +19,6 @@ from uis.confirmation_msg import Ui_Dialog as ConfirmationMsgFormUi
 
 class EditableItemsForm(Form):
     
-
     def __init__(self,base_form):
         super().__init__(base_form)
         # set icons
@@ -37,7 +36,11 @@ class EditableItemsForm(Form):
 
         # tables where is_deleted option is enabled.
         self.is_deleted_tables = [
-            "suppliers", "customers", "employees", "products"
+            "suppliers", 
+            "customers", 
+            "employees", 
+            "products", 
+            "suppliers_transactions"
         ]
 
         # obj.column for database searchs purposes : SELECT column FROM ...
@@ -84,7 +87,7 @@ class EditableItemsForm(Form):
         if data == None:
 
             if self.db_table not in self.is_deleted_tables:
-                items = self.get_table_cols_list(self.db_table, self.columns)
+                items = self.get_table_cols_list(self.db_table, self.columns) 
                 
             else:
                 items = self.get_table_cols_list(

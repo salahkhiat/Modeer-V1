@@ -188,6 +188,29 @@ class MainScreen(MainForm):
                 font_size=13
             )
         )
+        suppliers_transactions_header = [
+            "المورد", "ملاحظة/فتورة", "عملية", "المبلغ", "التاريخ"
+        ]
+        suppliers_transactions_header_width = [20, 40, 10, 15, 15]
+
+        suppliers_transactions_db_table_cols = ["s.name", "st.note", "st.type", "st.amount", "st.created"]
+
+        # I mixed between suppliers_transactions and suppliers tables.
+        # s means suppliers, st means suppliers_transactions
+        suppliers_transactions_db_table = """
+            suppliers_transactions st
+            JOIN suppliers s ON s.id = st.supplier_id
+         """
+        self.ui.suppliers_deposits_action.triggered.connect(
+            lambda: self.show_tab(
+                "عمليات  الموردين", 
+                suppliers_transactions_db_table, 
+                suppliers_transactions_db_table_cols, 
+                suppliers_transactions_header, 
+                suppliers_transactions_header_width, 
+                font_size=13
+            )
+        )
        
     # show tab table
     def show_tab(

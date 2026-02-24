@@ -124,6 +124,7 @@ class InvoiceForm(Form):
                 item = QTableWidgetItem(title)
                 item.setFont(header_font)
                 items_table.setHorizontalHeaderItem(i, item)
+
             # set table header
             header = self.ui.items_table.horizontalHeader()
             header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch) 
@@ -404,6 +405,7 @@ class InvoiceForm(Form):
         # Generates an invoice.
         if self.user_id is None:
             log.error("[red]Sorry, You need to add suppliers first.[/red]")
+            self.show_err_msg("لا يوجد أي مورد مسجل بعد")
         else:
             # Generates and Sets an invoice barcode if it does not exist.
             while True:
@@ -413,7 +415,45 @@ class InvoiceForm(Form):
                         continue
                     else:
                         invoice_barcode = generated_barcode
-                        invoice_id = self.store("purchase_invoices",["supplier_id","invoice_number","total","deposit","created_at"],(self.user_id,invoice_barcode,str(invoice_total),invoice_deposit,created),True)
+                        invoice_id = self.store(
+                            "purchase_invoices",
+                            [
+                                "supplier_id",
+                                "invoice_number",
+                                "total",
+                                "deposit",
+                                "created_at"
+                            ],
+                            (
+                                self.user_id,
+                                invoice_barcode,
+                                str(invoice_total),
+                                invoice_deposit,
+                                created
+                            ),
+                            True
+                        )
+                        
+                        # record a deposit
+                        self.store(
+                            "suppliers_transactions",
+                            [
+                                "supplier_id",
+                                "invoice_id",
+                                "note",
+                                "amount",
+                                "type",
+                                "created"
+                            ],
+                            (
+                                self.user_id,
+                                invoice_id,
+                                f"INV:"+invoice_barcode,
+                                str(invoice_total),
+                                "deposit",
+                                created
+                            )
+                        )
                         break
 
                 elif self.invoice_type == "customers":

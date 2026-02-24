@@ -570,7 +570,7 @@ class Ui_main_window(object):
         self.products_action.setText(_translate("main_window", "السلع"))
         self.needs_action.setText(_translate("main_window", "النقائص"))
         self.mobiles_action.setText(_translate("main_window", "هواتف"))
-        self.suppliers_deposits_action.setText(_translate("main_window", "إيداعات للمردين"))
+        self.suppliers_deposits_action.setText(_translate("main_window", "إيداعات الموردين"))
         self.customers_deposits_action.setText(_translate("main_window", "دفعات الزبائن"))
         self.employees_withdrawals_action.setText(_translate("main_window", "سحوبات العمال"))
         self.expenses_action.setText(_translate("main_window", "مصاريف عامة"))
