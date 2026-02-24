@@ -1,6 +1,6 @@
 from .base_form import Form
 
-from typing import List, Any 
+from typing import List
 from PyQt6.QtWidgets import  QTableWidget, QLineEdit, QPushButton, QWidget
 
 from .account_form import AccountForm
@@ -9,8 +9,7 @@ from uis.account import Ui_Form as AccountFormUi
 from .item_form import ItemForm
 from uis.item import Ui_Form as ItemFormUi
 
-from .category_form import CategoryForm as RequestedProductForm
-from uis.category import Ui_Form as RequestedProductFormUi
+from PyQt6.QtCore import QTimer
 
 from .error_form import ErrorForm
 from uis.error_msg import Ui_Dialog as ErrorFormUi
@@ -51,6 +50,13 @@ class EditableItemsForm(Form):
         # connect buttons
         self.ui.edit_btn.clicked.connect(self.show_edit_form)
         self.ui.delete_btn.clicked.connect(self.delete_item)
+
+    def show_err_msg(self,msg:str):
+        self.play_failure_sound()
+        form = ErrorForm(ErrorFormUi)
+        form.ui.err_msg.setText(msg.strip())
+        QTimer.singleShot(2000,form.close)
+        form.exec()
         
     def set_db_table_info(
         self,
@@ -128,9 +134,9 @@ class EditableItemsForm(Form):
 
         if db_table == "mobiles": 
             edit_btn: QPushButton = self.ui.edit_btn
-            delete_btn: QPushButton = self.ui.delete_btn
             edit_btn.setEnabled(False)
-            delete_btn.setEnabled(False)
+            edit_btn.setStyleSheet("border: 1px;background: gray;")
+            
 
     def supplier_balance(self, supplier_id:int):
         transactions_deposits = self.get_supplier_transactions_sum("deposit", supplier_id)
@@ -220,7 +226,7 @@ class EditableItemsForm(Form):
     def show_edit_form(self):
 
         if self.item_id is None:
-            print("you didn't select an item yet")
+            self.select_item_warning()
             return 
         
         # When table is suppliers, customers, employees
@@ -298,7 +304,6 @@ class EditableItemsForm(Form):
         if self.db_table not in self.is_deleted_tables:
             self.delete_item_from_db(self.db_table, "id", self.item_id)
         else:
-
             self.update_info(
                 self.db_table,
                 ["is_deleted"],
@@ -312,14 +317,20 @@ class EditableItemsForm(Form):
         self.refresh_table()
 
     def delete_item(self):
-        confirmation_msg = "هل أنت متأكد من عملية الحذف؟"
-        form = ConfirmationMsgForm(ConfirmationMsgFormUi, confirmation_msg)
-        form.confirmed.connect(self.on_delete_confirmed)
-        form.exec()
-        self.play_success_sound()
+        if self.item_id is None:
+            self.select_item_warning()
+        else:
+            confirmation_msg = "هل أنت متأكد من عملية الحذف؟"
+            form = ConfirmationMsgForm(ConfirmationMsgFormUi, confirmation_msg)
+            form.confirmed.connect(self.on_delete_confirmed)
+            form.exec()
+            self.play_success_sound()
 
-    def set_window_title(self,title):
+    def set_window_title(self, title): 
         self.setWindowTitle(title)
+    
+    def select_item_warning(self): 
+        self.show_err_msg("قم بتحديد العنصر أولا")
 
 
    

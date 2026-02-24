@@ -1,8 +1,9 @@
 from PyQt6 import QtGui
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtWidgets import (
     QComboBox, QTableWidget, QTableWidgetItem, QAbstractItemView
 )
+
 from PyQt6.QtGui import QFont, QColor
 from hijri_converter import Gregorian
 from datetime import datetime
@@ -309,6 +310,8 @@ class SharedFunctions:
 
         # ✅ connect signal to update barcode whenever selection changes
         table.itemSelectionChanged.connect(on_row_selected)
+
+
 
  
 

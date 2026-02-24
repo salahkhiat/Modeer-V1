@@ -171,11 +171,11 @@ class MainScreen(MainForm):
         )
 
         mobiles_header = [
-            "موديل", "الشراء", "IMEI", "البائع", "رقم البائع", "تاريخ"
+            "ID", "موديل", "الشراء", "IMEI", "البائع", "رقم البائع", "تاريخ"
         ]
-        mobiles_header_width = [25, 10, 20, 20, 15, 10]
+        mobiles_header_width = [5, 20, 10, 20, 20, 15, 10]
         mobiles_db_table_cols = [
-            "model", "price", "serial", "seller_name", "seller_tel", "created"
+            "id", "model", "price", "serial", "seller_name", "seller_tel", "created"
         ]
 
         self.ui.mobiles_action.triggered.connect(
