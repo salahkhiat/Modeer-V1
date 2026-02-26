@@ -7,7 +7,5 @@ b = [
     "others"
 ]
 
-if "supplier"  not in  a:
-    print("not")
-else:
-    print("yes")
+c = a +["products"]
+print(c)

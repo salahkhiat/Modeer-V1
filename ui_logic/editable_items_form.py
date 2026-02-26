@@ -31,19 +31,14 @@ class EditableItemsForm(Form):
         self.columns: List = None 
         self.item_id: int = None 
         self.update_variable_on_row_select(self.qt_table, "item_id", 0)
-        self.account_types = ["suppliers", "customers", "employees"]
+        self.ACCOUNT_TYPES = ["suppliers", "customers", "employees"]
         
 
-        # tables where is_deleted option is enabled.
-        self.is_deleted_tables = [
-            "suppliers", 
-            "customers", 
-            "employees", 
-            "products", 
-        ]
+        # is_deleted column exists.
+        self.IS_DELETED_COL_ON = self.ACCOUNT_TYPES + ["products"]
 
         # delete and/or edit buttons are allowed
-        self.DEL_EDIT_BTNS_ALLOWED = self.is_deleted_tables
+        self.DEL_EDIT_BTNS_ALLOWED = self.IS_DELETED_COL_ON
         self.ONLY_DEL_BTN_ALLOWED = ["requested_products", "mobiles"]
 
         # obj.column for database searchs purposes : SELECT column FROM ...
@@ -89,7 +84,7 @@ class EditableItemsForm(Form):
         items = None
         if data == None:
 
-            if self.db_table not in self.is_deleted_tables:
+            if self.db_table not in self.IS_DELETED_COL_ON:
                 items = self.get_table_cols_list(self.db_table, self.columns) 
                 
             else:
@@ -100,7 +95,7 @@ class EditableItemsForm(Form):
         else:
             items = data
         
-        if  self.db_table in self.account_types:
+        if  self.db_table in self.ACCOUNT_TYPES:
             # Make the columns of Qt meet the db_table.
             self.qt_table.setColumnCount(len(self.columns)+1) 
         else:
@@ -319,7 +314,7 @@ class EditableItemsForm(Form):
         else: 
             form = "id"
         
-        if self.db_table not in self.is_deleted_tables:
+        if self.db_table not in self.IS_DELETED_COL_ON:
             self.delete_item_from_db(self.db_table, "id", self.item_id)
         else:
             self.update_info(
