@@ -1,6 +1,13 @@
-n = None 
+a = [
+    "supplier",
+    "customers"
+]
+b = [
+    "employees",
+    "others"
+]
 
-if n:
-    print('yes')
+if "supplier"  not in  a:
+    print("not")
 else:
-    print("n")
+    print("yes")

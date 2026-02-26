@@ -32,7 +32,7 @@ class EditableItemsForm(Form):
         self.item_id: int = None 
         self.update_variable_on_row_select(self.qt_table, "item_id", 0)
         self.account_types = ["suppliers", "customers", "employees"]
-        self.disable_delete_edit_btns(self.db_table)
+        
 
         # tables where is_deleted option is enabled.
         self.is_deleted_tables = [
@@ -40,8 +40,11 @@ class EditableItemsForm(Form):
             "customers", 
             "employees", 
             "products", 
-            "suppliers_transactions"
         ]
+
+        # delete and/or edit buttons are allowed
+        self.DEL_EDIT_BTNS_ALLOWED = self.is_deleted_tables
+        self.ONLY_DEL_BTN_ALLOWED = ["requested_products", "mobiles"]
 
         # obj.column for database searchs purposes : SELECT column FROM ...
         self.column: str = "name" 
@@ -77,7 +80,7 @@ class EditableItemsForm(Form):
         self.variable = None 
 
         # disable buttons
-        self.disable_delete_edit_btns(db_table)
+        self.disable_delete_edit_btns()
         
         self.refresh_table(data)
 
@@ -129,16 +132,28 @@ class EditableItemsForm(Form):
                     )
                     self.qt_table.setItem(row, col_id, table_item)
     
-    def disable_delete_edit_btns(self, db_table):
-        if db_table == "requested_products":
-            edit_btn: QPushButton = self.ui.edit_btn
-            edit_btn.setEnabled(False)
+    def disable_delete_edit_btns(self):
+        if self.db_table in self.ONLY_DEL_BTN_ALLOWED:
+            self.disable_edit_btn()
+
+        elif self.db_table not in self.DEL_EDIT_BTNS_ALLOWED:
+            self.disable_delete_btn()
+            self.disable_edit_btn()
+
+
+
+    def disable_edit_btn(self, cmd=False):
+        edit_btn: QPushButton = self.ui.edit_btn
+        edit_btn.setEnabled(cmd)
+        if cmd is False:
             edit_btn.setStyleSheet("border: 1px;background: gray;")
 
-        if db_table == "mobiles": 
-            edit_btn: QPushButton = self.ui.edit_btn
-            edit_btn.setEnabled(False)
-            edit_btn.setStyleSheet("border: 1px;background: gray;")
+    def disable_delete_btn(self, cmd=False):
+        delete_btn: QPushButton = self.ui.delete_btn
+        delete_btn.setEnabled(cmd)
+        if cmd is False:
+            delete_btn.setStyleSheet("border: 1px;background: gray;")
+
             
 
     def supplier_balance(self, supplier_id:int):
