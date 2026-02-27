@@ -188,6 +188,7 @@ class MainScreen(MainForm):
                 font_size=13
             )
         )
+
         suppliers_transactions_header = [
             "المورد", "ملاحظة/فتورة", "عملية", "المبلغ", "التاريخ"
         ]
@@ -208,6 +209,67 @@ class MainScreen(MainForm):
                 suppliers_transactions_db_table_cols, 
                 suppliers_transactions_header, 
                 suppliers_transactions_header_width, 
+                font_size=13
+            )
+        )
+        customers_payments_header = [
+            "الزبون", "ملاحظة",  "المبلغ", "التاريخ"
+        ]
+        customers_payments_header_width = [20, 50, 15, 15]
+
+        customers_money_columns = [
+            "name",
+            "note",
+            "amount",
+            "created"
+        ]
+
+        # I mixed between customers_payments and customers tables.
+        # c means customers, cp means customers_payments
+        # customers_payments_db_table = """
+        #     customers_payments cp
+        #     JOIN customers c ON c.id = cp.customer_id
+        #  """
+        customers_money_db_table = f"""
+        
+        (
+            SELECT 
+                c.name AS name,
+                cp.amount AS amount,
+                cp.note AS note,
+                cp.created AS created
+            FROM customers_payments cp
+            JOIN customers c ON c.id = cp.customer_id
+
+            UNION ALL
+
+            SELECT 
+                c.name AS name,
+                s.paid_price AS amount,
+                s.description AS note,
+                s.created AS created
+            FROM services s
+            JOIN customers c ON c.id = s.customer_id
+
+            UNION ALL
+
+            SELECT 
+                c.name AS name,
+                si.deposit AS amount,
+                si.invoice_number AS note,
+                si.created_at AS created
+            FROM sale_invoices si
+            JOIN customers c ON c.id = si.customer_id
+        ) AS combined
+
+        """
+        self.ui.customers_deposits_action.triggered.connect(
+            lambda: self.show_tab(
+                "عمليات  الزبائن", 
+                customers_money_db_table, 
+                customers_money_columns, 
+                customers_payments_header, 
+                customers_payments_header_width, 
                 font_size=13
             )
         )

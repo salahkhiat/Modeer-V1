@@ -407,20 +407,24 @@ class DatabaseManager(SharedFunctions):
             table:str, 
             columns:List[str], 
             where_clause:str=None, 
-            parms: tuple=()
+            parms: tuple=(),
+            union=False
         ) -> List:
    
         con = None
         try:
             con = db.connect(self.get_database_ref())
             cursor = con.cursor()
-            query = f"SELECT {','.join(columns)} FROM {table}" 
 
+            query = f"SELECT {','.join(columns)} FROM {table}" 
+                
             if  where_clause:
                 query += f" WHERE {where_clause}"
                 
                 if table == "customers":
                     query += f" AND id != 1"
+            if union:
+                query += f" AS combined"
             
             return cursor.execute(query, parms).fetchall()
         
