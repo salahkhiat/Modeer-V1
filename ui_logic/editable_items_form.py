@@ -86,8 +86,9 @@ class EditableItemsForm(Form):
 
             if self.db_table not in self.IS_DELETED_COL_ON:
                 items = self.get_table_cols_list(self.db_table, self.columns) 
-                
+                print("if part: editable_items_form.py, line 89")
             else:
+                print("else part")
                 items = self.get_table_cols_list(
                 self.db_table, self.columns, 'is_deleted = ?', (0, )
                 )
@@ -135,8 +136,6 @@ class EditableItemsForm(Form):
             self.disable_delete_btn()
             self.disable_edit_btn()
 
-
-
     def disable_edit_btn(self, cmd=False):
         edit_btn: QPushButton = self.ui.edit_btn
         edit_btn.setEnabled(cmd)
@@ -150,7 +149,6 @@ class EditableItemsForm(Form):
             delete_btn.setStyleSheet("border: 1px;background: gray;")
 
             
-
     def supplier_balance(self, supplier_id:int):
         transactions_deposits = self.get_supplier_transactions_sum("deposit", supplier_id)
         purchases_deposits = self.get_supplier_purchase_sum("deposit", supplier_id)
