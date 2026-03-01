@@ -214,7 +214,7 @@ class MainScreen(MainForm):
         )
 
         customers_payments_header = [
-            "الزبون", "العملية", "الوصف", "المبلغ", "التاريخ"
+            "الزبون", "المصدر", "الوصف", "المبلغ", "التاريخ"
         ]
         customers_payments_header_width = [15, 15, 40, 15, 15]
 

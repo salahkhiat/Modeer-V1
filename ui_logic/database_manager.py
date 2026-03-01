@@ -417,74 +417,8 @@ class DatabaseManager(SharedFunctions):
             cursor = con.cursor()
             query = None 
             if table == "customers_transactions":
-                created = self.current_date()[:7]
-                print(created)
-                query = f"""
-                SELECT * FROM
-                    ( 
-                        SELECT
-                            c.name AS name,
-                            'payment' AS process,
-                            p.note AS description,
-                            p.amount AS amount, 
-                            p.created AS created
-                        FROM 
-                            customers_payments p 
-                        JOIN
-                            customers c 
-                        ON 
-                            p.customer_id = c.id 
-                        WHERE 
-                            c.id != 1
-                        AND 
-                            c.is_deleted = 0
-                        
-                        UNION ALL 
-
-                        SELECT
-                            c.name AS name,
-                            'service' AS process,
-                            s.description AS description,
-                            s.paid_price AS amount,
-                            s.created AS created
-                        FROM 
-                            customers c
-                        JOIN 
-                            services s 
-                        ON 
-                            c.id = s.customer_id
-                        WHERE
-                            c.id != 1
-                        AND 
-                            c.is_deleted = 0
-                        
-                        UNION ALL
-                        SELECT
-                            c.name AS name,
-                            'purchase' AS process,
-                            si.invoice_number AS description,
-                            si.deposit AS amount,
-                            si.created_at AS created
-                        FROM
-                            customers c
-                        JOIN
-                            sale_invoices si
-                        ON
-                            c.id = si.customer_id
-                        WHERE 
-                            c.id != 1
-                        AND 
-                            c.is_deleted = 0
-                            
-                    ) AS compined 
-                        WHERE 
-                            amount > 0 
-                        AND 
-                            created LIKE '{created}%'
-                        ORDER BY created DESC; -- news first
-
-                """ 
-                return cursor.execute(query).fetchall()
+                return self.get_customers_transactions_list()
+            
             else:
                 query = f"SELECT {','.join(columns)} FROM {table}" 
                     
@@ -497,6 +431,94 @@ class DatabaseManager(SharedFunctions):
                     query += f" AS combined"
             
                 return cursor.execute(query, parms).fetchall()
+        
+        except db.Error as err:
+            print(f"database error: {err}")
+            return {} 
+        finally:
+            if con:
+                con.close()
+
+    def get_customers_transactions_list(self, keyword=None) -> List:
+
+        con = None
+        try:
+            con = db.connect(self.get_database_ref())
+            cursor = con.cursor()
+
+            created = self.current_date()[:7]
+            query = f"""
+                SELECT * FROM
+                ( 
+                    SELECT
+                        c.name AS name,
+                        'payment' AS process,
+                        p.note AS description,
+                        p.amount AS amount, 
+                        p.created AS created
+                    FROM 
+                        customers_payments p 
+                    JOIN
+                        customers c 
+                    ON 
+                        p.customer_id = c.id 
+                    WHERE 
+                        c.id != 1
+                    AND 
+                        c.is_deleted = 0
+                    
+                    UNION ALL 
+
+                    SELECT
+                        c.name AS name,
+                        'service' AS process,
+                        s.description AS description,
+                        s.paid_price AS amount,
+                        s.created AS created
+                    FROM 
+                        customers c
+                    JOIN 
+                        services s 
+                    ON 
+                        c.id = s.customer_id
+                    WHERE
+                        c.id != 1
+                    AND 
+                        c.is_deleted = 0
+                    
+                    UNION ALL
+                    SELECT
+                        c.name AS name,
+                        'purchase' AS process,
+                        si.invoice_number AS description,
+                        si.deposit AS amount,
+                        si.created_at AS created
+                    FROM
+                        customers c
+                    JOIN
+                        sale_invoices si
+                    ON
+                        c.id = si.customer_id
+                    WHERE 
+                        c.id != 1
+                    AND 
+                        c.is_deleted = 0
+                        
+                ) AS compined 
+                    WHERE amount > 0 
+                    
+
+            """ 
+            result = None
+            ordering = f" AND created LIKE '{created}%' ORDER BY created DESC; "
+            if keyword:
+                query += " AND name LIKE ? " + ordering
+                result = cursor.execute(query,(f"%{keyword}%",)).fetchall()
+            else:
+                query += ordering
+                result = cursor.execute(query).fetchall()
+            return result
+
         
         except db.Error as err:
             print(f"database error: {err}")

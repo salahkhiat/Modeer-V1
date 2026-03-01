@@ -86,9 +86,9 @@ class EditableItemsForm(Form):
 
             if self.db_table not in self.IS_DELETED_COL_ON:
                 items = self.get_table_cols_list(self.db_table, self.columns) 
-                print("if part: editable_items_form.py, line 89")
+
             else:
-                print("else part")
+            
                 items = self.get_table_cols_list(
                 self.db_table, self.columns, 'is_deleted = ?', (0, )
                 )
@@ -224,14 +224,21 @@ class EditableItemsForm(Form):
         raise ValueError(f"Unsupported account type: {account_type}")
     
     def search_box(self, search_word: str) -> None:
+
         self.qt_table.setRowCount(0)
         search_word = str(search_word).strip()
+        items = None 
+        data = None 
 
-        items = self.search_by_similar(
-            self.db_table, self.column, search_word, self.columns
-        )
-        data = [ tuple(item.values()) for item in items]
-        
+        if self.db_table == "customers_transactions":
+            data = self.get_customers_transactions_list(search_word)
+
+        else:
+            items = self.search_by_similar(
+                self.db_table, self.column, search_word, self.columns
+            )
+            data = [ tuple(item.values()) for item in items]
+
         self.set_db_table_info(self.qt_table, self.db_table, self.columns, 16, data)
 
     def show_edit_form(self):
