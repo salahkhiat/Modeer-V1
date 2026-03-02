@@ -263,6 +263,29 @@ class MainScreen(MainForm):
                 font_size=13
             )
         )
+        expenses_header = [
+            "ملاحظة", "الصنف", "المبلغ", "التاريخ"
+        ]
+        expenses_header_width = [30, 40, 15, 15]
+
+        expenses_columns = [
+            "note",
+            "category",
+            "amount",
+            "created"
+        ]
+        # expenses is a real table but we used it as a vertual table
+        expenses_db_table = "expenses"
+        self.ui.expenses_action.triggered.connect(
+            lambda: self.show_tab(
+                "المصاريف", 
+                expenses_db_table, 
+                expenses_columns, 
+                expenses_header, 
+                expenses_header_width, 
+                font_size=13
+            )
+        )
        
     # show tab table
     def show_tab(

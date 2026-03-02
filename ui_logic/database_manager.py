@@ -420,6 +420,8 @@ class DatabaseManager(SharedFunctions):
                 return self.get_customers_transactions_list()
             elif table == "employees_transactions":
                 return self.get_employees_withdrawals_list()
+            elif table == "expenses":
+                return self.get_expenses_list()
             
             else:
                 query = f"SELECT {','.join(columns)} FROM {table}" 
@@ -554,6 +556,45 @@ class DatabaseManager(SharedFunctions):
             ordering = f" AND created LIKE '{created}%' ORDER BY created DESC; "
             if keyword:
                 query += " AND name LIKE ? " + ordering
+                result = cursor.execute(query,(f"%{keyword}%",)).fetchall()
+            else:
+                query += ordering
+                result = cursor.execute(query).fetchall()
+            return result
+        except db.Error as err:
+            print(f"database error: {err}")
+            return {} 
+        finally:
+            if con:
+                con.close()
+
+    def get_expenses_list(self, keyword=None) -> List:
+
+        con = None
+        try:
+            con = db.connect(self.get_database_ref())
+            cursor = con.cursor()
+ 
+            created = self.current_date()[:7]
+            query = f"""
+                SELECT 
+                    exp.note AS note,
+                    c.name AS category,
+                    exp.amount AS amount,
+                    exp.created AS created
+
+                FROM
+                    expenses_categories c
+
+                JOIN
+                    expenses exp
+                ON 
+                    c.id = exp.category_id
+            """ 
+            result = None
+            ordering = f" AND created LIKE '{created}%' ORDER BY created DESC; "
+            if keyword:
+                query += " AND note LIKE ? " + ordering
                 result = cursor.execute(query,(f"%{keyword}%",)).fetchall()
             else:
                 query += ordering
@@ -1337,7 +1378,8 @@ class DatabaseManager(SharedFunctions):
         conn.close()
         
         # Create a default customer
-        self.create_default_column("customers","name")
+        self.create_default_column("customers", "name")
+        self.create_default_column("expenses_categories", "name")
 
         print("Database and tables created successfully.")
     

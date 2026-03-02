@@ -36,8 +36,6 @@ class WithdrawalForm(Form):
             setting a selected employee id
         """
         self.selected_employee_id = self.get_item_info("employees",("id",),"name",text.strip())["id"]
-        
-
     
     def create_transaction(self):
         valid_amount = self.is_amount("amount")
