@@ -239,6 +239,30 @@ class MainScreen(MainForm):
                 font_size=13
             )
         )
+
+        employees_withdrawals_header = [
+            "العامل", "ملاحظة", "المبلغ", "التاريخ"
+        ]
+        employees_withdrawals_header_width = [30, 40, 15, 15]
+
+        employees_withdrawals_columns = [
+            "name",
+            "note",
+            "amount",
+            "created"
+        ]
+        # employees_tansactions is a vertual table
+        employees_withdrawals_db_table = "employees_transactions"
+        self.ui.employees_withdrawals_action.triggered.connect(
+            lambda: self.show_tab(
+                "سحوبات العمال", 
+                employees_withdrawals_db_table, 
+                employees_withdrawals_columns, 
+                employees_withdrawals_header, 
+                employees_withdrawals_header_width, 
+                font_size=13
+            )
+        )
        
     # show tab table
     def show_tab(

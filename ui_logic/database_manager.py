@@ -418,6 +418,8 @@ class DatabaseManager(SharedFunctions):
             query = None 
             if table == "customers_transactions":
                 return self.get_customers_transactions_list()
+            elif table == "employees_transactions":
+                return self.get_employees_withdrawals_list()
             
             else:
                 query = f"SELECT {','.join(columns)} FROM {table}" 
@@ -520,6 +522,43 @@ class DatabaseManager(SharedFunctions):
             return result
 
         
+        except db.Error as err:
+            print(f"database error: {err}")
+            return {} 
+        finally:
+            if con:
+                con.close()
+
+    def get_employees_withdrawals_list(self, keyword=None) -> List:
+
+        con = None
+        try:
+            con = db.connect(self.get_database_ref())
+            cursor = con.cursor()
+ 
+            created = self.current_date()[:7]
+            query = f"""
+                SELECT 
+                    emp.name AS name,
+                    withd.note AS note,
+                    withd.amount AS amount,
+                    withd.created AS created
+                FROM
+                    employees emp
+                JOIN
+                    employees_withdrawals withd
+                ON 
+                    emp.id = withd.employee_id
+            """ 
+            result = None
+            ordering = f" AND created LIKE '{created}%' ORDER BY created DESC; "
+            if keyword:
+                query += " AND name LIKE ? " + ordering
+                result = cursor.execute(query,(f"%{keyword}%",)).fetchall()
+            else:
+                query += ordering
+                result = cursor.execute(query).fetchall()
+            return result
         except db.Error as err:
             print(f"database error: {err}")
             return {} 

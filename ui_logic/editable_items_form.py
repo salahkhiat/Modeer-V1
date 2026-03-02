@@ -232,6 +232,8 @@ class EditableItemsForm(Form):
 
         if self.db_table == "customers_transactions":
             data = self.get_customers_transactions_list(search_word)
+        elif self.db_table == "employees_transactions":
+            data = self.get_employees_withdrawals_list(search_word)
 
         else:
             items = self.search_by_similar(
