@@ -236,6 +236,8 @@ class EditableItemsForm(Form):
             data = self.get_employees_withdrawals_list(search_word)
         elif self.db_table == "expenses":
             data = self.get_expenses_list(search_word)
+        elif self.db_table == "purchases_history":
+            data = self.get_purchases_history_list(search_word)
 
         else:
             items = self.search_by_similar(

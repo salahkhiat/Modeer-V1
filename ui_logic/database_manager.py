@@ -422,6 +422,8 @@ class DatabaseManager(SharedFunctions):
                 return self.get_employees_withdrawals_list()
             elif table == "expenses":
                 return self.get_expenses_list()
+            elif table == "purchases_history":
+                return self.get_purchases_history_list()
             
             else:
                 query = f"SELECT {','.join(columns)} FROM {table}" 
@@ -599,6 +601,47 @@ class DatabaseManager(SharedFunctions):
             else:
                 query += ordering
                 result = cursor.execute(query).fetchall()
+            return result
+        except db.Error as err:
+            print(f"database error: {err}")
+            return {} 
+        finally:
+            if con:
+                con.close()
+
+    def get_purchases_history_list(self, keyword=None) -> List:
+
+        con = None
+        try:
+            con = db.connect(self.get_database_ref())
+            cursor = con.cursor()
+ 
+            created = self.current_date()[:7]
+            query = f"""
+                SELECT 
+                    p.product_name AS name,
+                    p.barcode AS barcode,
+                    p.purchase_price AS price,
+                    p.quantity AS quantity,
+                    p.total AS total,
+                    inv.invoice_number AS invoice
+                FROM
+                    purchase_invoices inv
+
+                JOIN
+                    purchases_history p
+                ON 
+                    inv.id = p.invoice_id
+            """ 
+            result = None
+            ordering = f" ORDER BY inv.created_at DESC; "
+            if keyword:
+                query += " AND name LIKE ? " + ordering
+                result = cursor.execute(query,(f"%{keyword}%",)).fetchall()
+            else:
+                query += ordering
+                result = cursor.execute(query).fetchall()
+                
             return result
         except db.Error as err:
             print(f"database error: {err}")

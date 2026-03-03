@@ -263,6 +263,7 @@ class MainScreen(MainForm):
                 font_size=13
             )
         )
+
         expenses_header = [
             "ملاحظة", "الصنف", "المبلغ", "التاريخ"
         ]
@@ -283,6 +284,31 @@ class MainScreen(MainForm):
                 expenses_columns, 
                 expenses_header, 
                 expenses_header_width, 
+                font_size=13
+            )
+        )
+        purchases_history_header = [
+            "السلعة", "المرجع", "الشراء بـ", "الكمية", "المجموع", "الفاتورة"
+        ]
+        purchases_history_header_width = [40, 12, 12, 12, 12, 12 ]
+
+        purchases_history_columns = [
+            "name",
+            "barcode",
+            "price",
+            "quantity",
+            "total",
+            "invoice"
+        ]
+        # purchases_history is a real table but we used it as a vertual table
+        purchases_history_db_table = "purchases_history"
+        self.ui.purchases_history_action.triggered.connect(
+            lambda: self.show_tab(
+                "المشتريات", 
+                purchases_history_db_table, 
+                purchases_history_columns, 
+                purchases_history_header, 
+                purchases_history_header_width, 
                 font_size=13
             )
         )
