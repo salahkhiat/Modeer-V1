@@ -83,10 +83,8 @@ class EditableItemsForm(Form):
     def refresh_table(self, data=None):
         items = None
         if data == None:
-
             if self.db_table not in self.IS_DELETED_COL_ON:
                 items = self.get_table_cols_list(self.db_table, self.columns) 
-
             else:
             
                 items = self.get_table_cols_list(
@@ -238,6 +236,13 @@ class EditableItemsForm(Form):
             data = self.get_expenses_list(search_word)
         elif self.db_table == "purchases_history":
             data = self.get_purchases_history_list(search_word)
+        elif self.db_table == "sales_history":
+            data = self.get_sales_history_list(search_word)
+        elif self.db_table == "purchases_invoices":
+            data = self.get_purchases_invoices_list(search_word)
+        elif self.db_table == "sales_invoices":
+            data = self.get_sales_invoices_list(search_word)
+        
 
         else:
             items = self.search_by_similar(

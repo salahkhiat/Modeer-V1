@@ -424,6 +424,12 @@ class DatabaseManager(SharedFunctions):
                 return self.get_expenses_list()
             elif table == "purchases_history":
                 return self.get_purchases_history_list()
+            elif table == "sales_history":
+                return self.get_sales_history_list()
+            elif table == "purchases_invoices":
+                return self.get_purchases_invoices_list()
+            elif table == "sales_invoices":
+                return self.get_sales_invoices_list()
             
             else:
                 query = f"SELECT {','.join(columns)} FROM {table}" 
@@ -624,7 +630,8 @@ class DatabaseManager(SharedFunctions):
                     p.purchase_price AS price,
                     p.quantity AS quantity,
                     p.total AS total,
-                    inv.invoice_number AS invoice
+                    inv.invoice_number AS invoice,
+                    inv.created_at AS created
                 FROM
                     purchase_invoices inv
 
@@ -632,6 +639,128 @@ class DatabaseManager(SharedFunctions):
                     purchases_history p
                 ON 
                     inv.id = p.invoice_id
+            """ 
+            result = None
+            ordering = f" ORDER BY inv.created_at DESC; "
+            if keyword:
+                query += " AND name LIKE ? " + ordering
+                result = cursor.execute(query,(f"%{keyword}%",)).fetchall()
+            else:
+                query += ordering
+                result = cursor.execute(query).fetchall()
+                
+            return result
+        except db.Error as err:
+            print(f"database error: {err}")
+            return {} 
+        finally:
+            if con:
+                con.close()
+                
+    def get_sales_history_list(self, keyword=None) -> List:
+
+        con = None
+        try:
+            con = db.connect(self.get_database_ref())
+            cursor = con.cursor()
+ 
+            created = self.current_date()[:7]
+            query = f"""
+                SELECT 
+                    s.product_name AS name,
+                    s.barcode AS barcode,
+                    s.sale_price AS price,
+                    s.quantity AS quantity,
+                    s.total AS total,
+                    inv.invoice_number AS invoice,
+                    inv.created_at AS created
+                FROM
+                    sale_invoices inv
+
+                JOIN
+                    sales_history s
+                ON 
+                    inv.id = s.invoice_id
+            """ 
+            result = None
+            ordering = f" ORDER BY inv.created_at DESC; "
+            if keyword:
+                query += " AND name LIKE ? " + ordering
+                result = cursor.execute(query,(f"%{keyword}%",)).fetchall()
+            else:
+                query += ordering
+                result = cursor.execute(query).fetchall()
+                
+            return result
+        except db.Error as err:
+            print(f"database error: {err}")
+            return {} 
+        finally:
+            if con:
+                con.close()
+
+    def get_purchases_invoices_list(self, keyword=None) -> List:
+
+        con = None
+        try:
+            con = db.connect(self.get_database_ref())
+            cursor = con.cursor()
+ 
+            created = self.current_date()[:7]
+            query = f"""
+                SELECT 
+                    name,
+                    invoice_number,
+                    total,
+                    deposit,
+                    created_at
+                FROM
+                    purchase_invoices inv
+
+                JOIN
+                    suppliers s
+                ON 
+                    s.id = inv.supplier_id
+            """ 
+            result = None
+            ordering = f" ORDER BY inv.created_at DESC; "
+            if keyword:
+                query += " AND name LIKE ? " + ordering
+                result = cursor.execute(query,(f"%{keyword}%",)).fetchall()
+            else:
+                query += ordering
+                result = cursor.execute(query).fetchall()
+                
+            return result
+        except db.Error as err:
+            print(f"database error: {err}")
+            return {} 
+        finally:
+            if con:
+                con.close()
+
+    def get_sales_invoices_list(self, keyword=None) -> List:
+
+        con = None
+        try:
+            con = db.connect(self.get_database_ref())
+            cursor = con.cursor()
+ 
+            created = self.current_date()[:7]
+            query = f"""
+                SELECT 
+                    name,
+                    invoice_number,
+                    total,
+                    deposit,
+                    created_at
+                FROM
+                    sale_invoices inv
+
+                JOIN
+                    customers c
+                ON 
+                    c.id = inv.customer_id
             """ 
             result = None
             ordering = f" ORDER BY inv.created_at DESC; "

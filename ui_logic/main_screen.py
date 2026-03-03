@@ -287,10 +287,11 @@ class MainScreen(MainForm):
                 font_size=13
             )
         )
+
         purchases_history_header = [
-            "السلعة", "المرجع", "الشراء بـ", "الكمية", "المجموع", "الفاتورة"
+            "السلعة", "المرجع", "الشراء بـ", "الكمية", "المجموع", "الفاتورة", "التاريخ"
         ]
-        purchases_history_header_width = [40, 12, 12, 12, 12, 12 ]
+        purchases_history_header_width = [25, 12, 12, 12, 12, 12, 15 ]
 
         purchases_history_columns = [
             "name",
@@ -309,6 +310,75 @@ class MainScreen(MainForm):
                 purchases_history_columns, 
                 purchases_history_header, 
                 purchases_history_header_width, 
+                font_size=13
+            )
+        )
+
+        sales_history_header = [
+            "السلعة", "المرجع", "البيع بـ", "الكمية", "المجموع", "الفاتورة", "التاريخ"
+        ]
+        sales_history_header_width = [25, 12, 12, 12, 12, 12, 15 ]
+
+        sales_history_columns = [
+            "name",
+            "barcode",
+            "price",
+            "quantity",
+            "total",
+            "invoice",
+            "created"
+        ]
+        # sales_history is a real table but we used it as a vertual table
+        sales_history_db_table = "sales_history"
+        self.ui.sales_history_action.triggered.connect(
+            lambda: self.show_tab(
+                "المبيعات", 
+                sales_history_db_table, 
+                sales_history_columns, 
+                sales_history_header, 
+                sales_history_header_width, 
+                font_size=13
+            )
+        )
+
+        purchases_invoices_header = [
+            "المورد", "مرجع الفاتورة", "المجموع", "الإيداع", "التاريخ"
+        ]
+        purchases_invoices_header_width = [35, 20, 15, 15, 15]
+
+        purchases_invoices_columns = [
+            "supplier", "inv_barcode", "total", "deposit", "created"
+        ]
+        # purchases_invoices is a real table but we used it as a vertual table
+        purchases_invoices_db_table = "purchases_invoices"
+        self.ui.purchases_invoices_action.triggered.connect(
+            lambda: self.show_tab(
+                "فواتير المشتريات", 
+                purchases_invoices_db_table, 
+                purchases_invoices_columns, 
+                purchases_invoices_header, 
+                purchases_invoices_header_width, 
+                font_size=13
+            )
+        )
+
+        sales_invoices_header = [
+            "الزبون", "مرجع الفاتورة", "المجموع", "الإيداع", "التاريخ"
+        ]
+        sales_invoices_header_width = [35, 20, 15, 15, 15]
+
+        sales_invoices_columns = [
+            "customer", "inv_barcode", "total", "deposit", "created"
+        ]
+        # sales_invoices is a real table but we used it as a vertual table
+        sales_invoices_db_table = "sales_invoices"
+        self.ui.sales_invoices_action.triggered.connect(
+            lambda: self.show_tab(
+                "فواتير البيع", 
+                sales_invoices_db_table, 
+                sales_invoices_columns, 
+                sales_invoices_header, 
+                sales_invoices_header_width, 
                 font_size=13
             )
         )
