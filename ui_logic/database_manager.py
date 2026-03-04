@@ -432,6 +432,8 @@ class DatabaseManager(SharedFunctions):
                 return self.get_sales_invoices_list()
             elif table == "services":
                 return self.get_services_list()
+            elif table == "services_categories":
+                return self.get_services_categories_list()
             
             else:
                 query = f"SELECT {','.join(columns)} FROM {table}" 
@@ -813,6 +815,53 @@ class DatabaseManager(SharedFunctions):
             ordering = f" ORDER BY ser.created DESC; "
             if keyword:
                 query += " AND description LIKE ? " + ordering
+                result = cursor.execute(query,(f"%{keyword}%",)).fetchall()
+            else:
+                query += ordering
+                result = cursor.execute(query).fetchall()
+                
+            return result
+        except db.Error as err:
+            print(f"database error: {err}")
+            return {} 
+        finally:
+            if con:
+                con.close()
+
+    def get_services_categories_list(self, keyword=None) -> List:
+
+        con = None
+        try:
+            con = db.connect(self.get_database_ref())
+            cursor = con.cursor()
+ 
+            created = self.current_date()[:7]
+            query = f"""
+               SELECT
+                    c.id,
+                    c.name AS category_name,
+                    COUNT(s.category_id) AS services_count,
+                    COALESCE(
+                        SUM(
+                            CASE
+                                WHEN s.customer_id = 1 THEN s.default_price
+                                ELSE s.paid_price
+                            END
+                        ), 0
+                    ) AS total_money
+                FROM
+                    services_categories c
+                LEFT JOIN
+                    services s
+                ON
+                    s.category_id = c.id
+                WHERE 
+                    s.created LIKE '{created}%'
+            """ 
+            result = None
+            ordering = f"GROUP BY c.id, c.name ORDER BY category_name; "
+            if keyword:
+                query += " AND c.name LIKE ? " + ordering
                 result = cursor.execute(query,(f"%{keyword}%",)).fetchall()
             else:
                 query += ordering

@@ -383,23 +383,44 @@ class MainScreen(MainForm):
             )
         )
 
-        services_invoices_header = [
+        services_header = [
             "الوصف", "الزبون", "الصنف", "السعر", "الإيداع", "التاريخ"
         ]
-        services_invoices_header_width = [32, 20, 12, 12, 12, 12]
+        services_header_width = [32, 20, 12, 12, 12, 12]
 
-        services_invoices_columns = [
+        services_columns = [
             "description", "customer", "category", "price", "paid", "created"
         ]
         # services is a real table but we used it as a vertual table
-        services_invoices_db_table = "services"
+        services_db_table = "services"
         self.ui.services_action.triggered.connect(
             lambda: self.show_tab(
                 "الخدمات", 
-                services_invoices_db_table, 
-                services_invoices_columns, 
-                services_invoices_header, 
-                services_invoices_header_width, 
+                services_db_table, 
+                services_columns, 
+                services_header, 
+                services_header_width, 
+                font_size=13
+            )
+        )
+
+        services_categories_header = [
+            "المعرف", "الصنف", "الخدمات", "الدخل"
+        ]
+        services_categories_header_width = [20, 40, 20, 20]
+
+        services_categories_columns = [
+            "id", "category", "services", "income"
+        ]
+        # services is a real table but we used it as a vertual table
+        services_categories_db_table = "services_categories"
+        self.ui.services_category_action.triggered.connect(
+            lambda: self.show_tab(
+                "الخدمات", 
+                services_categories_db_table, 
+                services_categories_columns, 
+                services_categories_header, 
+                services_categories_header_width, 
                 font_size=13
             )
         )
