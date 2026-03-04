@@ -430,6 +430,8 @@ class DatabaseManager(SharedFunctions):
                 return self.get_purchases_invoices_list()
             elif table == "sales_invoices":
                 return self.get_sales_invoices_list()
+            elif table == "services":
+                return self.get_services_list()
             
             else:
                 query = f"SELECT {','.join(columns)} FROM {table}" 
@@ -766,6 +768,51 @@ class DatabaseManager(SharedFunctions):
             ordering = f" ORDER BY inv.created_at DESC; "
             if keyword:
                 query += " AND name LIKE ? " + ordering
+                result = cursor.execute(query,(f"%{keyword}%",)).fetchall()
+            else:
+                query += ordering
+                result = cursor.execute(query).fetchall()
+                
+            return result
+        except db.Error as err:
+            print(f"database error: {err}")
+            return {} 
+        finally:
+            if con:
+                con.close()
+                
+    def get_services_list(self, keyword=None) -> List:
+
+        con = None
+        try:
+            con = db.connect(self.get_database_ref())
+            cursor = con.cursor()
+ 
+            created = self.current_date()[:7]
+            query = f"""
+                SELECT 
+                    ser.description AS description,
+                    cus.name AS customer,
+                    cate.name AS category,
+                    ser.default_price AS price,
+                    ser.paid_price AS paid,
+                    ser.created AS created
+                FROM
+                    customers cus
+
+                JOIN
+                    services ser
+                ON 
+                    cus.id = ser.customer_id
+                JOIN
+                    services_categories cate
+                ON 
+                    ser.category_id = cate.id 
+            """ 
+            result = None
+            ordering = f" ORDER BY ser.created DESC; "
+            if keyword:
+                query += " AND description LIKE ? " + ordering
                 result = cursor.execute(query,(f"%{keyword}%",)).fetchall()
             else:
                 query += ordering

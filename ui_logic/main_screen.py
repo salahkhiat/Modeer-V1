@@ -382,6 +382,27 @@ class MainScreen(MainForm):
                 font_size=13
             )
         )
+
+        services_invoices_header = [
+            "الوصف", "الزبون", "الصنف", "السعر", "الإيداع", "التاريخ"
+        ]
+        services_invoices_header_width = [32, 20, 12, 12, 12, 12]
+
+        services_invoices_columns = [
+            "description", "customer", "category", "price", "paid", "created"
+        ]
+        # services is a real table but we used it as a vertual table
+        services_invoices_db_table = "services"
+        self.ui.services_action.triggered.connect(
+            lambda: self.show_tab(
+                "الخدمات", 
+                services_invoices_db_table, 
+                services_invoices_columns, 
+                services_invoices_header, 
+                services_invoices_header_width, 
+                font_size=13
+            )
+        )
        
     # show tab table
     def show_tab(

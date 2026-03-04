@@ -242,6 +242,8 @@ class EditableItemsForm(Form):
             data = self.get_purchases_invoices_list(search_word)
         elif self.db_table == "sales_invoices":
             data = self.get_sales_invoices_list(search_word)
+        elif self.db_table == "services":
+            data = self.get_services_list(search_word)
         
 
         else:
