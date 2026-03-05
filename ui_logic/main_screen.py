@@ -417,11 +417,32 @@ class MainScreen(MainForm):
         services_categories_db_table = "services_categories"
         self.ui.services_category_action.triggered.connect(
             lambda: self.show_tab(
-                "الخدمات", 
+                "أصناف الخدمات", 
                 services_categories_db_table, 
                 services_categories_columns, 
                 services_categories_header, 
                 services_categories_header_width, 
+                font_size=13
+            )
+        )
+
+        expenses_categories_header = [
+            "المعرف", "الصنف", "عملية", "المصروف"
+        ]
+        expenses_categories_header_width = [20, 40, 20, 20]
+
+        expenses_categories_columns = [
+            "id", "category", "expenses", "outcome"
+        ]
+        # expenses is a real table but we used it as a vertual table
+        expenses_categories_db_table = "expenses_categories"
+        self.ui.expenses_category_action.triggered.connect(
+            lambda: self.show_tab(
+                "أصناف المصروفات", 
+                expenses_categories_db_table, 
+                expenses_categories_columns, 
+                expenses_categories_header, 
+                expenses_categories_header_width, 
                 font_size=13
             )
         )

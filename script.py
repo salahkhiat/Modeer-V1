@@ -5,7 +5,7 @@ cursor = con.cursor()
 
 
 sql_query = """
-ALTER TABLE services_categories
+ALTER TABLE expenses_categories
 ADD COLUMN is_deleted BOOLEAN DEFAULT 0;
     
 """

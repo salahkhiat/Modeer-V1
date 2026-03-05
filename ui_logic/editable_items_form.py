@@ -38,10 +38,17 @@ class EditableItemsForm(Form):
         
 
         # is_deleted column exists.
-        self.IS_DELETED_COL_ON =["products", "services_categories"] + self.ACCOUNT_TYPES 
+        self.IS_DELETED_COL_ON =[
+            "products", 
+            "services_categories", 
+            "expenses_categories"
+        ] + self.ACCOUNT_TYPES 
 
         # delete and/or edit buttons are allowed
-        self.DEL_EDIT_BTNS_ALLOWED = self.IS_DELETED_COL_ON + ["services_categories"]
+        self.DEL_EDIT_BTNS_ALLOWED = [
+            "services_categories",
+            "expenses_categories"
+        ] + self.IS_DELETED_COL_ON  
         
         self.ONLY_DEL_BTN_ALLOWED = ["requested_products", "mobiles"]
 
@@ -250,6 +257,8 @@ class EditableItemsForm(Form):
             data = self.get_services_list(search_word)
         elif self.db_table == "services_categories":
             data = self.get_services_categories_list(search_word)
+        elif self.db_table == "expenses_categories":
+            data = self.get_expenses_categories_list(search_word)
         
 
         else:
@@ -324,7 +333,7 @@ class EditableItemsForm(Form):
             form.item_updated.connect(self.refresh_table)
             form.exec()
 
-        if self.db_table == "services_categories":
+        if self.db_table in ["services_categories", "expenses_categories"]:
             category_name = self.get_item_info(
                 self.db_table, ("name",), "id", self.item_id
             )["name"]

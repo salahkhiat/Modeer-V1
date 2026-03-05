@@ -434,6 +434,8 @@ class DatabaseManager(SharedFunctions):
                 return self.get_services_list()
             elif table == "services_categories":
                 return self.get_services_categories_list()
+            elif table == "expenses_categories":
+                return self.get_expenses_categories_list()
             
             else:
                 query = f"SELECT {','.join(columns)} FROM {table}" 
@@ -859,6 +861,49 @@ class DatabaseManager(SharedFunctions):
                     s.category_id = c.id
                 WHERE 
                     s.created LIKE '{created}%'
+                AND 
+                    c.is_deleted = 0
+            """ 
+            result = None
+            ordering = f"GROUP BY c.id, c.name ORDER BY category_name; "
+            if keyword:
+                query += " AND c.name LIKE ? " + ordering
+                result = cursor.execute(query,(f"%{keyword}%",)).fetchall()
+            else:
+                query += ordering
+                result = cursor.execute(query).fetchall()
+                
+            return result
+        except db.Error as err:
+            print(f"database error: {err}")
+            return {} 
+        finally:
+            if con:
+                con.close()
+                
+    def get_expenses_categories_list(self, keyword=None) -> List:
+
+        con = None
+        try:
+            con = db.connect(self.get_database_ref())
+            cursor = con.cursor()
+ 
+            created = self.current_date()[:7]
+            query = f"""
+               SELECT
+                    c.id,
+                    c.name AS category_name,
+                    COUNT(exp.category_id) AS expenses_count,
+                    COALESCE(
+                        SUM(amount), 0) AS total_money
+                FROM
+                    expenses_categories c
+                LEFT JOIN
+                    expenses exp
+                ON
+                    exp.category_id = c.id
+                WHERE 
+                    exp.created LIKE '{created}%'
                 AND 
                     c.is_deleted = 0
             """ 
@@ -1554,7 +1599,8 @@ class DatabaseManager(SharedFunctions):
             """
             CREATE TABLE IF NOT EXISTS expenses_categories (
                 id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL
+                name TEXT NOT NULL,
+                is_deleted BOOLEAN DEFAULT 0
             );
             """,
 
