@@ -3,11 +3,15 @@ from PyQt6.QtCore import pyqtSignal
 class CategoryForm(Form):
     category_saved = pyqtSignal(bool)
 
-    def __init__(self,base_form):
+    def __init__(self,base_form, category_id=None):
         super().__init__(base_form)
         # set form title
         self.setWindowTitle("إضافة نوع خدمة جديدة")
         self.ui.title.setText("نوع الخدمة")
+
+        # for updating propuses
+        if category_id:
+            self.category_id = category_id
 
         # Default validation values
         self.is_valid_name = False
@@ -38,7 +42,19 @@ class CategoryForm(Form):
             if self.is_max(table,"name"):
                 self.ui.name_err.setText("تجاوزت العدد المسموح به من العناصر")
             else:
-                self.category_saved.emit(self.store(table,columns,data)) # emit the signal
+                if not self.category_id:
+                    self.category_saved.emit(self.store(table,columns,data)) # emit the signal
+                else:
+                    self.category_saved.emit( 
+                        self.update_info(
+                            "services_categories", 
+                            ["name"], 
+                            data,
+                            "id=?", 
+                            (self.category_id,)
+                        )
+                    )
+                
                 fields = [name]
                 self.clear_fields(fields)
                 self.close()

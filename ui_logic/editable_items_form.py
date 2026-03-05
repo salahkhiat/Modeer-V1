@@ -9,6 +9,9 @@ from uis.account import Ui_Form as AccountFormUi
 from .item_form import ItemForm
 from uis.item import Ui_Form as ItemFormUi
 
+from .category_form import CategoryForm 
+from uis.category import Ui_Form as CategoryFormUi
+
 from PyQt6.QtCore import QTimer
 
 from .error_form import ErrorForm
@@ -38,7 +41,8 @@ class EditableItemsForm(Form):
         self.IS_DELETED_COL_ON = self.ACCOUNT_TYPES + ["products"]
 
         # delete and/or edit buttons are allowed
-        self.DEL_EDIT_BTNS_ALLOWED = self.IS_DELETED_COL_ON
+        self.DEL_EDIT_BTNS_ALLOWED = self.IS_DELETED_COL_ON + ["services_categories"]
+        
         self.ONLY_DEL_BTN_ALLOWED = ["requested_products", "mobiles"]
 
         # obj.column for database searchs purposes : SELECT column FROM ...
@@ -319,6 +323,18 @@ class EditableItemsForm(Form):
             form.ui.sale_price.setText(f"{sale_price:.0f}")
             form.item_updated.connect(self.refresh_table)
             form.exec()
+
+        if self.db_table == "services_categories":
+            category_name = self.get_item_info(
+                self.db_table, ("name",), "id", self.item_id
+            )["name"]
+            form = CategoryForm(CategoryFormUi, self.item_id)
+            form.setWindowTitle(category_name)
+            form.ui.title.setText(category_name)
+            form.ui.name.setText(category_name)
+            form.category_saved.connect(lambda _: self.refresh_table())
+            form.exec()
+            
         self.qt_table.setRowCount(0)
         self.refresh_table()
     

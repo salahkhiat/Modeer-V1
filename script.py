@@ -22,9 +22,11 @@ sql_query = """
             c.name;
     
 """
-cursor.execute(sql_query)
-rows = [row for row in cursor.fetchall()]
-for row in rows:
-    print(row)
+# cursor.execute(sql_query)
+# rows = [row for row in cursor.fetchall()]
+# for row in rows:
+#     print(row)
 
 
+a = ["a"]
+print(a+["k"])
