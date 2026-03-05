@@ -38,7 +38,7 @@ class EditableItemsForm(Form):
         
 
         # is_deleted column exists.
-        self.IS_DELETED_COL_ON = self.ACCOUNT_TYPES + ["products"]
+        self.IS_DELETED_COL_ON =["products", "services_categories"] + self.ACCOUNT_TYPES 
 
         # delete and/or edit buttons are allowed
         self.DEL_EDIT_BTNS_ALLOWED = self.IS_DELETED_COL_ON + ["services_categories"]

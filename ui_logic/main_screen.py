@@ -299,7 +299,8 @@ class MainScreen(MainForm):
             "price",
             "quantity",
             "total",
-            "invoice"
+            "invoice",
+            "created"
         ]
         # purchases_history is a real table but we used it as a vertual table
         purchases_history_db_table = "purchases_history"

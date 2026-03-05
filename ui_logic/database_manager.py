@@ -647,11 +647,13 @@ class DatabaseManager(SharedFunctions):
             result = None
             ordering = f" ORDER BY inv.created_at DESC; "
             if keyword:
-                query += " AND name LIKE ? " + ordering
+                query += " WHERE name LIKE ? " + ordering
                 result = cursor.execute(query,(f"%{keyword}%",)).fetchall()
+                
             else:
                 query += ordering
                 result = cursor.execute(query).fetchall()
+               
                 
             return result
         except db.Error as err:
@@ -857,6 +859,8 @@ class DatabaseManager(SharedFunctions):
                     s.category_id = c.id
                 WHERE 
                     s.created LIKE '{created}%'
+                AND 
+                    c.is_deleted = 0
             """ 
             result = None
             ordering = f"GROUP BY c.id, c.name ORDER BY category_name; "
@@ -1570,7 +1574,8 @@ class DatabaseManager(SharedFunctions):
             """
             CREATE TABLE IF NOT EXISTS services_categories (
                 id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL
+                name TEXT NOT NULL,
+                is_deleted BOOLEAN DEFAULT 0  -- Soft delete flag
             );
             """,
 

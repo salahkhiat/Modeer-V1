@@ -1,28 +1,15 @@
 import sqlite3 as db 
 
-con = db.connect("data.db")
+con = db.connect("shop_data.db")
 cursor = con.cursor()
 
 
 sql_query = """
-        SELECT
-            c.id,
-            c.name AS category_name,
-            COALESCE(SUM(s.paid_price), 0) AS total_price,
-            COUNT(s)
-        FROM
-            services_categories c
-        LEFT JOIN
-            services s
-        ON
-            s.category_id = c.id
-        GROUP BY
-            c.id, c.name 
-        ORDER BY
-            c.name;
+ALTER TABLE services_categories
+ADD COLUMN is_deleted BOOLEAN DEFAULT 0;
     
 """
-# cursor.execute(sql_query)
+cursor.execute(sql_query)
 # rows = [row for row in cursor.fetchall()]
 # for row in rows:
 #     print(row)
