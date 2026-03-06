@@ -1,5 +1,6 @@
 from PyQt6.QtCore import Qt, QTimer
 
+
 from .base_form import MainForm
 
 from uis.database_ui import Ui_Form as DatabaseUi 
@@ -45,7 +46,8 @@ from .error_form import ErrorForm
 from uis.editable_items import Ui_ChooseItemUi as EditableItemsUi
 from .editable_items_form import EditableItemsForm
 
-from PyQt6.QtWidgets import QTableWidget, QHeaderView
+from PyQt6.QtWidgets import QTableWidget, QHeaderView, QSplashScreen
+from PyQt6.QtGui import QPixmap
 
 from typing import Dict, List
 
@@ -446,6 +448,34 @@ class MainScreen(MainForm):
                 font_size=13
             )
         )
+
+    # Welcome screen
+    @staticmethod
+    def show_welcome_screen(app, base_form_class, image_path="splash_screen.png", duration=3000, width=900, height=500):
+        """
+        Show a splash screen with a fixed size, then open MainScreen after `duration` ms.
+        """
+        # Load and scale the splash image
+        splash_pix = QPixmap(image_path).scaled(width, height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+
+        # Create the splash
+        splash = QSplashScreen(splash_pix, Qt.WindowType.WindowStaysOnTopHint)
+        splash.setMask(splash_pix.mask())
+        splash.show()
+
+        # Function to create and show main window after splash
+        def show_main_window():
+            window = MainScreen(base_form_class)
+            
+            window.showMaximized()
+            splash.finish(window)
+            window.play_failure_sound() # as welcome sound
+            return window
+
+        # Delay creation of main window
+        QTimer.singleShot(duration, show_main_window)
+
+        return splash
        
     # show tab table
     def show_tab(
