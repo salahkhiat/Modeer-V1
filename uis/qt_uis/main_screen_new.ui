@@ -690,7 +690,7 @@ QPushButton:hover{
                   </attribute>
                   <column>
                    <property name="text">
-                    <string>المرجع</string>
+                    <string>الإسم</string>
                    </property>
                    <property name="font">
                     <font>
@@ -701,7 +701,7 @@ QPushButton:hover{
                   </column>
                   <column>
                    <property name="text">
-                    <string>الوصف</string>
+                    <string>المرجع</string>
                    </property>
                    <property name="font">
                     <font>
@@ -723,7 +723,7 @@ QPushButton:hover{
                   </column>
                   <column>
                    <property name="text">
-                    <string>سعر الشراء</string>
+                    <string>السعر</string>
                    </property>
                    <property name="font">
                     <font>
@@ -1030,12 +1030,12 @@ color:black;
   </action>
   <action name="suppliers_deposits_action">
    <property name="text">
-    <string>إيداعات للمردين</string>
+    <string>الموردين</string>
    </property>
   </action>
   <action name="customers_deposits_action">
    <property name="text">
-    <string>دفعات الزبائن</string>
+    <string>الزبائن</string>
    </property>
   </action>
   <action name="employees_withdrawals_action">

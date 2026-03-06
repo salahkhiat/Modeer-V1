@@ -55,10 +55,9 @@ class MainScreen(MainForm):
         super().__init__(base_form)
 
         # Test started part ------
-
-
         
         
+
         
         # ------------------------
 
@@ -106,6 +105,7 @@ class MainScreen(MainForm):
 
         # Dealing with requested_products table
         self.refresh_requested_products_table()
+        self.refresh_out_of_stock_table()
 
         # MenuBar
         users_header = ["المرجع", "الإسم", "الهاتف", "الحساب"]
@@ -493,6 +493,7 @@ class MainScreen(MainForm):
         r_p_table:QTableWidget = self.ui.requested_products_table 
         r_p_table.setRowCount(0)
         self.remove_rows_counter(r_p_table)
+        self.make_rows_scrollable(r_p_table)
         requested_products = None 
         if data is None:
             requested_products:Dict = self.get_table_as_dict("requested_products","name")
@@ -507,8 +508,40 @@ class MainScreen(MainForm):
         for product in requested_products.values():
             r_p_table.insertRow(row)
             date_label = self.current_date()
-            r_p_table.setItem(row, 0, self.make_item(product))
-            r_p_table.setItem(row, 1, self.make_item(date_label)) 
+            r_p_table.setItem(row, 0, self.make_item(product, read_only=True))
+            r_p_table.setItem(row, 1, self.make_item(date_label, read_only=True)) 
+
+    def refresh_out_of_stock_table(self):
+        items = self.get_table_cols_list(
+            "products",
+            ["name","barcode","quantity","sale_price"],
+            "quantity<6"
+        )
+
+        table_widget:QTableWidget = self.ui.out_of_stock_soon_table 
+        table_widget.setRowCount(0)
+
+        header = table_widget.horizontalHeader()
+
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)         
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
+
+        self.remove_rows_counter(table_widget)
+        self.make_rows_scrollable(table_widget)
+
+        for item in items:
+            # where the next row should go
+            row = table_widget.rowCount() 
+            
+            # insert new row at the bottom of the table
+            table_widget.insertRow(row) 
+            for col_id, col_info in enumerate(item):
+                    table_item = self.make_item(
+                        col_info, font_size=16, read_only=True
+                    )
+                    table_widget.setItem(row, col_id, table_item)
 
 
     # set new user form button
