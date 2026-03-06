@@ -6,7 +6,14 @@ from .item_form import ItemForm
 from uis.choose_item import Ui_ChooseItemUi as ChooseItemUi
 from .choose_item_form import ChooseItemForm
 
-from PyQt6.QtWidgets import QTableWidgetItem, QHeaderView, QTableWidget,  QStyledItemDelegate, QSpinBox
+from PyQt6.QtWidgets import (
+    QTableWidgetItem, 
+    QHeaderView, 
+    QTableWidget,  
+    QStyledItemDelegate, 
+    QSpinBox,
+    QLineEdit
+)
 from PyQt6.QtGui import QFont 
 from PyQt6.QtCore import pyqtSignal , QTimer
 
@@ -173,6 +180,22 @@ class InvoiceForm(Form):
             # make the value as key 
         self.user_id = users.get(current_user) 
 
+        self.dis_en_able_amount_field()
+
+    def dis_en_able_amount_field(self):
+        # disable an amount field if the user_id is equal to 1 ("-")
+        # enable it if it is not "-" user
+        if self.table == "customers":
+            amount_field :QLineEdit = self.ui.amount
+            if self.user_id == 1:
+                amount_field.setEnabled(False)
+                amount_field.setPlaceholderText(".")
+                amount_field.setStyleSheet("background:grey")
+            else:
+                amount_field.setStyleSheet("background:none")
+                amount_field.setPlaceholderText("الإيداع $")
+                amount_field.setEnabled(True)
+        
     def refresh_invoice(self):
         # clear table 
         table : QTableWidget = self.ui.items_table
@@ -519,19 +542,7 @@ class InvoiceForm(Form):
                     else:
                         if self.store(p_h_table,p_h_columns,p_h_data) is False:
                             log.error(f"[red]Product:{name} with barcode {barcode} was not inserted into purchases_history [/red]")
-                            return 
-            
-            # this part assigns the deposit amount on suppliers_transactions
-            # if float(invoice_deposit) > 0:
-            #     tran_table = "suppliers_transactions"
-            #     tran_columns = ["supplier_id","invoice_id","amount","type","created"]
-            #     tran_data = (self.user_id,invoice_id,float(invoice_deposit),"deposit",self.current_date())
-            #     if not self.store(tran_table,tran_columns,tran_data):
-            #         print("the deposit has not added")
-            #     else:
-            #         print("the deposit has added successfully")
-
-                        
+                            return          
                         
             """ 
                     if an invoice type is for customers
