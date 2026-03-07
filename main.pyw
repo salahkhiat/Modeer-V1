@@ -23,6 +23,7 @@ from PyQt6.QtWidgets import QApplication
 from uis.main_screen import Ui_main_window as MainUi
 from ui_logic.main_screen import MainScreen
 
+
 def main():
     app = QApplication(sys.argv)
 

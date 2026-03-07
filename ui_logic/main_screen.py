@@ -51,18 +51,22 @@ from PyQt6.QtGui import QPixmap
 
 from typing import Dict, List
 
+
 class MainScreen(MainForm):
    
     def __init__(self,base_form):
         super().__init__(base_form)
-
+        
         # Test started part ------
         
         
 
         
         # ------------------------
-
+        
+        # preapare Database 
+        self.prepare_database()
+        
         # Set main screen title
         self.setWindowTitle("برنامج مدير لإدارة المحلات")
         

@@ -1,0 +1,8 @@
+2026-03-07 20:39:12,690 | ERROR | script.py:17 | Database error:no such column: namef
+Traceback (most recent call last):
+  File "E:\Workspace\Modeer-V1\script.py", line 15, in db_connection
+    yield con
+  File "E:\Workspace\Modeer-V1\script.py", line 29, in connection
+    result = cursor.execute(query)
+             ^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: namef

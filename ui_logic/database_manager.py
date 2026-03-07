@@ -1,11 +1,17 @@
 import sqlite3 as db
 from typing import List, Dict , Any
 import os 
+from contextlib import contextmanager
+import logging
+logging.basicConfig(
+    filename='modeer_logs_file.log',
+    level=logging.DEBUG,
+    format='%(asctime)s | %(levelname)s | %(filename)s:%(lineno)d | %(message)s'
+)
 
 from .shared_functions import SharedFunctions
 
 class DatabaseManager(SharedFunctions):
-        
     def get_database_ref(self) -> str:
         """
         Return a full database reference.
@@ -19,6 +25,18 @@ class DatabaseManager(SharedFunctions):
         """
         settings = self.get_settings()
         return os.path.join(settings["database_path"], settings["database_name"])
+    
+    @contextmanager
+    def db_connection(self):
+        con = db.connect(self.get_database_ref())
+        try:
+            yield con 
+        except db.Error as e:
+            logging.exception(f"Database error:{e}")
+            raise
+        finally:
+            con.close()
+
     
     def store(self, table_name:str, columns: list[str], data: tuple, last_row_id:bool=False )-> Any:
         """
@@ -34,11 +52,8 @@ class DatabaseManager(SharedFunctions):
         :rtype: Any
 
         """
-        connection = None 
-        try:
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
-            
             # Prepare the SQL query
             columns_str = ', '.join(columns)
             placeholders = ', '.join(['?'] * len(data))
@@ -51,34 +66,18 @@ class DatabaseManager(SharedFunctions):
             else:
                 return True
             
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return False
-        finally:
-            if connection:
-                connection.close()
-
     def delete_item_from_db(self, table_name, where_clause, where_args):
-        connection = None
-        try:
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
             query = f"DELETE FROM {table_name} WHERE {where_clause} = ?"
 
             cursor.execute(query,(where_args,))
             connection.commit()
 
-            if cursor.rowcount > 0: return True 
-            else: return False
-
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return False
-        finally:
-            if connection:
-                connection.close()
-
-
+            if cursor.rowcount > 0: 
+                return True 
+            else: 
+                return False
 
     def update_info(self, table_name: str, columns: list[str], data: tuple, where_clause: str, where_args: tuple = ()) -> bool:
         """
@@ -101,9 +100,7 @@ class DatabaseManager(SharedFunctions):
             >>># Update the 'name' and 'age' of the user where id=5
             >>>update('users', ['name', 'age'], ('Alice', 30), 'id = ?', (5,))
         """
-        connection = None
-        try:
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
 
             # Prepare the SQL query
@@ -118,12 +115,6 @@ class DatabaseManager(SharedFunctions):
 
             return cursor.rowcount > 0  # True if any row was updated
 
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return False
-        finally:
-            if connection:
-                connection.close()
     
     def is_in_table(self, table:str,column:str , target:str) -> bool:
         """
@@ -137,10 +128,8 @@ class DatabaseManager(SharedFunctions):
             bool : True if the item exists, and False otherwise.
         
         """
-        conn = None
-        try:
-            conn = db.connect(self.get_database_ref())
-            cursor = conn.cursor()
+        with self.db_connection() as connection: 
+            cursor = connection.cursor()
             query = f"SELECT 1 FROM {table} WHERE {column} = ? LIMIT 1"
             cursor.execute(query,(target,))
             result = cursor.fetchone()
@@ -150,19 +139,11 @@ class DatabaseManager(SharedFunctions):
             else:
                 return False 
 
-        except db.Error as err:
-            print(f"database err:{err}")
-        finally:
-            if conn:
-                conn.close()
-
     def search_by(self, table: str, column: str, keyword: str, target: str) -> Any:
         """
         Search for a single value in the database table based on a condition.
         """
-        connection = None
-        try:
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
             query = f"SELECT {target} FROM {table} WHERE {column} = ? LIMIT 1" 
             cursor.execute(query, (keyword,))
@@ -172,14 +153,6 @@ class DatabaseManager(SharedFunctions):
                 return result[0]
             else:
                 return None
-
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return None
-        finally:
-            if connection:
-                connection.close()
-
     
     def get_item_info(self, table: str, columns: tuple, keyword: str, target) -> dict | None:
         """
@@ -201,10 +174,7 @@ class DatabaseManager(SharedFunctions):
                 >>> target = 3434
                 >>> item = obj.get_item_info(table, columns, keyword, target)
         """
-        connection = None
-        try:
-            # connect to database
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
 
             # dynamically construct query
@@ -219,15 +189,6 @@ class DatabaseManager(SharedFunctions):
                 return {col: val for col, val in zip(columns, row)}
             else:
                 return None
-
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return None
-
-        finally:
-            if connection:
-                connection.close()
-
 
     def search_by_similar(
             self, table: str, 
@@ -248,9 +209,7 @@ class DatabaseManager(SharedFunctions):
         :return: List of dictionaries with the requested columns
         """
 
-        connection = None
-        try:
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
 
             # Build the SELECT part dynamically from target list
@@ -275,13 +234,6 @@ class DatabaseManager(SharedFunctions):
 
             return results
 
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return []
-        finally:
-            if connection:
-                connection.close()
-
     def is_db_table_empty(self, table: str) -> bool:
         """
         Check if a database table is empty.
@@ -291,9 +243,7 @@ class DatabaseManager(SharedFunctions):
         :return: True if the table is empty, False otherwise.
         :rtype: bool
         """
-        connection = None
-        try:
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
 
             query = f"SELECT 1 FROM {table} LIMIT 1"
@@ -304,17 +254,6 @@ class DatabaseManager(SharedFunctions):
                 return False  # Table has at least one row
             else:
                 return True   # Table is empty
-
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return False  # Default to False if there's an error (fail-safe)
-        finally:
-            if connection:
-                connection.close()
-
-
-
-                     
 
     def create_default_column(self, table:str, column:str, name:str = "-") -> bool:
         """
@@ -333,8 +272,6 @@ class DatabaseManager(SharedFunctions):
         else:
             return False
             
-
-    
     def get_table_as_list(self, table:str, columns:List[str] ) -> List:
         """
         Returning table data as list.
@@ -352,22 +289,13 @@ class DatabaseManager(SharedFunctions):
             >>> obj.get_table_as_list(table,columns)
             ["Muhammed", "Nooh", "Adam" ]
         """
-        con = None
-        try:
-            con = db.connect(self.get_database_ref())
-            cursor = con.cursor()
+        with self.db_connection() as connection: 
+            cursor = connection.cursor()
             table_columns = ", ".join(columns)
             query = f"SELECT {table_columns} FROM {table}"
             data = cursor.execute(query).fetchall()
             new_data = [item[0] for item in data]
             return new_data
-        
-        except db.Error as err:
-            print(f"database error: {err}")
-            return False 
-        finally:
-            if con:
-                con.close()
     
     def get_table_as_dict(self, table:str, column:str) -> Dict:
         """
@@ -384,23 +312,14 @@ class DatabaseManager(SharedFunctions):
             >>> obj.get_table_as_dict(table,column)
             {1:"Muhammed", 2:"Ahmed"}
         """
-        con = None
-        try:
-            con = db.connect(self.get_database_ref())
-            cursor = con.cursor()
+        with self.db_connection() as connection: 
+            cursor = connection.cursor()
             
             query = f"SELECT id, {column} FROM {table}"
             data = cursor.execute(query).fetchall()
 
             new_data = {item[0]:item[1] for item in data}
             return new_data
-        
-        except db.Error as err:
-            print(f"database error: {err}")
-            return {} 
-        finally:
-            if con:
-                con.close()
 
     def get_table_cols_list(
             self, 
@@ -411,10 +330,8 @@ class DatabaseManager(SharedFunctions):
             union=False
         ) -> List:
    
-        con = None
-        try:
-            con = db.connect(self.get_database_ref())
-            cursor = con.cursor()
+        with self.db_connection() as connection: 
+            cursor = connection.cursor()
             query = None 
             if table == "customers_transactions":
                 return self.get_customers_transactions_list()
@@ -449,20 +366,11 @@ class DatabaseManager(SharedFunctions):
                     query += f" AS combined"
             
                 return cursor.execute(query, parms).fetchall()
-        
-        except db.Error as err:
-            print(f"database error: {err}")
-            return {} 
-        finally:
-            if con:
-                con.close()
 
     def get_customers_transactions_list(self, keyword=None) -> List:
 
-        con = None
-        try:
-            con = db.connect(self.get_database_ref())
-            cursor = con.cursor()
+        with self.db_connection() as connection: 
+            cursor = connection.cursor()
 
             created = self.current_date()[:7]
             query = f"""
@@ -537,20 +445,9 @@ class DatabaseManager(SharedFunctions):
                 result = cursor.execute(query).fetchall()
             return result
 
-        
-        except db.Error as err:
-            print(f"database error: {err}")
-            return {} 
-        finally:
-            if con:
-                con.close()
-
     def get_employees_withdrawals_list(self, keyword=None) -> List:
-
-        con = None
-        try:
-            con = db.connect(self.get_database_ref())
-            cursor = con.cursor()
+        with self.db_connection() as connection: 
+            cursor = connection.cursor()
  
             created = self.current_date()[:7]
             query = f"""
@@ -575,19 +472,11 @@ class DatabaseManager(SharedFunctions):
                 query += ordering
                 result = cursor.execute(query).fetchall()
             return result
-        except db.Error as err:
-            print(f"database error: {err}")
-            return {} 
-        finally:
-            if con:
-                con.close()
 
     def get_expenses_list(self, keyword=None) -> List:
 
-        con = None
-        try:
-            con = db.connect(self.get_database_ref())
-            cursor = con.cursor()
+        with self.db_connection() as connection: 
+            cursor = connection.cursor()
  
             created = self.current_date()[:7]
             query = f"""
@@ -614,19 +503,11 @@ class DatabaseManager(SharedFunctions):
                 query += ordering
                 result = cursor.execute(query).fetchall()
             return result
-        except db.Error as err:
-            print(f"database error: {err}")
-            return {} 
-        finally:
-            if con:
-                con.close()
 
     def get_purchases_history_list(self, keyword=None) -> List:
 
-        con = None
-        try:
-            con = db.connect(self.get_database_ref())
-            cursor = con.cursor()
+        with self.db_connection() as connection: 
+            cursor = connection.cursor()
  
             created = self.current_date()[:7]
             query = f"""
@@ -654,25 +535,14 @@ class DatabaseManager(SharedFunctions):
                 
             else:
                 query += ordering
-                result = cursor.execute(query).fetchall()
-               
-                
+                result = cursor.execute(query).fetchall() 
             return result
-        except db.Error as err:
-            print(f"database error: {err}")
-            return {} 
-        finally:
-            if con:
-                con.close()
-                
+
     def get_sales_history_list(self, keyword=None) -> List:
 
-        con = None
-        try:
-            con = db.connect(self.get_database_ref())
-            cursor = con.cursor()
+        with self.db_connection() as connection: 
+            cursor = connection.cursor()
  
-            created = self.current_date()[:7]
             query = f"""
                 SELECT 
                     s.product_name AS name,
@@ -700,21 +570,12 @@ class DatabaseManager(SharedFunctions):
                 result = cursor.execute(query).fetchall()
                 
             return result
-        except db.Error as err:
-            print(f"database error: {err}")
-            return {} 
-        finally:
-            if con:
-                con.close()
 
     def get_purchases_invoices_list(self, keyword=None) -> List:
 
-        con = None
-        try:
-            con = db.connect(self.get_database_ref())
-            cursor = con.cursor()
+        with self.db_connection() as connection: 
+            cursor = connection.cursor()
  
-            created = self.current_date()[:7]
             query = f"""
                 SELECT 
                     name,
@@ -740,21 +601,12 @@ class DatabaseManager(SharedFunctions):
                 result = cursor.execute(query).fetchall()
                 
             return result
-        except db.Error as err:
-            print(f"database error: {err}")
-            return {} 
-        finally:
-            if con:
-                con.close()
 
     def get_sales_invoices_list(self, keyword=None) -> List:
 
-        con = None
-        try:
-            con = db.connect(self.get_database_ref())
-            cursor = con.cursor()
+        with self.db_connection() as connection: 
+            cursor = connection.cursor()
  
-            created = self.current_date()[:7]
             query = f"""
                 SELECT 
                     name,
@@ -780,21 +632,12 @@ class DatabaseManager(SharedFunctions):
                 result = cursor.execute(query).fetchall()
                 
             return result
-        except db.Error as err:
-            print(f"database error: {err}")
-            return {} 
-        finally:
-            if con:
-                con.close()
                 
     def get_services_list(self, keyword=None) -> List:
 
-        con = None
-        try:
-            con = db.connect(self.get_database_ref())
-            cursor = con.cursor()
+        with self.db_connection() as connection: 
+            cursor = connection.cursor()
  
-            created = self.current_date()[:7]
             query = f"""
                 SELECT 
                     ser.description AS description,
@@ -825,19 +668,11 @@ class DatabaseManager(SharedFunctions):
                 result = cursor.execute(query).fetchall()
                 
             return result
-        except db.Error as err:
-            print(f"database error: {err}")
-            return {} 
-        finally:
-            if con:
-                con.close()
 
     def get_services_categories_list(self, keyword=None) -> List:
 
-        con = None
-        try:
-            con = db.connect(self.get_database_ref())
-            cursor = con.cursor()
+        with self.db_connection() as connection: 
+            cursor = connection.cursor()
  
             created = self.current_date()[:7]
             query = f"""
@@ -874,19 +709,11 @@ class DatabaseManager(SharedFunctions):
                 result = cursor.execute(query).fetchall()
                 
             return result
-        except db.Error as err:
-            print(f"database error: {err}")
-            return {} 
-        finally:
-            if con:
-                con.close()
                 
     def get_expenses_categories_list(self, keyword=None) -> List:
 
-        con = None
-        try:
-            con = db.connect(self.get_database_ref())
-            cursor = con.cursor()
+        with self.db_connection() as connection: 
+            cursor = connection.cursor()
  
             created = self.current_date()[:7]
             query = f"""
@@ -917,14 +744,7 @@ class DatabaseManager(SharedFunctions):
                 result = cursor.execute(query).fetchall()
                 
             return result
-        except db.Error as err:
-            print(f"database error: {err}")
-            return {} 
-        finally:
-            if con:
-                con.close()
-    
-    
+
     def tel_exists(self,table: str, tel: str) -> bool:
         """
         Check if a telephone number exists in a specific table.
@@ -940,38 +760,21 @@ class DatabaseManager(SharedFunctions):
             >>> obj.tel_exists("contacts", "1234567890")
             True
         """
-        conn = None
-        try:
-            conn = db.connect(self.get_database_ref())
-            cursor = conn.cursor()
+        with self.db_connection() as connection: 
+            cursor = connection.cursor()
             query = f"SELECT 1 FROM {table} WHERE tel = ? LIMIT 1"
+
             cursor.execute(query, (tel,))
             result = cursor.fetchone()
             return result is not None
-        except db.Error as e:
-            print(f"Database error: {e}")
-            return False
-        finally:
-            if conn:
-                conn.close()
 
     def is_belonged_to_other(self, current_id:str, current_barcode:str):
-        conn = None
-        try:
-            conn = db.connect(self.get_database_ref())
-            cursor = conn.cursor()
+        with self.db_connection() as connection: 
+            cursor = connection.cursor()
             query = f"SELECT 1 FROM products WHERE id != ? AND barcode = ? LIMIT 1"
             cursor.execute(query,(str(current_id), str(current_barcode)))
             result = cursor.fetchone()
             return result is not None
-        except db.Error as e:
-            print(f"Database error: {e}")
-            return False
-        finally:
-            if conn:
-                conn.close()
-
-
 
     def get_sales_income(self,s_date:str="today") -> float:
         """
@@ -987,9 +790,7 @@ class DatabaseManager(SharedFunctions):
         :return: Calculated sales income.
         :rtype: float
         """
-        connection = None
-        try:
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
             created = self.current_date() # 1447-06-01
             if s_date == "month":
@@ -1003,8 +804,10 @@ class DatabaseManager(SharedFunctions):
                         ELSE deposit
                     END
                 )
-                FROM sale_invoices
-                WHERE created_at LIKE ?
+                FROM 
+                    sale_invoices
+                WHERE 
+                    created_at LIKE ?
 
             """
             cursor.execute(query,(f"{created}%",))
@@ -1012,23 +815,12 @@ class DatabaseManager(SharedFunctions):
 
             return result[0] if result and result[0] is not None else 0.0
 
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return 0.0  # Fail-safe default
-
-        finally:
-            if connection:
-                connection.close()
-
-
     def get_services_income(self,s_date:str="today") -> float:
         """
         Calculate total services income based on conditional rules.
 
         """
-        connection = None
-        try: 
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
             created = self.current_date() # 1447-06-01
             if s_date == "month":
@@ -1049,21 +841,11 @@ class DatabaseManager(SharedFunctions):
 
             return result[0] if result and result[0] is not None else 0.0
 
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return 0.0  # Fail-safe default
-
-        finally:
-            if connection:
-                connection.close()
-
     def get_sales_capital(self,s_date:str="today") -> float:
         """
         Calculate total sales capital (sum of invoice capitals) for the current month.
         """
-        connection = None
-        try:
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
 
             created = self.current_date() # 1447-06-01
@@ -1081,22 +863,12 @@ class DatabaseManager(SharedFunctions):
 
             return result[0] if result and result[0] is not None else 0.0
 
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return 0.0
-
-        finally:
-            if connection:
-                connection.close()
-
     def get_expenses(self,s_date:str="today") -> float:
         """
         Calculate total expenses  based on conditional rules.
 
         """
-        connection = None
-        try: 
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
             created = self.current_date() # 1447-06-01
             if s_date == "month":
@@ -1112,22 +884,12 @@ class DatabaseManager(SharedFunctions):
 
             return result[0] if result and result[0] is not None else 0.0
 
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return 0.0  # Fail-safe default
-
-        finally:
-            if connection:
-                connection.close()
-
     def get_suppliers_deposits(self,s_date:str="today") -> float:
         """
         Calculate deposits to suppliers  based on conditional rules.
 
         """
-        connection = None
-        try: 
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
             created = self.current_date() # 1447-06-01
             if s_date == "month":
@@ -1146,23 +908,13 @@ class DatabaseManager(SharedFunctions):
             result = cursor.fetchone()
 
             return result[0] if result and result[0] is not None else 0.0
-
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return 0.0  # Fail-safe default
-
-        finally:
-            if connection:
-                connection.close()
                 
     def get_suppliers_debts(self,s_date:str="today") -> float:
         """
         Calculate deposits to suppliers  based on conditional rules.
 
         """
-        connection = None
-        try: 
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
             created = self.current_date() # 1447-06-01
             if s_date == "month":
@@ -1182,22 +934,12 @@ class DatabaseManager(SharedFunctions):
 
             return result[0] if result and result[0] is not None else 0.0
 
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return 0.0  # Fail-safe default
-
-        finally:
-            if connection:
-                connection.close()
-
     def get_purchases_deposits(self,s_date:str="today") -> float:
         """
         Calculate deposits to suppliers  based on purchase_invoices and conditional rules.
 
         """
-        connection = None
-        try: 
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
             created = self.current_date() # 1447-06-01
             if s_date == "month":
@@ -1213,22 +955,12 @@ class DatabaseManager(SharedFunctions):
 
             return result[0] if result and result[0] is not None else 0.0
 
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return 0.0  # Fail-safe default
-
-        finally:
-            if connection:
-                connection.close()
-
     def get_customers_payments(self,s_date:str="today") -> float:
         """
         Calculate total customer_payments  based on conditional rules.
 
         """
-        connection = None
-        try: 
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
             created = self.current_date() # 1447-06-01
             if s_date == "month":
@@ -1245,22 +977,12 @@ class DatabaseManager(SharedFunctions):
 
             return result[0] if result and result[0] is not None else 0.0
 
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return 0.0  # Fail-safe default
-
-        finally:
-            if connection:
-                connection.close()
-
     def get_employees_withdrawals(self,s_date:str="today") -> float:
         """
         Calculate total employees_withdrawals  based on conditional rules.
 
         """
-        connection = None
-        try: 
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
             created = self.current_date() # 1447-06-01
             if s_date == "month":
@@ -1276,19 +998,9 @@ class DatabaseManager(SharedFunctions):
             result = cursor.fetchone()
 
             return result[0] if result and result[0] is not None else 0.0
-
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return 0.0  # Fail-safe default
-
-        finally:
-            if connection:
-                connection.close()
     
     def get_supplier_transactions_sum(self, tran_type: str, user_id: int) -> float:
-        connection = None
-        try: 
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
             query = """
                 SELECT SUM(amount)
@@ -1300,18 +1012,8 @@ class DatabaseManager(SharedFunctions):
             result = cursor.fetchone()
             return result[0] if result and result[0] is not None else 0.0
 
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return 0.0  # Fail-safe default
-
-        finally:
-            if connection:
-                connection.close()
-
     def get_supplier_purchase_sum(self, col_name: str, user_id: int) -> float:
-        connection = None
-        try: 
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
             query = f"""
                 SELECT SUM({col_name})
@@ -1323,19 +1025,8 @@ class DatabaseManager(SharedFunctions):
             
             return result[0] if result and result[0] is not None else 0.0
 
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return 0.0  # Fail-safe default
-
-        finally:
-            if connection:
-                connection.close()
-
-
     def get_customer_payment_sum(self, customer_id: int) -> float:
-        connection = None
-        try: 
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
             query = f"""
                 SELECT SUM(amount)
@@ -1346,15 +1037,9 @@ class DatabaseManager(SharedFunctions):
             result = cursor.fetchone()
             
             return result[0] if result and result[0] is not None else 0.0
-
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return 0.0  # Fail-safe default
         
     def get_customer_deposit_sum(self, customer_id: int) -> float:
-        connection = None
-        try: 
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
             query = f"""
                 SELECT SUM(deposit)
@@ -1366,18 +1051,8 @@ class DatabaseManager(SharedFunctions):
             
             return result[0] if result and result[0] is not None else 0.0
 
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return 0.0  # Fail-safe default
-
-        finally:
-            if connection:
-                connection.close()
-
     def get_customer_service_sum(self, customer_id: int) -> float:
-        connection = None
-        try: 
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
             query = f"""
                 SELECT SUM(paid_price)
@@ -1388,14 +1063,6 @@ class DatabaseManager(SharedFunctions):
             result = cursor.fetchone()
             
             return result[0] if result and result[0] is not None else 0.0
-
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return 0.0  # Fail-safe default
-
-        finally:
-            if connection:
-                connection.close()
 
     def get_col_sum(self, table:str, col:str, where_item:str, target:int) -> float:
         """ 
@@ -1409,9 +1076,7 @@ class DatabaseManager(SharedFunctions):
         Returns:
             float: The sum of the entire selected column.
         """
-        connection = None
-        try: 
-            connection = db.connect(self.get_database_ref())
+        with self.db_connection() as connection: 
             cursor = connection.cursor()
             query = f"""
                 SELECT SUM({col})
@@ -1422,283 +1087,257 @@ class DatabaseManager(SharedFunctions):
             result = cursor.fetchone()
             
             return result[0] if result and result[0] is not None else 0.0
-
-        except db.Error as err:
-            print(f"Database error: {err}")
-            return 0.0  # Fail-safe default
-
-        finally:
-            if connection:
-                connection.close()
-
         
-
-
-    
-
-    
-
-    def prepare_database(self,database_reference:str) -> bool:
+    def prepare_database(self) :
         """
         Create a database and its tables if they not exists.
-        
-        :param database_reference: a full database path.
-        :type database_reference: str
-        :return: True if the database was prepared successfully.
-        :rtype: bool
-        
-        :example:
-            >>> db_ref = "./database_path/database.db"
-            >>> obj.prepare_database(db_ref)
-            True
-
         """
         
-        conn = db.connect(database_reference)
-        cursor = conn.cursor()
+        with self.db_connection() as connection: 
+            cursor = connection.cursor()
 
-        # List of SQL commands to create each table
-        create_tables_sql = [
-            # Suppliers
-            """
-            CREATE TABLE IF NOT EXISTS suppliers (
-                id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL,
-                tel TEXT,
-                is_deleted BOOLEAN DEFAULT 0
-            );
-            """,
+            # List of SQL commands to create each table
+            create_tables_sql = [
+                # Suppliers
+                """
+                CREATE TABLE IF NOT EXISTS suppliers (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    tel TEXT,
+                    is_deleted BOOLEAN DEFAULT 0
+                );
+                """,
 
-            # Customers
-            """
-            CREATE TABLE IF NOT EXISTS customers (
-                id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL,
-                tel TEXT,
-                is_deleted BOOLEAN DEFAULT 0
-            );
-            """,
+                # Customers
+                """
+                CREATE TABLE IF NOT EXISTS customers (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    tel TEXT,
+                    is_deleted BOOLEAN DEFAULT 0
+                );
+                """,
 
-            # Employees
-            """
-            CREATE TABLE IF NOT EXISTS employees (
-                id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL,
-                tel TEXT,
-                is_deleted BOOLEAN DEFAULT 0
-            );
-            """,
+                # Employees
+                """
+                CREATE TABLE IF NOT EXISTS employees (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    tel TEXT,
+                    is_deleted BOOLEAN DEFAULT 0
+                );
+                """,
 
-            # Suppliers Invoices
-            """
-            CREATE TABLE IF NOT EXISTS purchase_invoices (
-                id INTEGER PRIMARY KEY,
-                supplier_id INTEGER NOT NULL,
-                invoice_number TEXT,           -- Optional: unique invoice code
-                total TEXT,
-                deposit TEXT,
-                created_at TEXT ,
-                FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
-            );
+                # Suppliers Invoices
+                """
+                CREATE TABLE IF NOT EXISTS purchase_invoices (
+                    id INTEGER PRIMARY KEY,
+                    supplier_id INTEGER NOT NULL,
+                    invoice_number TEXT,           -- Optional: unique invoice code
+                    total TEXT,
+                    deposit TEXT,
+                    created_at TEXT ,
+                    FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
+                );
 
-            """,
+                """,
 
-            # Product
-            """
-            CREATE TABLE IF NOT EXISTS products (
-                id INTEGER PRIMARY KEY,
-                barcode TEXT,
-                name TEXT NOT NULL,
-                purchase_price REAL,
-                sale_price REAL,
-                quantity INTEGER,
-                invoice_id INTEGER,
-                is_deleted BOOLEAN DEFAULT 0,  -- Soft delete flag
-                FOREIGN KEY (invoice_id) REFERENCES purchase_invoices(id)
-            );
+                # Product
+                """
+                CREATE TABLE IF NOT EXISTS products (
+                    id INTEGER PRIMARY KEY,
+                    barcode TEXT,
+                    name TEXT NOT NULL,
+                    purchase_price REAL,
+                    sale_price REAL,
+                    quantity INTEGER,
+                    invoice_id INTEGER,
+                    is_deleted BOOLEAN DEFAULT 0,  -- Soft delete flag
+                    FOREIGN KEY (invoice_id) REFERENCES purchase_invoices(id)
+                );
 
-            """,
+                """,
 
-            # purchases_history
-            """
-            CREATE TABLE IF NOT EXISTS purchases_history (
-                id INTEGER PRIMARY KEY,
-                invoice_id INTEGER NOT NULL,
-                product_id INTEGER,                 -- FK to products, nullable if you allow free-text items
-                product_name TEXT NOT NULL,        -- Snapshot of name
-                barcode TEXT,                      -- Optional snapshot of barcode
-                quantity INTEGER NOT NULL,
-                purchase_price REAL NOT NULL,      -- Snapshot of price at purchase time
-                sale_price REAL,                   -- Optional: expected sale price
-                total REAL GENERATED ALWAYS AS (quantity * purchase_price) STORED,  -- Auto-calculated
-                FOREIGN KEY (invoice_id) REFERENCES purchase_invoices(id),
-                FOREIGN KEY (product_id) REFERENCES products(id)
-            );
+                # purchases_history
+                """
+                CREATE TABLE IF NOT EXISTS purchases_history (
+                    id INTEGER PRIMARY KEY,
+                    invoice_id INTEGER NOT NULL,
+                    product_id INTEGER,                 -- FK to products, nullable if you allow free-text items
+                    product_name TEXT NOT NULL,        -- Snapshot of name
+                    barcode TEXT,                      -- Optional snapshot of barcode
+                    quantity INTEGER NOT NULL,
+                    purchase_price REAL NOT NULL,      -- Snapshot of price at purchase time
+                    sale_price REAL,                   -- Optional: expected sale price
+                    total REAL GENERATED ALWAYS AS (quantity * purchase_price) STORED,  -- Auto-calculated
+                    FOREIGN KEY (invoice_id) REFERENCES purchase_invoices(id),
+                    FOREIGN KEY (product_id) REFERENCES products(id)
+                );
 
-            """,
+                """,
 
-            # Customers Invoices
-            """
-            CREATE TABLE IF NOT EXISTS sale_invoices (
-                id INTEGER PRIMARY KEY,
-                customer_id INTEGER NOT NULL,
-                invoice_number TEXT,           -- Optional: unique invoice code
-                total TEXT,
-                deposit TEXT,
-                created_at TEXT ,
-                FOREIGN KEY (customer_id) REFERENCES customers(id)
-            );
-            """,
+                # Customers Invoices
+                """
+                CREATE TABLE IF NOT EXISTS sale_invoices (
+                    id INTEGER PRIMARY KEY,
+                    customer_id INTEGER NOT NULL,
+                    invoice_number TEXT,           -- Optional: unique invoice code
+                    total TEXT,
+                    deposit TEXT,
+                    created_at TEXT ,
+                    FOREIGN KEY (customer_id) REFERENCES customers(id)
+                );
+                """,
 
-            # Sales History
-            """
-            CREATE TABLE IF NOT EXISTS sales_history (
-                id INTEGER PRIMARY KEY,
-                invoice_id INTEGER NOT NULL,
-                product_id INTEGER,                 -- FK to products, nullable if you allow free-text items
-                product_name TEXT NOT NULL,        -- Snapshot of name
-                barcode TEXT,                      -- Optional snapshot of barcode
-                quantity INTEGER NOT NULL,
-                purchase_price REAL NOT NULL,      -- Snapshot of price at sale time
-                sale_price REAL,                   -- Optional: expected sale price
-                total REAL GENERATED ALWAYS AS (quantity * sale_price) STORED,  -- Auto-calculated
-                FOREIGN KEY (invoice_id) REFERENCES sale_invoices(id),
-                FOREIGN KEY (product_id) REFERENCES products(id)
-            );
-            """,
+                # Sales History
+                """
+                CREATE TABLE IF NOT EXISTS sales_history (
+                    id INTEGER PRIMARY KEY,
+                    invoice_id INTEGER NOT NULL,
+                    product_id INTEGER,                 -- FK to products, nullable if you allow free-text items
+                    product_name TEXT NOT NULL,        -- Snapshot of name
+                    barcode TEXT,                      -- Optional snapshot of barcode
+                    quantity INTEGER NOT NULL,
+                    purchase_price REAL NOT NULL,      -- Snapshot of price at sale time
+                    sale_price REAL,                   -- Optional: expected sale price
+                    total REAL GENERATED ALWAYS AS (quantity * sale_price) STORED,  -- Auto-calculated
+                    FOREIGN KEY (invoice_id) REFERENCES sale_invoices(id),
+                    FOREIGN KEY (product_id) REFERENCES products(id)
+                );
+                """,
 
-            # Suppliers Transactions
-            """
-            CREATE TABLE IF NOT EXISTS suppliers_transactions (
-                id INTEGER PRIMARY KEY,
-                supplier_id INTEGER,
-                invoice_id INTEGER,             -- ✅ NEW: optional link to a purchase invoice
-                note TEXT,
-                amount REAL,
-                type TEXT,                      -- e.g., 'debt', 'deposit'
-                created TEXT,
-                FOREIGN KEY (supplier_id) REFERENCES suppliers(id),
-                FOREIGN KEY (invoice_id) REFERENCES purchase_invoices(id)  -- ✅ new FK
-            );
+                # Suppliers Transactions
+                """
+                CREATE TABLE IF NOT EXISTS suppliers_transactions (
+                    id INTEGER PRIMARY KEY,
+                    supplier_id INTEGER,
+                    invoice_id INTEGER,             -- ✅ NEW: optional link to a purchase invoice
+                    note TEXT,
+                    amount REAL,
+                    type TEXT,                      -- e.g., 'debt', 'deposit'
+                    created TEXT,
+                    FOREIGN KEY (supplier_id) REFERENCES suppliers(id),
+                    FOREIGN KEY (invoice_id) REFERENCES purchase_invoices(id)  -- ✅ new FK
+                );
 
-            """,
+                """,
 
-            # Employees Withdrawals
-            """
-            CREATE TABLE IF NOT EXISTS employees_withdrawals (
-                id INTEGER PRIMARY KEY,
-                employee_id INTEGER,
-                note TEXT,
-                amount REAL,
-                created TEXT,
-                FOREIGN KEY (employee_id) REFERENCES employees(id)
-            );
-            """,
+                # Employees Withdrawals
+                """
+                CREATE TABLE IF NOT EXISTS employees_withdrawals (
+                    id INTEGER PRIMARY KEY,
+                    employee_id INTEGER,
+                    note TEXT,
+                    amount REAL,
+                    created TEXT,
+                    FOREIGN KEY (employee_id) REFERENCES employees(id)
+                );
+                """,
 
-            # Expenses Categories
-            """
-            CREATE TABLE IF NOT EXISTS expenses_categories (
-                id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL,
-                is_deleted BOOLEAN DEFAULT 0
-            );
-            """,
+                # Expenses Categories
+                """
+                CREATE TABLE IF NOT EXISTS expenses_categories (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    is_deleted BOOLEAN DEFAULT 0
+                );
+                """,
 
-            # Expenses
-            """
-            CREATE TABLE IF NOT EXISTS expenses (
-                id INTEGER PRIMARY KEY,
-                note TEXT,
-                amount REAL,
-                category_id INTEGER,
-                created TEXT,
-                FOREIGN KEY (category_id) REFERENCES expenses_categories(id)
-            );
-            """,
+                # Expenses
+                """
+                CREATE TABLE IF NOT EXISTS expenses (
+                    id INTEGER PRIMARY KEY,
+                    note TEXT,
+                    amount REAL,
+                    category_id INTEGER,
+                    created TEXT,
+                    FOREIGN KEY (category_id) REFERENCES expenses_categories(id)
+                );
+                """,
 
-            # Services Categories
-            """
-            CREATE TABLE IF NOT EXISTS services_categories (
-                id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL,
-                is_deleted BOOLEAN DEFAULT 0  -- Soft delete flag
-            );
-            """,
+                # Services Categories
+                """
+                CREATE TABLE IF NOT EXISTS services_categories (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    is_deleted BOOLEAN DEFAULT 0  -- Soft delete flag
+                );
+                """,
 
-            # Services
-            """
-            CREATE TABLE IF NOT EXISTS services (
-                id INTEGER PRIMARY KEY,
-                customer_id INTEGER,
-                category_id INTEGER,
-                description TEXT,
-                default_price REAL,
-                paid_price REAL,
-                created TEXT,
-                FOREIGN KEY (customer_id) REFERENCES customers(id),
-                FOREIGN KEY (category_id) REFERENCES services_categories(id)
-            );
-            """,
+                # Services
+                """
+                CREATE TABLE IF NOT EXISTS services (
+                    id INTEGER PRIMARY KEY,
+                    customer_id INTEGER,
+                    category_id INTEGER,
+                    description TEXT,
+                    default_price REAL,
+                    paid_price REAL,
+                    created TEXT,
+                    FOREIGN KEY (customer_id) REFERENCES customers(id),
+                    FOREIGN KEY (category_id) REFERENCES services_categories(id)
+                );
+                """,
 
-            # Customers Payments
-            """
-            CREATE TABLE IF NOT EXISTS customers_payments (
-                id INTEGER PRIMARY KEY,
-                customer_id INTEGER,
-                amount REAL,
-                note TEXT,
-                created TEXT,
-                FOREIGN KEY (customer_id) REFERENCES customers(id)
-            );
-            """,
+                # Customers Payments
+                """
+                CREATE TABLE IF NOT EXISTS customers_payments (
+                    id INTEGER PRIMARY KEY,
+                    customer_id INTEGER,
+                    amount REAL,
+                    note TEXT,
+                    created TEXT,
+                    FOREIGN KEY (customer_id) REFERENCES customers(id)
+                );
+                """,
 
-            # Mobiles
-            """
-            CREATE TABLE IF NOT EXISTS mobiles (
-                id INTEGER PRIMARY KEY,
-                model TEXT,
-                color TEXT,
-                price REAL,
-                serial TEXT,
-                note TEXT,
-                seller_name TEXT,
-                seller_tel TEXT,
-                seller_identify_id TEXT,
-                document_type INTEGER,
-                created TEXT,
-                FOREIGN KEY (document_type) REFERENCES documents_types(id)
-            );
-            """,
+                # Mobiles
+                """
+                CREATE TABLE IF NOT EXISTS mobiles (
+                    id INTEGER PRIMARY KEY,
+                    model TEXT,
+                    color TEXT,
+                    price REAL,
+                    serial TEXT,
+                    note TEXT,
+                    seller_name TEXT,
+                    seller_tel TEXT,
+                    seller_identify_id TEXT,
+                    document_type INTEGER,
+                    created TEXT,
+                    FOREIGN KEY (document_type) REFERENCES documents_types(id)
+                );
+                """,
 
-            # Documents Types
-            """
-            CREATE TABLE IF NOT EXISTS documents_types (
-                id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL
-            );
-            """,
+                # Documents Types
+                """
+                CREATE TABLE IF NOT EXISTS documents_types (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT NOT NULL
+                );
+                """,
 
-            # Requested Products
-            """
-            CREATE TABLE IF NOT EXISTS requested_products (
-                id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL,
-                created TEXT
-            );
-            """
-        ]
+                # Requested Products
+                """
+                CREATE TABLE IF NOT EXISTS requested_products (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    created TEXT
+                );
+                """
+            ]
 
-        # Execute each create table statement
-        for sql in create_tables_sql:
-            cursor.execute(sql)
+            # Execute each create table statement
+            for sql in create_tables_sql:
+                cursor.execute(sql)
 
-        # Commit changes and close connection
-        conn.commit()
-        conn.close()
+            # Commit changes and close connection
+            connection.commit()
+       
         
         # Create a default customer
         self.create_default_column("customers", "name")
         self.create_default_column("expenses_categories", "name")
 
-        print("Database and tables created successfully.")
+        logging.info("Database tables created successfully.")
     
